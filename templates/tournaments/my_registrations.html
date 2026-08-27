@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои регистрации - Combat Platform{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-clipboard-list me-3 text-primary"></i>Мои регистрации</h1>
+
+<div class="card shadow-sm">
+    <div class="list-group list-group-flush">
+        {% for reg in registrations %}
+            <div class="list-group-item">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <h5 class="mb-1"><a href="{% url 'tournaments:tournament_detail' reg.tournament.id %}">{{ reg.tournament.name }}</a></h5>
+                        <p class="mb-1 text-muted">
+                            <i class="fas fa-calendar me-1"></i>{{ reg.tournament.start_date|date:"d.m.Y" }} - {{ reg.tournament.end_date|date:"d.m.Y" }}
+                        </p>
+                        {% if reg.age_weight_category %}
+                            <span class="badge bg-info">{{ reg.age_weight_category.name }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="text-end">
+                        {% if reg.is_approved %}
+                            <span class="badge bg-success">Допущен</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Ожидает</span>
+                        {% endif %}
+                        <div class="mt-2">
+                            <small class="text-muted">Прогресс допуска:</small>
+                            <div class="progress" style="width: 120px; height: 8px;">
+                                <div class="progress-bar bg-{% if reg.completion_percent == 100 %}success{% else %}warning{% endif %}" style="width: {{ reg.completion_percent }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="list-group-item text-center text-muted py-5">
+                <i class="fas fa-inbox fa-3x mb-3"></i>
+                <h5>Нет регистраций</h5>
+                <a href="{% url 'tournaments:tournament_list' %}" class="btn btn-success btn-sm mt-2">Найти турнир</a>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

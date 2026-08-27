@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои бои - Combat Platform{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-list me-3 text-primary"></i>Мои бои</h1>
+
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Бой</th>
+                    <th>Турнир</th>
+                    <th>Категория</th>
+                    <th>Раунд</th>
+                    <th>Статус</th>
+                    <th>Победитель</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fight in fights %}
+                    <tr class="{% if fight.status == 'completed' %}table-success{% elif fight.status == 'in_progress' %}table-warning{% endif %}">
+                        <td>{{ fight.fighter1 }} vs {{ fight.fighter2|default:"—" }}</td>
+                        <td>{{ fight.tournament.name }}</td>
+                        <td>{{ fight.age_weight_category.name|default:"—" }}</td>
+                        <td>{{ fight.round_number }}</td>
+                        <td>
+                            <span class="badge bg-{% if fight.status == 'completed' %}success{% elif fight.status == 'in_progress' %}warning text-dark{% else %}secondary{% endif %}">
+                                {{ fight.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ fight.winner|default:"—" }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="6" class="text-center text-muted py-4">Нет боёв</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

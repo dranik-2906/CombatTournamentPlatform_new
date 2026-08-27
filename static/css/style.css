@@ -1,0 +1,26 @@
+html, body { min-height: 100vh; }
+body { display: flex; flex-direction: column; background-color: #f8f9fa; }
+main { flex: 1; }
+
+.card { transition: box-shadow 0.2s ease; }
+.card.hover-shadow:hover { box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15) !important; }
+
+.navbar-brand { font-size: 1.3rem; }
+
+.breadcrumb { background: transparent; padding: 0; }
+
+.table th { font-weight: 600; font-size: 0.875rem; }
+.table td { vertical-align: middle; }
+
+.alert { border-radius: 0.5rem; }
+
+.progress { border-radius: 1rem; }
+
+.btn-group-sm > .btn, .btn-sm { border-radius: 0.375rem; }
+
+/* Адаптивность таблиц */
+@media (max-width: 768px) {
+    .table-responsive { font-size: 0.875rem; }
+    h1 { font-size: 1.5rem; }
+    .display-5 { font-size: 1.75rem; }
+}

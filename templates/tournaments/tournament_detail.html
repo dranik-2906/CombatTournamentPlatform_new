@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ tournament.name }} - Combat Platform{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_list' %}">Турниры</a></li>
+        <li class="breadcrumb-item active">{{ tournament.name }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1>{{ tournament.name }}</h1>
+        <p class="text-muted mb-1">
+            <i class="fas fa-calendar me-2"></i>{{ tournament.start_date|date:"d.m.Y" }} - {{ tournament.end_date|date:"d.m.Y" }}
+            <span class="mx-2">|</span>
+            <i class="fas fa-map-marker-alt me-2"></i>{{ tournament.location|default:"Не указано" }}
+        </p>
+        <span class="badge bg-{% if tournament.status_display == 'В процессе' %}success{% elif tournament.status_display == 'Запланирован' %}info{% else %}secondary{% endif %} fs-6">
+            {{ tournament.status_display }}
+        </span>
+    </div>
+    {% if is_admin %}
+        <div class="dropdown">
+            <button class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-cog me-1"></i>Управление
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'tournaments:manage_categories' tournament.id %}"><i class="fas fa-tags me-2"></i>Категории</a></li>
+                <li><a class="dropdown-item" href="{% url 'tournaments:participants_management' %}?tournament={{ tournament.id }}"><i class="fas fa-users me-2"></i>Участники</a></li>
+                <li><a class="dropdown-item" href="{% url 'tournaments:fights_management' tournament.id %}"><i class="fas fa-fist-raised me-2"></i>Бои</a></li>
+                <li><a class="dropdown-item" href="{% url 'tournaments:timer_settings' tournament.id %}"><i class="fas fa-clock me-2"></i>Таймер</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="{% url 'tournaments:edit_tournament' tournament.id %}"><i class="fas fa-edit me-2"></i>Редактировать</a></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'tournaments:delete_tournament' tournament.id %}"><i class="fas fa-trash me-2"></i>Удалить</a></li>
+            </ul>
+        </div>
+    {% endif %}
+</div>
+
+{% if tournament.description %}
+    <div class="alert alert-light border mb-4">{{ tournament.description }}</div>
+{% endif %}
+
+<!-- Статистика -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h4 class="text-primary">{{ tournament.reg_count }}</h4>
+                <small class="text-muted">Регистраций</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h4 class="text-success">{{ tournament.approved_count }}</h4>
+                <small class="text-muted">Допущено</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h4 class="text-warning">{{ tournament.fight_count }}</h4>
+                <small class="text-muted">Всего боёв</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center bg-light">
+            <div class="card-body">
+                <h4 class="text-info">{{ tournament.completed_count }}</h4>
+                <small class="text-muted">Завершено боёв</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Категории и сетки -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Категории</h5>
+                {% if is_admin %}
+                    <a href="{% url 'tournaments:manage_categories' tournament.id %}" class="btn btn-sm btn-outline-primary">Управлять</a>
+                {% endif %}
+            </div>
+            <div class="list-group list-group-flush">
+                {% for cat in categories %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>{{ cat.name }}</strong>
+                            <small class="text-muted d-block">
+                                {{ cat.get_gender_display }} | {{ cat.min_weight }} - {{ cat.max_weight }} кг | {{ cat.min_birth_year }} - {{ cat.max_birth_year }}
+                            </small>
+                        </div>
+                        <span class="badge bg-secondary">{{ cat.registrations.count }} чел.</span>
+                    </div>
+                {% empty %}
+                    <div class="list-group-item text-muted text-center py-4">Категории не созданы</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Сетки</h5>
+                {% if is_admin %}
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'tournaments:generate_brackets' tournament.id %}" class="btn btn-success">Сгенерировать</a>
+                        <a href="{% url 'tournaments:advance_winners' tournament.id %}" class="btn btn-warning">Продвинуть</a>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="list-group list-group-flush">
+                {% for bracket in brackets %}
+                    <a href="{% url 'tournaments:bracket_view' tournament.id bracket.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ bracket.name }}</strong>
+                            <span class="badge bg-{% if bracket.status == 'completed' %}success{% elif bracket.status == 'in_progress' %}warning text-dark{% else %}secondary{% endif %}">
+                                {{ bracket.get_status_display }}
+                            </span>
+                        </div>
+                        <small class="text-muted">{{ bracket.get_bracket_type_display }} | {{ bracket.size }} участников</small>
+                    </a>
+                {% empty %}
+                    <div class="list-group-item text-muted text-center py-4">Сетки не созданы</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Действия -->
+<div class="d-flex gap-2 flex-wrap">
+    {% if user.is_authenticated and not is_registered and user_role and user_role.label == 'Участник' %}
+        <a href="{% url 'tournaments:register_for_tournament' tournament.id %}" class="btn btn-success">
+            <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+        </a>
+    {% endif %}
+    {% if user.is_authenticated %}
+        <a href="{% url 'tournaments:fights_management' tournament.id %}" class="btn btn-outline-primary">
+            <i class="fas fa-fist-raised me-2"></i>Бои
+        </a>
+    {% endif %}
+</div>
+{% endblock %}

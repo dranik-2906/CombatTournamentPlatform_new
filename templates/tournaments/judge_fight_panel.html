@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+{% if fight.status == 'completed' %}Результаты боя{% else %}Панель судьи - Бой #{{ fight.match_number }}{% endif %}
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:judge_dashboard' %}">Панель судьи</a></li>
+        <li class="breadcrumb-item active">Бой #{{ fight.match_number }}</li>
+    </ol>
+</nav>
+
+<div class="row">
+    <!-- Левая колонка: инфо, таймер, настройки -->
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Информация</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Турнир:</strong> {{ fight.tournament.name }}</p>
+                <p><strong>Категория:</strong> {{ fight.age_weight_category|default:"—" }}</p>
+                <p><strong>Раунд:</strong> {{ fight.round_number }}</p>
+                <p><strong>Статус:</strong>
+                    <span class="badge bg-{% if fight.status == 'completed' %}success{% elif fight.status == 'in_progress' %}warning text-dark{% else %}secondary{% endif %}">
+                        {{ fight.get_status_display }}
+                    </span>
+                </p>
+            </div>
+        </div>
+
+        {% if fight.status != 'completed' %}
+        <!-- Настройки таймера (сворачиваемые) -->
+        <div class="card shadow-sm mb-3">
+            <div class="card-header bg-secondary text-white" style="cursor:pointer;" data-bs-toggle="collapse" data-bs-target="#timerSettingsCollapse" aria-expanded="false">
+                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Настройки таймера</h6>
+            </div>
+            <div class="collapse" id="timerSettingsCollapse">
+                <div class="card-body">
+                    <form method="post" action="">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_timer" value="1">
+                        <div class="mb-2">
+                            <label class="form-label small">Длительность раунда (сек)</label>
+                            <input type="number" name="round_duration" class="form-control form-control-sm" value="{{ timer_settings.round_duration }}" min="10" step="10">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Длительность перерыва (сек)</label>
+                            <input type="number" name="break_duration" class="form-control form-control-sm" value="{{ timer_settings.break_duration }}" min="5" step="5">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Количество раундов</label>
+                            <input type="number" name="number_of_rounds" class="form-control form-control-sm" value="{{ timer_settings.number_of_rounds }}" min="1" max="20">
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-sm w-100">
+                            <i class="fas fa-save me-1"></i>Сохранить
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Таймер -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-stopwatch me-2"></i>Таймер</h5>
+            </div>
+            <div class="card-body text-center">
+                <h1 id="timer-display" class="display-4 fw-bold font-monospace">03:00</h1>
+                <p class="text-muted mb-3">Раунд <span id="current-round-display">1</span> / <span id="total-rounds-display">{{ timer_settings.number_of_rounds }}</span></p>
+                <div class="btn-group w-100">
+                    <button class="btn btn-success" id="btn-start" onclick="timerAction('start_round')"><i class="fas fa-play"></i></button>
+                    <button class="btn btn-warning" id="btn-pause" onclick="timerAction('pause_round')"><i class="fas fa-pause"></i></button>
+                    <button class="btn btn-danger" id="btn-reset" onclick="timerAction('reset_round')"><i class="fas fa-redo"></i></button>
+                </div>
+                <button class="btn btn-outline-primary btn-sm w-100 mt-2" onclick="timerAction('next_round')">
+                    <i class="fas fa-forward me-1"></i>Следующий раунд
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Правая колонка: бойцы и результат -->
+    <div class="col-md-8">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card border-primary shadow-sm h-100">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h5 class="mb-0">{{ fight.fighter1.full_name }}</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 class="display-1 text-primary" id="score1-display">{{ fight.score_fighter1 }}</h1>
+                        {% if fight.status != 'completed' %}
+                        <div class="btn-group mt-3">
+                            <button class="btn btn-outline-primary btn-lg" onclick="changeScore(1, 1)">+1</button>
+                            <button class="btn btn-outline-primary btn-lg" onclick="changeScore(1, -1)">-1</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-danger shadow-sm h-100">
+                    <div class="card-header bg-danger text-white text-center">
+                        <h5 class="mb-0">{{ fight.fighter2.full_name|default:"—" }}</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 class="display-1 text-danger" id="score2-display">{{ fight.score_fighter2 }}</h1>
+                        {% if fight.status != 'completed' %}
+                        <div class="btn-group mt-3">
+                            <button class="btn btn-outline-danger btn-lg" onclick="changeScore(2, 1)">+1</button>
+                            <button class="btn btn-outline-danger btn-lg" onclick="changeScore(2, -1)">-1</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if fight.status == 'completed' %}
+        <!-- РЕЗУЛЬТАТЫ БОЯ -->
+        <div class="card shadow-sm border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Результаты боя</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center mb-4">
+                    <div class="col-md-6">
+                        <h3 class="text-primary">{{ fight.fighter1.full_name }}</h3>
+                        <h1 class="display-4">{{ fight.score_fighter1 }}</h1>
+                    </div>
+                    <div class="col-md-6">
+                        <h3 class="text-danger">{{ fight.fighter2.full_name|default:"—" }}</h3>
+                        <h1 class="display-4">{{ fight.score_fighter2 }}</h1>
+                    </div>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <h4><i class="fas fa-crown text-warning me-2"></i>Победитель</h4>
+                    {% if fight.winner %}
+                        <h2 class="text-success fw-bold">{{ fight.winner.full_name }}</h2>
+                        {% if fight.win_method %}
+                            <p class="text-muted">Метод: {{ fight.get_win_method_display }}</p>
+                        {% endif %}
+                    {% else %}
+                        <h2 class="text-muted">Ничья</h2>
+                    {% endif %}
+                </div>
+                {% if fight.judge_notes %}
+                    <hr>
+                    <h6><i class="fas fa-sticky-note me-2"></i>Судейские заметки:</h6>
+                    <div class="alert alert-light border">{{ fight.judge_notes|linebreaks }}</div>
+                {% endif %}
+                <div class="text-center mt-3">
+                    <a href="{% url 'tournaments:fights_management' fight.tournament.id %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-1"></i>Назад к списку боёв
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Форма завершения -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Завершение боя</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="finish-form">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6">{{ form.winner|as_crispy_field }}</div>
+                        <div class="col-md-6">{{ form.win_method|as_crispy_field }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Очки бойца 1</label>
+                            <input type="number" name="score_fighter1" id="score_fighter1" class="form-control" value="{{ fight.score_fighter1 }}" min="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Очки бойца 2</label>
+                            <input type="number" name="score_fighter2" id="score_fighter2" class="form-control" value="{{ fight.score_fighter2 }}" min="0">
+                        </div>
+                    </div>
+                    {{ form.judge_notes|as_crispy_field }}
+                    {{ form.is_draw|as_crispy_field }}
+                    <button type="submit" class="btn btn-success btn-lg w-100 mt-3">
+                        <i class="fas fa-check-circle me-2"></i>Завершить бой
+                    </button>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    {% if fight.status != 'completed' %}
+    // --- Очки ---
+    let score1 = {{ fight.score_fighter1 }};
+    let score2 = {{ fight.score_fighter2 }};
+
+    function changeScore(fighter, delta) {
+        if (fighter === 1) {
+            score1 = Math.max(0, score1 + delta);
+            document.getElementById('score1-display').textContent = score1;
+            document.getElementById('score_fighter1').value = score1;
+        } else {
+            score2 = Math.max(0, score2 + delta);
+            document.getElementById('score2-display').textContent = score2;
+            document.getElementById('score_fighter2').value = score2;
+        }
+    }
+
+    // --- Таймер ---
+    let roundDuration = {{ timer_settings.round_duration|default:180 }};
+    let breakDuration = {{ timer_settings.break_duration|default:60 }};
+    let totalRounds = {{ timer_settings.number_of_rounds|default:3 }};
+    let currentRound = 1;
+    let timeLeft = roundDuration;
+    let isRunning = false;
+    let timerInterval = null;
+    let isBreak = false;
+
+    function formatTime(seconds) {
+        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+        const s = (seconds % 60).toString().padStart(2, '0');
+        return m + ':' + s;
+    }
+
+    function updateDisplay() {
+        document.getElementById('timer-display').textContent = formatTime(timeLeft);
+        document.getElementById('current-round-display').textContent = currentRound;
+        document.getElementById('total-rounds-display').textContent = totalRounds;
+    }
+
+    function playBeep() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.value = 880;
+            gain.gain.value = 0.1;
+            osc.start();
+            setTimeout(() => osc.stop(), 300);
+        } catch (e) {
+            // Audio не поддерживается — игнорируем
+        }
+    }
+
+    function startLocalTimer() {
+        if (timerInterval) clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+            if (timeLeft > 0) {
+                timeLeft--;
+                updateDisplay();
+                if (timeLeft === 10) playBeep(); // предупреждение за 10 сек
+            } else {
+                clearInterval(timerInterval);
+                isRunning = false;
+                playBeep();
+                alert((isBreak ? 'Перерыв' : 'Раунд ' + currentRound) + ' завершён!');
+            }
+        }, 1000);
+    }
+
+    function timerAction(action) {
+        // Локальное действие — выполняем мгновенно, не ждём сервер
+        if (action === 'start_round') {
+            if (!isRunning) {
+                isRunning = true;
+                isBreak = false;
+                startLocalTimer();
+            }
+        } else if (action === 'pause_round') {
+            isRunning = false;
+            clearInterval(timerInterval);
+        } else if (action === 'reset_round') {
+            isRunning = false;
+            clearInterval(timerInterval);
+            timeLeft = roundDuration;
+            currentRound = 1;
+            isBreak = false;
+            updateDisplay();
+        } else if (action === 'next_round') {
+            if (currentRound < totalRounds) {
+                currentRound++;
+                timeLeft = roundDuration;
+                isRunning = false;
+                isBreak = false;
+                clearInterval(timerInterval);
+                updateDisplay();
+            } else {
+                alert('Это был последний раунд');
+            }
+        }
+
+        // Фоновый запрос на сервер (не блокирует UI, не ломает таймер при ошибке)
+        const url = "{% url 'tournaments:timer_control' fight.tournament.id fight.id %}";
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({action: action})
+        }).catch(err => console.error('Fetch error:', err));
+    }
+
+    updateDisplay();
+    {% endif %}
+</script>
+{% endblock %}

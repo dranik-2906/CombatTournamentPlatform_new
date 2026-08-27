@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+
+{% block title %}Панель судьи - Combat Platform{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4"><i class="fas fa-gavel me-3 text-warning"></i>Панель судьи</h1>
+
+    <!-- ЗАПЛАНИРОВАННЫЕ -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Запланированные бои</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if scheduled %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>№</th>
+                                <th>Турнир</th>
+                                <th>Боец 1</th>
+                                <th>Боец 2</th>
+                                <th>Категория</th>
+                                <th>Раунд</th>
+                                <th class="text-end">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fight in scheduled %}
+                                <tr>
+                                    <td>{{ fight.match_number }}</td>
+                                    <td>{{ fight.tournament.name }}</td>
+                                    <td>{{ fight.fighter1.full_name }}</td>
+                                    <td>{{ fight.fighter2.full_name|default:"—" }}</td>
+                                    <td>{{ fight.age_weight_category.name|default:"—" }}</td>
+                                    <td>{{ fight.round_number }}</td>
+                                    <td class="text-end">
+                                        <a href="{% url 'tournaments:judge_fight_panel' fight.id %}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-play me-1"></i>Провести
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted">Нет запланированных боёв</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- В ПРОЦЕССЕ -->
+    <div class="card shadow-sm mb-4 border-warning">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Текущие бои</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if in_progress %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>№</th>
+                                <th>Турнир</th>
+                                <th>Боец 1</th>
+                                <th>Боец 2</th>
+                                <th>Раунд</th>
+                                <th class="text-end">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fight in in_progress %}
+                                <tr class="table-warning">
+                                    <td>{{ fight.match_number }}</td>
+                                    <td>{{ fight.tournament.name }}</td>
+                                    <td>{{ fight.fighter1.full_name }}</td>
+                                    <td>{{ fight.fighter2.full_name|default:"—" }}</td>
+                                    <td>{{ fight.current_round }} / {{ fight.tournament.timer_settings.number_of_rounds|default:"3" }}</td>
+                                    <td class="text-end">
+                                        <a href="{% url 'tournaments:judge_fight_panel' fight.id %}" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-stopwatch me-1"></i>Продолжить
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted">Нет боёв в процессе</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ЗАВЕРШЁННЫЕ -->
+    <div class="card shadow-sm mb-4 border-success">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Завершённые бои</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if completed %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>№</th>
+                                <th>Турнир</th>
+                                <th>Боец 1</th>
+                                <th>Боец 2</th>
+                                <th>Победитель</th>
+                                <th>Счёт</th>
+                                <th class="text-end">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for fight in completed %}
+                                <tr>
+                                    <td>{{ fight.match_number }}</td>
+                                    <td>{{ fight.tournament.name }}</td>
+                                    <td>{{ fight.fighter1.full_name }}</td>
+                                    <td>{{ fight.fighter2.full_name|default:"—" }}</td>
+                                    <td class="fw-bold text-success">{{ fight.winner.full_name|default:"—" }}</td>
+                                    <td>{{ fight.score_fighter1 }} : {{ fight.score_fighter2 }}</td>
+                                    <td class="text-end">
+                                        <a href="{% url 'tournaments:judge_fight_panel' fight.id %}" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-clipboard-list me-1"></i>Результаты
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="p-4 text-center text-muted">Нет завершённых боёв</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

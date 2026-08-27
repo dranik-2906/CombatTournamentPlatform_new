@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Импорт участников из Excel - {{ tournament.name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_list' %}">Турниры</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_detail' tournament.id %}">{{ tournament.name }}</a></li>
+        <li class="breadcrumb-item active">Импорт Excel</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-file-excel me-2"></i>Импорт участников из Excel</h5>
+            </div>
+            <div class="card-body">
+                <!-- Шаг 1: Скачать шаблон -->
+                <div class="alert alert-info">
+                    <h6><i class="fas fa-download me-2"></i>Шаг 1. Скачайте шаблон</h6>
+                    <p class="mb-2">Заполните файл строго по образцу. Система распознаёт колонки по названиям.</p>
+                    <a href="{% url 'tournaments:download_excel_template' tournament.id %}" class="btn btn-outline-primary">
+                        <i class="fas fa-download me-2"></i>Скачать шаблон (.xlsx)
+                    </a>
+                </div>
+
+                <!-- Требования -->
+                <div class="alert alert-light border mb-4">
+                    <h6><i class="fas fa-info-circle me-2 text-info"></i>Требования к файлу:</h6>
+                    <ul class="mb-0">
+                        <li>Формат: <strong>.xlsx</strong> или <strong>.xls</strong></li>
+                        <li>Первая строка — заголовки колонок (можно на русском)</li>
+                        <li>Обязательные колонки: <strong>Имя, Фамилия, Дата рождения, Пол, Вес, Клуб</strong></li>
+                        <li>Дата рождения: <code>ГГГГ-ММ-ДД</code> (например <code>2005-06-15</code>)</li>
+                        <li>Пол: <code>М</code> или <code>Ж</code></li>
+                        <li>Вес: число в килограммах, например <code>65.5</code></li>
+                    </ul>
+                </div>
+
+                <!-- Шаг 2: Загрузить -->
+                <h6 class="mb-3"><i class="fas fa-upload me-2"></i>Шаг 2. Загрузите заполненный файл</h6>
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+                    <div class="d-flex gap-2 mt-3">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-upload me-2"></i>Загрузить
+                        </button>
+                        <a href="{% url 'tournaments:tournament_detail' tournament.id %}" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

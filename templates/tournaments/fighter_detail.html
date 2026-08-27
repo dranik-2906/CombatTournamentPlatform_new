@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ fighter.full_name }} - Combat Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                {% if fighter.photo %}
+                    <img src="{{ fighter.photo.url }}" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                {% else %}
+                    <div class="rounded-circle bg-secondary bg-opacity-25 d-inline-flex align-items-center justify-content-center mb-3" style="width: 120px; height: 120px;">
+                        <i class="fas fa-user fa-3x text-secondary"></i>
+                    </div>
+                {% endif %}
+                <h4>{{ fighter.full_name }}</h4>
+                <p class="text-muted mb-1">{{ fighter.club }}</p>
+                <span class="badge bg-primary">{{ fighter.get_gender_display }}</span>
+                <span class="badge bg-secondary">{{ fighter.age }} лет</span>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+            <div class="card-header bg-dark text-white">
+                <h6 class="mb-0">Статистика</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h5 class="text-primary">{{ stats.total_fights }}</h5>
+                        <small class="text-muted">Боёв</small>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="text-success">{{ stats.wins }}</h5>
+                        <small class="text-muted">Побед</small>
+                    </div>
+                    <div class="col-4">
+                        <h5 class="text-danger">{{ stats.losses }}</h5>
+                        <small class="text-muted">Поражений</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Информация</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr><td width="30%"><strong>Клуб:</strong></td><td>{{ fighter.club }}</td></tr>
+                    <tr><td><strong>Тренер:</strong></td><td>{{ fighter.coach }}</td></tr>
+                    <tr><td><strong>Вес:</strong></td><td>{{ fighter.weight }} кг</td></tr>
+                    <tr><td><strong>Дата рождения:</strong></td><td>{{ fighter.date_of_birth|date:"d.m.Y" }}</td></tr>
+                    <tr><td><strong>Пол:</strong></td><td>{{ fighter.get_gender_display }}</td></tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow-sm mt-3">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Регистрации на турниры</h5>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for reg in registrations %}
+                    <a href="{% url 'tournaments:tournament_detail' reg.tournament.id %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between">
+                            <strong>{{ reg.tournament.name }}</strong>
+                            {% if reg.is_approved %}
+                                <span class="badge bg-success">Допущен</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">Ожидает</span>
+                            {% endif %}
+                        </div>
+                        {% if reg.age_weight_category %}
+                            <small class="text-muted">{{ reg.age_weight_category.name }}</small>
+                        {% endif %}
+                    </a>
+                {% empty %}
+                    <div class="list-group-item text-muted text-center">Нет регистраций</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

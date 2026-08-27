@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Управление участниками - Combat Platform{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-users me-3 text-success"></i>Управление участниками</h1>
+
+<!-- Выбор турнира и фильтры -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Турнир</label>
+                <select name="tournament" class="form-select" onchange="this.form.submit()">
+                    <option value="">-- Выберите турнир --</option>
+                    {% for t in tournaments %}
+                        <option value="{{ t.id }}" {% if selected and selected.id == t.id %}selected{% endif %}>{{ t.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if selected %}
+                <div class="col-md-3">
+                    <label class="form-label">Поиск</label>
+                    <input type="text" name="search" class="form-control" placeholder="Имя, фамилия, клуб..." value="{{ search }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Статус</label>
+                    <select name="status" class="form-select">
+                        <option value="" {% if not status_filter %}selected{% endif %}>Все</option>
+                        <option value="approved" {% if status_filter == 'approved' %}selected{% endif %}>Допущены</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Ожидают</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-primary"><i class="fas fa-search me-1"></i>Найти</button>
+                    <a href="?tournament={{ selected.id }}" class="btn btn-outline-secondary">Сбросить</a>
+                </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+{% if selected %}
+    <!-- Статистика -->
+    <div class="row g-2 mb-4">
+        <div class="col"><div class="card text-center bg-light"><div class="card-body py-2"><strong>{{ stats.total }}</strong><br><small class="text-muted">Всего</small></div></div></div>
+        <div class="col"><div class="card text-center bg-light"><div class="card-body py-2"><strong class="text-success">{{ stats.approved }}</strong><br><small class="text-muted">Допущены</small></div></div></div>
+        <div class="col"><div class="card text-center bg-light"><div class="card-body py-2"><strong class="text-warning">{{ stats.pending }}</strong><br><small class="text-muted">Ожидают</small></div></div></div>
+        <div class="col"><div class="card text-center bg-light"><div class="card-body py-2"><strong class="text-info">{{ stats.with_categories }}</strong><br><small class="text-muted">С категорией</small></div></div></div>
+    </div>
+
+    <!-- Действия -->
+    <div class="d-flex gap-2 mb-3 flex-wrap">
+        <a href="{% url 'tournaments:add_participant' selected.id %}" class="btn btn-success btn-sm"><i class="fas fa-plus me-1"></i>Добавить бойца</a>
+        <a href="{% url 'tournaments:add_participant_excel' selected.id %}" class="btn btn-outline-success btn-sm"><i class="fas fa-file-excel me-1"></i>Импорт Excel</a>
+        <a href="{% url 'tournaments:auto_assign' selected.id %}" class="btn btn-outline-primary btn-sm"><i class="fas fa-magic me-1"></i>Авто-категории</a>
+        <a href="{% url 'tournaments:manage_categories' selected.id %}" class="btn btn-outline-info btn-sm"><i class="fas fa-tags me-1"></i>Категории</a>
+        <a href="{% url 'tournaments:manage_checkpoints' selected.id %}" class="btn btn-outline-dark btn-sm"><i class="fas fa-clipboard-check me-1"></i>Чекпоинты</a>
+    </div>
+
+    <!-- Таблица -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover table-striped table-sm mb-0 align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Боец</th>
+                        <th>Клуб</th>
+                        <th>Вес</th>
+                        <th>Категория</th>
+                        <th>Чекпоинты</th>
+                        <th>Статус</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reg in registrations %}
+                        <tr>
+                            <td>
+                                <strong>{{ reg.fighter.full_name }}</strong><br>
+                                <small class="text-muted">{{ reg.fighter.get_gender_display }}, {{ reg.fighter.age }} лет</small>
+                            </td>
+                            <td>{{ reg.fighter.club|default:"—" }}</td>
+                            <td>{{ reg.fighter.weight|default:"—" }} кг</td>
+                            <td>
+                                {% if reg.age_weight_category %}
+                                    <span class="badge bg-info">{{ reg.age_weight_category.name }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Не назначена</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    {% for cp in selected.checkpoints.all %}
+                                        {% with status=reg.checkpoint_statuses.all|dictsort:"checkpoint_id" %}
+                                            {% for cs in reg.checkpoint_statuses.all %}
+                                                {% if cs.checkpoint_id == cp.id %}
+                                                    <span class="badge bg-{% if cs.is_checked %}success{% else %}secondary{% endif %}" title="{{ cp.name }}">
+                                                        {{ cp.code|default:cp.name|slice:":1" }}
+                                                    </span>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endwith %}
+                                    {% empty %}
+                                        <span class="text-muted small">—</span>
+                                    {% endfor %}
+                                </div>
+                            </td>
+                            <td>
+                                {% if reg.is_approved %}
+                                    <span class="badge bg-success">Допущен</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Ожидает</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal{{ reg.id }}">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="7" class="text-center text-muted py-4">Участников не найдено</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Модальные окна редактирования -->
+    {% for reg in registrations %}
+    <div class="modal fade" id="editModal{{ reg.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <form method="post" action="{% url 'tournaments:update_registration' reg.id %}">
+                    {% csrf_token %}
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Редактирование: {{ reg.fighter.full_name }}</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Имя</label>
+                                <input type="text" name="first_name" class="form-control" value="{{ reg.fighter.first_name }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Фамилия</label>
+                                <input type="text" name="last_name" class="form-control" value="{{ reg.fighter.last_name }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Дата рождения</label>
+                                <input type="date" name="date_of_birth" class="form-control" value="{{ reg.fighter.date_of_birth|date:'Y-m-d' }}">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Пол</label>
+                                <select name="gender" class="form-select">
+                                    <option value="M" {% if reg.fighter.gender == 'M' %}selected{% endif %}>Мужской</option>
+                                    <option value="F" {% if reg.fighter.gender == 'F' %}selected{% endif %}>Женский</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Вес (кг)</label>
+                                <input type="number" name="weight" class="form-control" step="0.1" value="{{ reg.fighter.weight }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Клуб</label>
+                                <input type="text" name="club" class="form-control" value="{{ reg.fighter.club }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Тренер</label>
+                                <input type="text" name="coach" class="form-control" value="{{ reg.fighter.coach }}">
+                            </div>
+
+                            <hr class="my-2">
+
+                            <!-- Динамические чекпоинты -->
+                            <div class="col-md-12">
+                                <h6><i class="fas fa-clipboard-check me-2"></i>Чекпоинты</h6>
+                                <div class="row g-2">
+                                    {% for cp in selected.checkpoints.all %}
+                                        {% with cs=reg.checkpoint_statuses.all|dictsort:"checkpoint_id" %}
+                                            {% for checkpoint_status in reg.checkpoint_statuses.all %}
+                                                {% if checkpoint_status.checkpoint_id == cp.id %}
+                                                    <div class="col-md-4">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox"
+                                                                name="checkpoint_{{ cp.id }}"
+                                                                id="cp_{{ reg.id }}_{{ cp.id }}"
+                                                                {% if checkpoint_status.is_checked %}checked{% endif %}>
+                                                            <label class="form-check-label" for="cp_{{ reg.id }}_{{ cp.id }}">
+                                                                {{ cp.name }} {% if cp.code %}<span class="badge bg-secondary">{{ cp.code }}</span>{% endif %}
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endwith %}
+                                    {% empty %}
+                                        <div class="col-12 text-muted">Чекпоинты не настроены. <a href="{% url 'tournaments:manage_checkpoints' selected.id %}">Добавить</a></div>
+                                    {% endfor %}
+                                </div>
+                                <div class="form-text mt-2">Когда отмечены все обязательные чекпоинты, статус автоматически сменится на «Допущен»</div>
+                            </div>
+
+                            <!-- Категория -->
+                            <div class="col-md-12">
+                                <label class="form-label">Возрастно-весовая категория</label>
+                                <select name="age_weight_category" class="form-select">
+                                    <option value="">-- Не назначена --</option>
+                                    {% for cat in age_weight_categories %}
+                                        <option value="{{ cat.id }}" {% if reg.age_weight_category and reg.age_weight_category.id == cat.id %}selected{% endif %}>
+                                            {{ cat.name }} ({{ cat.min_birth_year }}–{{ cat.max_birth_year }}, {{ cat.min_weight }}–{{ cat.max_weight }} кг)
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Сохранить</button>
+                    </div>
+                </form>
+
+                <!-- Удаление -->
+                <form method="post" action="{% url 'tournaments:delete_registration' reg.id %}" class="m-0">
+                    {% csrf_token %}
+                    <div class="px-3 pb-3">
+                        <button type="submit" class="btn btn-outline-danger w-100" onclick="return confirm('Удалить участника {{ reg.fighter.full_name }} из турнира?');">
+                            <i class="fas fa-trash me-1"></i>Удалить из турнира
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+    <div class="alert alert-info text-center">
+        <i class="fas fa-info-circle me-2"></i>Выберите турнир для управления участниками
+    </div>
+{% endif %}
+{% endblock %}

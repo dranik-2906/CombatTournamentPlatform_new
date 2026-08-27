@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Бойцы - Combat Platform{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-users me-3 text-success"></i>Бойцы</h1>
+</div>
+
+<!-- Фильтры -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Поиск по имени..." value="{{ search|default:'' }}">
+            </div>
+            <div class="col-md-3">
+                <select name="gender" class="form-select">
+                    <option value="">Все полы</option>
+                    <option value="M" {% if gender_filter == 'M' %}selected{% endif %}>Мужской</option>
+                    <option value="F" {% if gender_filter == 'F' %}selected{% endif %}>Женский</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="fas fa-search me-1"></i>Найти</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'tournaments:fighter_list' %}" class="btn btn-outline-secondary w-100">Сбросить</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="row g-3">
+    {% for fighter in fighters %}
+        <div class="col-md-4 col-lg-3">
+            <div class="card h-100 shadow-sm text-center">
+                <div class="card-body">
+                    {% if fighter.photo %}
+                        <img src="{{ fighter.photo.url }}" class="rounded-circle mb-3" style="width: 80px; height: 80px; object-fit: cover;">
+                    {% else %}
+                        <div class="rounded-circle bg-secondary bg-opacity-25 d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-user fa-2x text-secondary"></i>
+                        </div>
+                    {% endif %}
+                    <h6 class="card-title mb-1">{{ fighter.full_name }}</h6>
+                    <small class="text-muted d-block">{{ fighter.club }}</small>
+                    <small class="text-muted d-block">{{ fighter.weight|default:"—" }} кг | {{ fighter.get_gender_display }}</small>
+                    <span class="badge bg-secondary mt-2">{{ fighter.age }} лет</span>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <a href="{% url 'tournaments:fighter_detail' fighter.id %}" class="btn btn-sm btn-outline-primary w-100">Профиль</a>
+                </div>
+            </div>
+        </div>
+    {% empty %}
+        <div class="col-12 text-center py-5 text-muted">
+            <i class="fas fa-users fa-4x mb-3"></i>
+            <h4>Бойцов не найдено</h4>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

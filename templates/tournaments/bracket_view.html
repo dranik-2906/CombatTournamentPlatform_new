@@ -1,0 +1,840 @@
+{% extends 'base.html' %}
+{% load tournament_extras %}
+
+{% block title %}{{ bracket.name }} - Combat Platform{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ===== ОБЩИЕ СТИЛИ ===== */
+  .bracket-print-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+  }
+  .bracket-wrapper {
+    overflow-x: auto;
+    padding: 10px 0;
+  }
+
+  /* ===== ОЛИМПИЙСКАЯ / ПЛЕЙ-ОФФ ===== */
+  .bracket-arena {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    position: relative;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    min-height: 400px;
+    overflow-x: auto;
+  }
+  .round-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    min-width: 260px;
+    padding: 0 15px;
+    position: relative;
+    z-index: 2;
+  }
+  .round-title {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-align: center;
+    color: #6c757d;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #dee2e6;
+  }
+  .match-card {
+    background: white;
+    border: 1.5px solid #adb5bd;
+    border-radius: 6px;
+    margin: 8px 0;
+    position: relative;
+    z-index: 2;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: box-shadow 0.2s, border-color 0.2s;
+    min-height: 90px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .match-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-color: #6c757d; }
+  .match-card.completed { border-color: #198754; }
+  .match-card.in-progress { border-color: #ffc107; }
+  .fighter-row {
+    padding: 6px 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #e9ecef;
+    min-height: 44px;
+  }
+  .fighter-row:last-child { border-bottom: none; }
+  .fighter-row.winner { background: #d1e7dd; font-weight: 700; color: #0f5132; }
+  .fighter-row.loser { color: #6c757d; }
+  .fighter-row.bye-row { color: #adb5bd; font-style: italic; }
+  .score-badge {
+    font-weight: 700;
+    background: #e9ecef;
+    color: #495057;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    min-width: 28px;
+    text-align: center;
+    margin-left: 8px;
+  }
+  .fighter-row.winner .score-badge { background: #198754; color: white; }
+  .match-meta {
+    font-size: 0.75rem;
+    color: #6c757d;
+    padding: 4px 10px;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .bracket-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .bracket-svg path {
+    fill: none;
+    stroke: #adb5bd;
+    stroke-width: 2.5px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ===== КРУГОВАЯ ТАБЛИЦА ===== */
+  .round-robin-table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    font-size: 0.95rem;
+  }
+  .round-robin-table th {
+    background: #343a40;
+    color: white;
+    font-weight: 600;
+    text-align: center;
+    vertical-align: middle;
+    padding: 10px 6px;
+    border: 1px solid #495057;
+    font-size: 0.85rem;
+  }
+  .round-robin-table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 8px 6px;
+    border: 1px solid #dee2e6;
+    min-width: 60px;
+    height: 52px;
+  }
+  .round-robin-table td.fighter-cell {
+    text-align: left;
+    font-weight: 600;
+    background: #f8f9fa;
+    min-width: 180px;
+    white-space: nowrap;
+  }
+  .round-robin-table td.diagonal {
+    background: #adb5bd !important;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 5px, rgba(255,255,255,0.3) 5px, rgba(255,255,255,0.3) 10px) !important;
+  }
+  .round-robin-table td.win-cell {
+    background: #d1e7dd;
+    color: #0f5132;
+    font-weight: 700;
+  }
+  .round-robin-table td.loss-cell {
+    background: #f8d7da;
+    color: #842029;
+  }
+  .round-robin-table td.draw-cell {
+    background: #fff3cd;
+    color: #664d03;
+  }
+  .round-robin-table td.pending-cell {
+    color: #adb5bd;
+    font-style: italic;
+  }
+  .round-robin-table .score-big {
+    font-size: 1.1rem;
+    font-weight: 700;
+    display: block;
+    line-height: 1.2;
+  }
+  .round-robin-table .score-small {
+    font-size: 0.75rem;
+    color: #6c757d;
+    display: block;
+  }
+  .round-robin-table .col-num {
+    width: 40px;
+    background: #495057;
+  }
+  .round-robin-table .col-total {
+    width: 70px;
+    font-weight: 700;
+    background: #e9ecef;
+  }
+  .round-robin-table .col-place {
+    width: 60px;
+    font-weight: 700;
+    background: #e9ecef;
+  }
+  .round-robin-table .place-1 { background: #fff3cd !important; color: #664d03; }
+  .round-robin-table .place-2 { background: #e2e3e5 !important; color: #41464b; }
+  .round-robin-table .place-3 { background: #f8d7da !important; color: #842029; }
+
+  /* ===== СМЕШАННАЯ ===== */
+  .mixed-header {
+    background: #198754;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px 8px 0 0;
+    font-weight: 700;
+    margin-top: 20px;
+  }
+
+  /* ===== ПРИЗЁРЫ В СЕТКЕ (печать) ===== */
+  .print-standings-column {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 160px;
+    padding: 0 10px;
+  }
+  .print-standings-column .round-title {
+    border-bottom-color: #ffc107;
+    color: #495057;
+  }
+  .place-mini {
+    border: 1.5px solid;
+    border-radius: 6px;
+    padding: 8px;
+    margin: 6px 0;
+    text-align: center;
+    background: white;
+  }
+  .place-mini.place-1 { border-color: #ffc107; background: #fff3cd; }
+  .place-mini.place-2 { border-color: #6c757d; background: #e2e3e5; }
+  .place-mini.place-3 { border-color: #dc3545; background: #f8d7da; }
+  .place-mini .place-icon { font-size: 1.3rem; margin-bottom: 2px; }
+  .place-mini .place-name { font-weight: 700; font-size: 0.9rem; }
+
+  /* ===== ПАНЕЛЬ ПЕЧАТИ ===== */
+  .print-panel {
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+
+  /* ===== ПРИНТ ===== */
+  @media print {
+    @page { size: A4 landscape; margin: 5mm; }
+    body * { visibility: hidden !important; }
+    .bracket-print-container, .bracket-print-container * { visibility: visible !important; }
+    .bracket-print-container {
+      position: absolute !important;
+      left: 0 !important; top: 0 !important;
+      width: 100% !important;
+      padding: 0 !important; margin: 0 !important;
+      background: white !important;
+    }
+    .d-print-none, .print-panel, .navbar, .breadcrumb, footer, .btn-group, .alert, .standings-card {
+      display: none !important;
+    }
+    .bracket-arena {
+      background: white !important;
+      padding: 8px !important;
+      overflow: visible !important;
+    }
+    .match-card {
+      box-shadow: none !important;
+      border: 1.5px solid #333 !important;
+      break-inside: avoid;
+    }
+    .bracket-svg path {
+      stroke: #333 !important;
+      stroke-width: 1.5px !important;
+    }
+    .print-standings-column { display: flex !important; }
+    .round-robin-table {
+      font-size: 0.8rem;
+      box-shadow: none !important;
+      border: 2px solid #333;
+    }
+    .round-robin-table th {
+      background: #333 !important;
+      color: white !important;
+      border: 1px solid #555;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .round-robin-table td {
+      border: 1px solid #999;
+      height: 40px;
+      padding: 4px;
+    }
+    .round-robin-table td.fighter-cell {
+      background: #f0f0f0 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .round-robin-table td.diagonal {
+      background: #bbb !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .round-robin-table td.win-cell {
+      background: #c8e6c9 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .round-robin-table td.loss-cell {
+      background: #ffcdd2 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .round-robin-table .col-total,
+    .round-robin-table .col-place {
+      background: #e0e0e0 !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .round-title { color: #333 !important; border-bottom-color: #333 !important; }
+    .fighter-row.winner {
+      background: #fff3cd !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3 d-print-none">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_list' %}">Турниры</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_detail' tournament.id %}">{{ tournament.name }}</a></li>
+        <li class="breadcrumb-item active">{{ bracket.name }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4 d-print-none">
+    <div>
+        <h1><i class="fas fa-sitemap me-3 text-info"></i>{{ bracket.name }}</h1>
+        <span class="badge bg-{% if bracket.status == 'completed' %}success{% elif bracket.status == 'in_progress' %}warning text-dark{% else %}secondary{% endif %} fs-6">
+            {{ bracket.get_status_display }}
+        </span>
+        <span class="badge bg-dark ms-2">{{ bracket.get_bracket_type_display }}</span>
+        {% if bracket.winner %}
+            <span class="badge bg-warning text-dark ms-2"><i class="fas fa-crown me-1"></i>{{ bracket.winner }}</span>
+        {% endif %}
+    </div>
+    <div class="d-flex gap-2">
+        {% if is_admin %}
+            <div class="btn-group">
+                <a href="{% url 'tournaments:advance_winners' tournament.id %}?bracket_id={{ bracket.id }}" class="btn btn-warning">
+    Продвинуть победителей
+</a>
+                <a href="{% url 'tournaments:delete_bracket' tournament.id bracket.id %}" class="btn btn-outline-danger">Удалить</a>
+            </div>
+        {% endif %}
+        {% if is_judge and judge_fight %}
+            <a href="{% url 'tournaments:judge_fight_panel' judge_fight.id %}" class="btn btn-warning">
+                <i class="fas fa-gavel me-1"></i>Мой бой
+            </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ==================== ПРИЗЁРЫ ==================== -->
+{% if standings %}
+<div class="card shadow-sm mb-4 border-2 border-warning d-print-none" id="winners-block">
+    <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Призёры — {{ bracket.name }}</h5>
+        <button class="btn btn-sm btn-dark" onclick="copyWinners()">
+            <i class="fas fa-copy me-1"></i>Копировать для грамот
+        </button>
+    </div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th class="text-center" style="width:80px">Место</th>
+                    <th>Фамилия Имя</th>
+                    <th>Клуб</th>
+                    <th>Примечание</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in standings %}
+                    {% if s.place %}
+                        <tr class="{% if s.place == 1 %}table-warning fw-bold{% elif s.place == 2 %}table-secondary{% elif s.place == 3 %}table-danger{% endif %}">
+                            <td class="text-center fs-5">
+                                {% if s.place == 1 %}👑 1
+                                {% elif s.place == 2 %}🥈 2
+                                {% elif s.place == 3 %}🥉 3
+                                {% else %}{{ s.place }}{% endif %}
+                            </td>
+                            <td class="fs-5">{{ s.fighter }}</td>
+                            <td>{{ s.club|default:"—" }}</td>
+                            <td>{{ s.method|default:"—" }}</td>
+                        </tr>
+                    {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <textarea id="winners-clipboard" class="position-absolute" style="left:-9999px; top:0; opacity:0; pointer-events:none;">
+{% for s in standings %}{% if s.place %}{{ s.place }} место: {{ s.fighter }} ({{ s.club|default:"без клуба" }})
+{% endif %}{% endfor %}
+    </textarea>
+</div>
+{% endif %}
+
+<!-- Панель печати -->
+<div class="print-panel d-print-none">
+    <h5 class="mb-3"><i class="fas fa-print me-2 text-primary"></i>Печать сетки на A4</h5>
+    <div class="row g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Ориентация</label>
+            <select id="print-orientation" class="form-select">
+                <option value="portrait">Портретная (A4)</option>
+                <option value="landscape" selected>Альбомная (A4)</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Масштаб (%)</label>
+            <input type="number" id="print-scale" class="form-control" value="100" min="30" max="200" step="5">
+            <small class="text-muted">Уменьшите, если сетка не помещается</small>
+        </div>
+        <div class="col-md-3">
+            <div class="form-check form-switch mt-4">
+                <input class="form-check-input" type="checkbox" id="auto-scale" checked>
+                <label class="form-check-label" for="auto-scale">Автоподгон под ширину</label>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <button class="btn btn-primary w-100" onclick="printBracket()">
+                <i class="fas fa-print me-2"></i>Печать / PDF
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== КРУГОВАЯ ==================== -->
+{% if bracket.bracket_type == 'round_robin' %}
+<div class="bracket-print-container" id="bracket-container">
+    <h4 class="text-center mb-3 d-print-none"><i class="fas fa-sync-alt me-2 text-info"></i>Круговая система — {{ bracket.name }}</h4>
+
+    {% if participants %}
+        <div class="bracket-wrapper">
+            <table class="table round-robin-table mb-0">
+                <thead>
+                    <tr>
+                        <th class="col-num">№</th>
+                        <th class="text-start" style="min-width:200px">Фамилия И.О.</th>
+                        {% for p in participants %}
+                            <th class="col-num">{{ forloop.counter }}</th>
+                        {% endfor %}
+                        <th class="col-total">Победы</th>
+                        <th class="col-place">Место</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p_row in participants %}
+                        <tr>
+                            <td class="col-num">{{ forloop.counter }}</td>
+                            <td class="fighter-cell">{{ p_row.last_name }} {{ p_row.first_name|first }}.</td>
+                            {% for p_col in participants %}
+                                {% if p_row == p_col %}
+                                    <td class="diagonal"></td>
+                                {% else %}
+                                    {% for f in fights_by_round.1 %}
+                                        {% if f.fighter1 == p_row and f.fighter2 == p_col or f.fighter1 == p_col and f.fighter2 == p_row %}
+                                            {% if f.status == 'completed' %}
+                                                <td class="{% if f.winner == p_row %}win-cell{% elif f.is_draw %}draw-cell{% else %}loss-cell{% endif %}">
+                                                    {% if f.fighter1 == p_row %}
+                                                        <span class="score-big">{{ f.score_fighter1 }}</span>
+                                                        <span class="score-small">{{ f.score_fighter2 }}</span>
+                                                    {% else %}
+                                                        <span class="score-big">{{ f.score_fighter2 }}</span>
+                                                        <span class="score-small">{{ f.score_fighter1 }}</span>
+                                                    {% endif %}
+                                                </td>
+                                            {% else %}
+                                                <td class="pending-cell">—</td>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                            {% endfor %}
+                            <td class="col-total">{{ wins|get_item:p_row.id|default:0 }}</td>
+                            <td class="col-place">
+                                {% with p=place_map|get_item:p_row.id %}
+                                    {% if p %}{{ p }}{% else %}—{% endif %}
+                                {% endwith %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted small mt-2 d-print-none">
+            <i class="fas fa-info-circle me-1"></i>
+            Зелёная ячейка — победа, красная — поражение, жёлтая — ничья. Диагональ — не играет с собой.
+        </p>
+    {% else %}
+        <div class="alert alert-info">Нет данных об участниках.</div>
+    {% endif %}
+</div>
+
+<!-- ==================== СМЕШАННАЯ ==================== -->
+{% elif bracket.bracket_type == 'mixed' %}
+<div class="bracket-print-container" id="bracket-container">
+
+    <!-- ГРУППОВОЙ ЭТАП -->
+    {% if fights_by_round.1 %}
+        <div class="mixed-header mb-0">
+            <i class="fas fa-sync-alt me-2"></i>Групповой этап (круговая система)
+        </div>
+        <div class="bg-white p-3 border border-top-0 rounded-bottom mb-4">
+            {% if participants %}
+                <div class="bracket-wrapper">
+                    <table class="table round-robin-table mb-0">
+                        <thead>
+                            <tr>
+                                <th class="col-num">№</th>
+                                <th class="text-start" style="min-width:200px">Фамилия И.О.</th>
+                                {% for p in participants %}
+                                    <th class="col-num">{{ forloop.counter }}</th>
+                                {% endfor %}
+                                <th class="col-total">Победы</th>
+                                <th class="col-place">Место</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p_row in participants %}
+                                <tr>
+                                    <td class="col-num">{{ forloop.counter }}</td>
+                                    <td class="fighter-cell">{{ p_row.last_name }} {{ p_row.first_name|first }}.</td>
+                                    {% for p_col in participants %}
+                                        {% if p_row == p_col %}
+                                            <td class="diagonal"></td>
+                                        {% else %}
+                                            {% for f in fights_by_round.1 %}
+                                                {% if f.fighter1 == p_row and f.fighter2 == p_col or f.fighter1 == p_col and f.fighter2 == p_row %}
+                                                    {% if f.status == 'completed' %}
+                                                        <td class="{% if f.winner == p_row %}win-cell{% elif f.is_draw %}draw-cell{% else %}loss-cell{% endif %}">
+                                                            {% if f.fighter1 == p_row %}
+                                                                <span class="score-big">{{ f.score_fighter1 }}</span><span class="score-small">{{ f.score_fighter2 }}</span>
+                                                            {% else %}
+                                                                <span class="score-big">{{ f.score_fighter2 }}</span><span class="score-small">{{ f.score_fighter1 }}</span>
+                                                            {% endif %}
+                                                        </td>
+                                                    {% else %}
+                                                        <td class="pending-cell">—</td>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <td class="col-total">{{ wins|get_item:p_row.id|default:0 }}</td>
+                                    <td class="col-place">
+                                        {% with p=place_map|get_item:p_row.id %}
+                                            {% if p %}{{ p }}{% else %}—{% endif %}
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info mb-0">Нет данных об участниках группового этапа.</div>
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <!-- ПЛЕЙ-ОФФ -->
+    {% if fights_by_round.2 %}
+        <div class="mixed-header mb-0">
+            <i class="fas fa-sitemap me-2"></i>Плей-офф
+        </div>
+        <div class="bg-white p-3 border border-top-0 rounded-bottom">
+            <div class="bracket-arena" id="bracket-arena">
+                <svg class="bracket-svg" id="bracket-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+                {% for round_num, fights in fights_by_round.items %}
+                    {% if round_num > 1 %}
+                        <div class="round-column" data-round="{{ round_num }}">
+                            <div class="round-title text-center">
+                                {% if round_num == max_round and max_round > 2 %}🏆 Финал
+                                {% elif round_num == max_round|add:-1 and max_round > 3 %}⚔️ Полуфинал
+                                {% else %}Раунд {{ round_num }}{% endif %}
+                            </div>
+                            {% for fight in fights %}
+                                <div class="match-card {% if fight.status == 'completed' %}completed{% elif fight.status == 'in_progress' %}in-progress{% endif %}"
+                                     id="match-r{{ round_num }}-m{{ forloop.counter }}"
+                                     data-round="{{ round_num }}" data-match-idx="{{ forloop.counter0 }}">
+                                    <div class="fighter-row {% if fight.winner == fight.fighter1 %}winner{% elif fight.status == 'completed' and fight.winner != fight.fighter1 %}loser{% endif %}">
+                                        <span class="fighter-name">{{ fight.fighter1|default:"TBD" }}</span>
+                                        {% if fight.status == 'completed' %}
+                                            <span class="score-badge">{{ fight.score_fighter1 }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="fighter-row {% if fight.fighter2 %}{% if fight.winner == fight.fighter2 %}winner{% elif fight.status == 'completed' and fight.winner != fight.fighter2 %}loser{% endif %}{% else %}bye-row{% endif %}">
+                                        <span class="fighter-name">{% if fight.fighter2 %}{{ fight.fighter2 }}{% else %}Автопроход{% endif %}</span>
+                                        {% if fight.status == 'completed' and fight.fighter2 %}
+                                            <span class="score-badge">{{ fight.score_fighter2 }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="match-meta">
+                                        <span class="match-number">#{{ fight.match_number }}</span>
+                                        <span>
+                                            {% if fight.judge %}<i class="fas fa-gavel me-1"></i>{{ fight.judge.full_name }}{% endif %}
+                                            {% if is_judge and fight.judge == request.user.judge and fight.status != 'completed' %}
+                                                <a href="{% url 'tournaments:judge_fight_panel' fight.id %}" class="badge bg-warning text-dark text-decoration-none ms-1"><i class="fas fa-play me-1"></i>Провести</a>
+                                            {% endif %}
+                                            {% if fight.status == 'completed' %}<span class="badge bg-success ms-1"><i class="fas fa-check me-1"></i>Завершён</span>{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                <div class="print-standings-column d-print-flex">
+                    <div class="round-title text-center">🏆 Призёры</div>
+                    {% for s in standings %}
+                        {% if s.place %}
+                            <div class="place-mini place-{{ s.place }}">
+                                <div class="place-icon">{% if s.place == 1 %}👑{% elif s.place == 2 %}🥈{% else %}🥉{% endif %}</div>
+                                <div class="text-muted small">{{ s.place }} место</div>
+                                <div class="place-name">{{ s.fighter }}</div>
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% elif not fights_by_round.1 %}
+        <div class="alert alert-info">Сетка пуста.</div>
+    {% endif %}
+</div>
+
+<!-- ==================== ОЛИМПИЙСКАЯ ==================== -->
+{% else %}
+<div class="bracket-print-container" id="bracket-container">
+    <div class="bracket-arena" id="bracket-arena">
+        <svg class="bracket-svg" id="bracket-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+        {% for round_num, fights in fights_by_round.items %}
+            <div class="round-column" data-round="{{ round_num }}">
+                <div class="round-title text-center">
+                    {% if round_num == max_round and max_round > 1 %}🏆 Финал
+                    {% elif round_num == max_round|add:-1 and max_round > 2 %}⚔️ Полуфинал
+                    {% else %}Раунд {{ round_num }}{% endif %}
+                </div>
+                {% for fight in fights %}
+                    <div class="match-card {% if fight.status == 'completed' %}completed{% elif fight.status == 'in_progress' %}in-progress{% endif %}"
+                         id="match-r{{ round_num }}-m{{ forloop.counter }}"
+                         data-round="{{ round_num }}" data-match-idx="{{ forloop.counter0 }}">
+                        <div class="fighter-row {% if fight.winner == fight.fighter1 %}winner{% elif fight.status == 'completed' and fight.winner != fight.fighter1 %}loser{% endif %}">
+                            <span class="fighter-name">{{ fight.fighter1|default:"TBD" }}</span>
+                            {% if fight.status == 'completed' %}
+                                <span class="score-badge">{{ fight.score_fighter1 }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="fighter-row {% if fight.fighter2 %}{% if fight.winner == fight.fighter2 %}winner{% elif fight.status == 'completed' and fight.winner != fight.fighter2 %}loser{% endif %}{% else %}bye-row{% endif %}">
+                            <span class="fighter-name">{% if fight.fighter2 %}{{ fight.fighter2 }}{% else %}Автопроход{% endif %}</span>
+                            {% if fight.status == 'completed' and fight.fighter2 %}
+                                <span class="score-badge">{{ fight.score_fighter2 }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="match-meta">
+                            <span class="match-number">#{{ fight.match_number }}</span>
+                            <span>
+                                {% if fight.judge %}<i class="fas fa-gavel me-1"></i>{{ fight.judge.full_name }}{% endif %}
+                                {% if is_judge and fight.judge == request.user.judge and fight.status != 'completed' %}
+                                    <a href="{% url 'tournaments:judge_fight_panel' fight.id %}" class="badge bg-warning text-dark text-decoration-none ms-1"><i class="fas fa-play me-1"></i>Провести</a>
+                                {% endif %}
+                                {% if fight.status == 'completed' %}<span class="badge bg-success ms-1"><i class="fas fa-check me-1"></i>Завершён</span>{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <div class="print-standings-column d-print-flex">
+            <div class="round-title text-center">🏆 Призёры</div>
+            {% for s in standings %}
+                {% if s.place %}
+                    <div class="place-mini place-{{ s.place }}">
+                        <div class="place-icon">{% if s.place == 1 %}👑{% elif s.place == 2 %}🥈{% else %}🥉{% endif %}</div>
+                        <div class="text-muted small">{{ s.place }} место</div>
+                        <div class="place-name">{{ s.fighter }}</div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Результаты на экране -->
+{% if standings %}
+    <div class="card shadow-sm mt-4 standings-card d-print-none">
+        <div class="card-header bg-warning text-dark">
+            <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Результаты</h5>
+        </div>
+        <div class="card-body">
+            <div class="row justify-content-center g-3">
+                {% for s in standings %}
+                    {% if s.place %}
+                        <div class="col-md-3">
+                            <div class="card h-100 border-2
+                                {% if s.place == 1 %}border-warning bg-warning bg-opacity-10
+                                {% elif s.place == 2 %}border-secondary bg-secondary bg-opacity-10
+                                {% else %}border-danger bg-danger bg-opacity-10{% endif %}">
+                                <div class="card-body text-center">
+                                    <h1 class="mb-2">
+                                        {% if s.place == 1 %}<i class="fas fa-crown text-warning"></i>
+                                        {% elif s.place == 2 %}<i class="fas fa-medal text-secondary"></i>
+                                        {% else %}<i class="fas fa-medal text-danger"></i>{% endif %}
+                                    </h1>
+                                    <h3 class="fw-bold">{{ s.place }} место</h3>
+                                    <p class="fw-bold mb-1 fs-5">{{ s.fighter }}</p>
+                                    {% if s.method %}<small class="text-muted">{{ s.method }}</small>{% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function drawBracketLines() {
+    const svg = document.getElementById('bracket-svg');
+    const arena = document.getElementById('bracket-arena');
+    if (!svg || !arena) return;
+    svg.innerHTML = '';
+    const arenaRect = arena.getBoundingClientRect();
+    const rounds = arena.querySelectorAll('.round-column');
+    if (rounds.length < 2) return;
+
+    svg.setAttribute('width', arena.scrollWidth);
+    svg.setAttribute('height', arena.scrollHeight);
+    const svgNS = "http://www.w3.org/2000/svg";
+
+    for (let r = 0; r < rounds.length - 1; r++) {
+        const currentRound = rounds[r];
+        const nextRound = rounds[r + 1];
+        const currentMatches = currentRound.querySelectorAll('.match-card');
+        const nextMatches = nextRound.querySelectorAll('.match-card');
+
+        currentMatches.forEach((match, idx) => {
+            const parentIdx = Math.floor(idx / 2);
+            const nextMatch = nextMatches[parentIdx];
+            if (!nextMatch) return;
+
+            const mRect = match.getBoundingClientRect();
+            const nRect = nextMatch.getBoundingClientRect();
+
+            const x1 = mRect.right - arenaRect.left;
+            const y1 = mRect.top + mRect.height / 2 - arenaRect.top;
+            const x2 = nRect.left - arenaRect.left;
+            const y2 = nRect.top + nRect.height / 2 - arenaRect.top;
+            const midX = x1 + (x2 - x1) / 2;
+
+            const path = document.createElementNS(svgNS, 'path');
+            const d = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+            path.setAttribute('d', d);
+            svg.appendChild(path);
+        });
+    }
+}
+
+function printBracket() {
+    const orientation = document.getElementById('print-orientation').value;
+    const scaleInput = document.getElementById('print-scale');
+    const autoScale = document.getElementById('auto-scale').checked;
+    const container = document.getElementById('bracket-container');
+    const arena = document.getElementById('bracket-arena');
+
+    let scale = parseInt(scaleInput.value) / 100;
+
+    if (autoScale) {
+        const a4Width = orientation === 'landscape' ? 1123 : 794;
+        const contentWidth = (arena ? arena.scrollWidth : container.scrollWidth) + 40;
+        const neededScale = (a4Width - 60) / contentWidth;
+        scale = Math.min(Math.max(neededScale, 0.4), 1.5);
+        scaleInput.value = Math.round(scale * 100);
+    }
+
+    container.style.transform = `scale(${scale})`;
+    container.style.transformOrigin = 'top left';
+
+    const style = document.createElement('style');
+    style.id = 'print-style-temp';
+    style.innerHTML = `@page { size: A4 ${orientation}; margin: 5mm; }`;
+    document.head.appendChild(style);
+
+    requestAnimationFrame(() => {
+        drawBracketLines();
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => {
+                container.style.transform = '';
+                container.style.transformOrigin = '';
+                const ps = document.getElementById('print-style-temp');
+                if (ps) ps.remove();
+                drawBracketLines();
+            }, 500);
+        }, 300);
+    });
+}
+
+function copyWinners() {
+    const ta = document.getElementById('winners-clipboard');
+    ta.select();
+    ta.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(ta.value).then(() => {
+        const btn = document.querySelector('#winners-block button');
+        const original = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check me-1"></i>Скопировано!';
+        btn.classList.replace('btn-dark', 'btn-success');
+        setTimeout(() => {
+            btn.innerHTML = original;
+            btn.classList.replace('btn-success', 'btn-dark');
+        }, 2000);
+    });
+}
+
+window.addEventListener('load', () => { setTimeout(drawBracketLines, 200); });
+window.addEventListener('resize', () => {
+    clearTimeout(window._resizeTimer);
+    window._resizeTimer = setTimeout(drawBracketLines, 150);
+});
+window.addEventListener('beforeprint', drawBracketLines);
+</script>
+{% endblock %}

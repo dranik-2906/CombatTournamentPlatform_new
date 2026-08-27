@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Турниры - Combat Platform{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1><i class="fas fa-trophy me-3 text-warning"></i>Турниры</h1>
+    {% if user.is_authenticated and user.profile.role in 'system_admin,tournament_admin' %}
+        <a href="{% url 'tournaments:create_tournament' %}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Создать
+        </a>
+    {% endif %}
+</div>
+
+<!-- Фильтры -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Поиск по названию или месту..." value="{{ search_query }}">
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="" {% if not status_filter %}selected{% endif %}>Все статусы</option>
+                    <option value="active" {% if status_filter == 'active' %}selected{% endif %}>Активные</option>
+                    <option value="completed" {% if status_filter == 'completed' %}selected{% endif %}>Завершённые</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100"><i class="fas fa-search me-1"></i>Найти</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'tournaments:tournament_list' %}" class="btn btn-outline-secondary w-100">Сбросить</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if tournaments %}
+    <div class="row g-3">
+        {% for tournament in tournaments %}
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm hover-shadow">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="badge bg-{% if tournament.status_display == 'В процессе' %}success{% elif tournament.status_display == 'Запланирован' %}info{% else %}secondary{% endif %}">
+                            {{ tournament.status_display }}
+                        </span>
+                        <small class="text-muted">{{ tournament.sport_type }}</small>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ tournament.name }}</h5>
+                        <p class="card-text text-muted small">
+                            <i class="fas fa-calendar me-1"></i>{{ tournament.start_date|date:"d.m.Y" }} - {{ tournament.end_date|date:"d.m.Y" }}<br>
+                            <i class="fas fa-map-marker-alt me-1"></i>{{ tournament.location|default:"Не указано" }}
+                        </p>
+                        <div class="row text-center small">
+                            <div class="col-4">
+                                <strong class="d-block">{{ tournament.reg_count }}</strong>
+                                <span class="text-muted">участников</span>
+                            </div>
+                            <div class="col-4">
+                                <strong class="d-block">{{ tournament.fight_count }}</strong>
+                                <span class="text-muted">боёв</span>
+                            </div>
+                            <div class="col-4">
+                                <strong class="d-block">{{ tournament.brackets.count }}</strong>
+                                <span class="text-muted">сеток</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <a href="{% url 'tournaments:tournament_detail' tournament.id %}" class="btn btn-primary btn-sm w-100">
+                            <i class="fas fa-eye me-1"></i>Подробнее
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if tournaments.has_other_pages %}
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                {% if tournaments.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ tournaments.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">←</a></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ tournaments.number }} / {{ tournaments.paginator.num_pages }}</span></li>
+                {% if tournaments.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ tournaments.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}">→</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    {% endif %}
+{% else %}
+    <div class="text-center py-5">
+        <i class="fas fa-trophy fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">Турниров не найдено</h4>
+        {% if user.is_authenticated and user.profile.role in 'system_admin,tournament_admin' %}
+            <a href="{% url 'tournaments:create_tournament' %}" class="btn btn-primary mt-2">Создать первый турнир</a>
+        {% endif %}
+    </div>
+{% endif %}
+{% endblock %}

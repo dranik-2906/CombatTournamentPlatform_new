@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Результаты боя #{{ fight.match_number }} — {{ fight.tournament.name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_list' %}">Турниры</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_detail' fight.tournament.id %}">{{ fight.tournament.name }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:fights_management' fight.tournament.id %}">Бои</a></li>
+        <li class="breadcrumb-item active">Результаты боя #{{ fight.match_number }}</li>
+    </ol>
+</nav>
+
+<h1 class="mb-4"><i class="fas fa-clipboard-list me-3 text-success"></i>Результаты боя #{{ fight.match_number }}</h1>
+
+<div class="row">
+    <!-- Информация -->
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Информация</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Турнир:</strong> {{ fight.tournament.name }}</p>
+                <p><strong>Категория:</strong> {{ fight.age_weight_category|default:"—" }}</p>
+                <p><strong>Раунд:</strong> {{ fight.round_number }}</p>
+                <p>
+                    <strong>Статус:</strong> 
+                    <span class="badge bg-success">{{ fight.get_status_display }}</span>
+                </p>
+                <p><strong>Судья:</strong> {{ fight.judge.full_name|default:"—" }}</p>
+                {% if fight.win_method %}
+                    <p><strong>Метод победы:</strong> {{ fight.get_win_method_display|default:fight.win_method }}</p>
+                {% endif %}
+                {% if fight.is_draw %}
+                    <p><span class="badge bg-warning text-dark">Ничья</span></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Карточки бойцов -->
+    <div class="col-md-8">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <div class="card border-primary shadow-sm h-100">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h5 class="mb-0">{{ fight.fighter1.full_name }}</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 class="display-1 text-primary">{{ fight.score_fighter1|default:"0" }}</h1>
+                        <p class="text-muted">Очки</p>
+                        {% if fight.winner == fight.fighter1 %}
+                            <span class="badge bg-success fs-6"><i class="fas fa-crown me-1"></i>Победитель</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-danger shadow-sm h-100">
+                    <div class="card-header bg-danger text-white text-center">
+                        <h5 class="mb-0">{{ fight.fighter2.full_name|default:"—" }}</h5>
+                    </div>
+                    <div class="card-body text-center">
+                        <h1 class="display-1 text-danger">{{ fight.score_fighter2|default:"0" }}</h1>
+                        <p class="text-muted">Очки</p>
+                        {% if fight.winner == fight.fighter2 %}
+                            <span class="badge bg-success fs-6"><i class="fas fa-crown me-1"></i>Победитель</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Судейские записки -->
+        {% if fight.judge_notes %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0"><i class="fas fa-sticky-note me-2"></i>Судейские записки</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0" style="white-space: pre-wrap;">{{ fight.judge_notes }}</p>
+                </div>
+            </div>
+        {% endif %}
+
+        <a href="{% url 'tournaments:fights_management' fight.tournament.id %}" class="btn btn-outline-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Назад к списку боёв
+        </a>
+    </div>
+</div>
+{% endblock %}

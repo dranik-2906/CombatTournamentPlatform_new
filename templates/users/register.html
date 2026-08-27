@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Регистрация - Combat Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white text-center">
+                <h4 class="mb-0"><i class="fas fa-user-plus me-2"></i>Регистрация</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Имя пользователя *</label>
+                            <input type="text" name="username" class="form-control" value="{{ username|default:'' }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ email|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Имя</label>
+                            <input type="text" name="first_name" class="form-control" value="{{ first_name|default:'' }}">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Фамилия</label>
+                            <input type="text" name="last_name" class="form-control" value="{{ last_name|default:'' }}">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Пароль *</label>
+                            <input type="password" name="password1" class="form-control" minlength="6" required>
+                            <small class="text-muted">Минимум 6 символов</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Подтверждение *</label>
+                            <input type="password" name="password2" class="form-control" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+                    </button>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                <small class="text-muted">Уже есть аккаунт? <a href="{% url 'users:login' %}">Войти</a></small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

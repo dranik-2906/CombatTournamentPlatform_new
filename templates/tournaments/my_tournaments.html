@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои турниры - Combat Platform{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-trophy me-3 text-warning"></i>Мои турниры</h1>
+
+{% if active %}
+    <h5 class="text-success mb-3"><i class="fas fa-fire me-2"></i>Активные</h5>
+    <div class="row g-3 mb-4">
+        {% for reg in active %}
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title"><a href="{% url 'tournaments:tournament_detail' reg.tournament.id %}">{{ reg.tournament.name }}</a></h5>
+                        <p class="card-text text-muted small">
+                            {{ reg.tournament.start_date|date:"d.m.Y" }} - {{ reg.tournament.end_date|date:"d.m.Y" }}<br>
+                            {{ reg.tournament.location }}
+                        </p>
+                        {% if reg.age_weight_category %}
+                            <span class="badge bg-info">{{ reg.age_weight_category.name }}</span>
+                        {% endif %}
+                        {% if reg.is_approved %}
+                            <span class="badge bg-success">Допущен</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Ожидает</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if completed %}
+    <h5 class="text-secondary mb-3"><i class="fas fa-history me-2"></i>Завершённые</h5>
+    <div class="row g-3">
+        {% for reg in completed %}
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100 opacity-75">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ reg.tournament.name }}</h5>
+                        <p class="card-text text-muted small">
+                            {{ reg.tournament.start_date|date:"d.m.Y" }} - {{ reg.tournament.end_date|date:"d.m.Y" }}
+                        </p>
+                        {% if reg.final_place %}
+                            <span class="badge bg-warning">{{ reg.final_place }} место</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if not active and not completed %}
+    <div class="alert alert-info text-center py-5">
+        <i class="fas fa-trophy fa-3x mb-3"></i>
+        <h4>Вы не участвовали ни в одном турнире</h4>
+        <a href="{% url 'tournaments:tournament_list' %}" class="btn btn-success mt-2">Найти турнир</a>
+    </div>
+{% endif %}
+{% endblock %}

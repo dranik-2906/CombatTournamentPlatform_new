@@ -1,0 +1,213 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет - Combat Platform{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="mb-3">
+            <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+            Личный кабинет
+        </h2>
+        <p class="text-muted">
+            Вы вошли как <strong>{{ user.username }}</strong>
+            {% if user_role %}
+                <span class="badge {{ user_role.badge_class }} {{ user_role.text_class }} ms-2">
+                    <i class="fas {{ user_role.icon }} me-1"></i>{{ user_role.label }}
+                </span>
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<!-- ===== АДМИНИСТРАТОР / ОРГАНИЗАТОР ===== -->
+{% if user.is_superuser or user_role.label == 'Администратор' or user_role.label == 'Организатор' %}
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <h4 class="mb-3"><i class="fas fa-cog me-2 text-secondary"></i>Панель управления</h4>
+    </div>
+
+    <!-- Участники -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-primary border-2">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Участники</h5>
+                <p class="card-text text-muted small">Регистрации, импорт Excel, распределение по категориям</p>
+                <a href="{% url 'tournaments:participants_management' %}" class="btn btn-primary w-100">
+                    <i class="fas fa-arrow-right me-1"></i>Управление участниками
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Турниры -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-warning border-2">
+            <div class="card-body text-center">
+                <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+                <h5 class="card-title">Турниры</h5>
+                <p class="card-text text-muted small">Создание, категории, сетки, расписание боёв</p>
+                <a href="{% url 'tournaments:tournament_list' %}" class="btn btn-warning text-dark w-100">
+                    <i class="fas fa-arrow-right me-1"></i>Управление турнирами
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Судьи -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100 border-success border-2">
+            <div class="card-body text-center">
+                <i class="fas fa-gavel fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Судьи</h5>
+                <p class="card-text text-muted small">Добавление, лицензии, назначение на бои</p>
+                <a href="{% url 'tournaments:judge_list' %}" class="btn btn-success w-100">
+                    <i class="fas fa-arrow-right me-1"></i>Управление судьями
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Быстрые ссылки -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <a href="{% url 'tournaments:create_tournament' %}" class="btn btn-outline-dark w-100 py-3">
+            <i class="fas fa-plus fa-lg mb-2 d-block"></i>Создать турнир
+        </a>
+    </div>
+    <div class="col-md-3 col-6">
+        <a href="{% url 'tournaments:participants_management' %}" class="btn btn-outline-primary w-100 py-3">
+            <i class="fas fa-user-plus fa-lg mb-2 d-block"></i>Добавить участника
+        </a>
+    </div>
+    <div class="col-md-3 col-6">
+        <a href="{% url 'tournaments:add_participant_excel' 1 %}" class="btn btn-outline-success w-100 py-3">
+            <i class="fas fa-file-excel fa-lg mb-2 d-block"></i>Импорт Excel
+        </a>
+    </div>
+    <div class="col-md-3 col-6">
+        <a href="{% url 'tournaments:judge_list' %}" class="btn btn-outline-info w-100 py-3">
+            <i class="fas fa-gavel fa-lg mb-2 d-block"></i>Добавить судью
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- ===== СУДЬЯ ===== -->
+{% if user_role and user_role.label == 'Судья' %}
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <h4 class="mb-3"><i class="fas fa-gavel me-2 text-info"></i>Панель судьи</h4>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100 border-info border-2">
+            <div class="card-body text-center">
+                <i class="fas fa-clipboard-list fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Мои бои</h5>
+                <p class="card-text text-muted small">Список назначенных боёв, ведение протоколов</p>
+                <a href="{% url 'tournaments:judge_dashboard' %}" class="btn btn-info text-white w-100">
+                    <i class="fas fa-arrow-right me-1"></i>Перейти к боям
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100 border-secondary border-2">
+            <div class="card-body text-center">
+                <i class="fas fa-list fa-3x text-secondary mb-3"></i>
+                <h5 class="card-title">Все бои</h5>
+                <p class="card-text text-muted small">Просмотр всех боёв турнира</p>
+                <a href="{% url 'tournaments:judge_my_fights' %}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-arrow-right me-1"></i>Список боёв
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ===== УЧАСТНИК ===== -->
+{% if user_role and user_role.label == 'Участник' %}
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <h4 class="mb-3"><i class="fas fa-user me-2 text-success"></i>Профиль бойца</h4>
+    </div>
+
+    <!-- Статистика -->
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Статистика</h5>
+            </div>
+            <div class="card-body">
+                {% if user.fighter %}
+                    <div class="row text-center g-3 mb-3">
+                        <div class="col-4">
+                            <div class="p-3 bg-light rounded">
+                                <h2 class="text-success mb-0">{{ user.fighter.wins|default:0 }}</h2>
+                                <small class="text-muted">Побед</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 bg-light rounded">
+                                <h2 class="text-danger mb-0">{{ user.fighter.losses|default:0 }}</h2>
+                                <small class="text-muted">Поражений</small>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="p-3 bg-light rounded">
+                                <h2 class="text-warning mb-0">{{ user.fighter.draws|default:0 }}</h2>
+                                <small class="text-muted">Ничьих</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{% url 'tournaments:fighter_detail' user.fighter.id %}" class="btn btn-outline-primary">
+                            <i class="fas fa-user me-1"></i>Полный профиль
+                        </a>
+                        <a href="{% url 'tournaments:my_registrations' %}" class="btn btn-outline-success">
+                            <i class="fas fa-user-check me-1"></i>Мои регистрации
+                        </a>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Профиль бойца не создан. Обратитесь к администратору.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Инфо -->
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-dark text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Информация</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2"><i class="fas fa-user text-muted me-2"></i><strong>Логин:</strong> {{ user.username }}</li>
+                    <li class="mb-2"><i class="fas fa-envelope text-muted me-2"></i><strong>Email:</strong> {{ user.email|default:"—" }}</li>
+                    <li class="mb-2"><i class="fas fa-user-tag text-muted me-2"></i><strong>Роль:</strong> {{ user_role.label|default:"Участник" }}</li>
+                    {% if user.fighter %}
+                        <li class="mb-2"><i class="fas fa-weight text-muted me-2"></i><strong>Вес:</strong> {{ user.fighter.weight|default:"—" }} кг</li>
+                        <li class="mb-2"><i class="fas fa-building text-muted me-2"></i><strong>Клуб:</strong> {{ user.fighter.club|default:"—" }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- ===== ОБЫЧНЫЙ ПОЛЬЗОВАТЕЛЬ (без роли) ===== -->
+{% if not user_role or user_role.label == 'Пользователь' %}
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    Ваша роль в системе не определена. Обратитесь к администратору для назначения прав.
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<!-- ===== HERO ===== -->
+<div class="p-5 mb-4 bg-dark text-white rounded-3 shadow-sm" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);">
+    <div class="container-fluid py-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold"><i class="fas fa-fist-raised text-warning me-3"></i>Combat Tournament Platform</h1>
+                <p class="col-md-10 fs-5 text-light opacity-75">Профессиональная платформа для организации и проведения соревнований по боевым единоборствам</p>
+                <div class="d-flex gap-2 flex-wrap">
+                    <a href="{% url 'tournaments:tournament_list' %}" class="btn btn-warning btn-lg fw-bold">
+                        <i class="fas fa-trophy me-2"></i>Смотреть турниры
+                    </a>
+                    {% if not user.is_authenticated %}
+                        <a href="{% url 'users:register' %}" class="btn btn-outline-light btn-lg">
+                            <i class="fas fa-user-plus me-2"></i>Регистрация
+                        </a>
+                    {% else %}
+                        {% if user_role and user_role.label == 'Судья' %}
+                            <a href="{% url 'tournaments:judge_dashboard' %}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-gavel me-2"></i>Панель судьи
+                            </a>
+                        {% else %}
+                            <a href="{% url 'core:dashboard' %}" class="btn btn-outline-light btn-lg">
+                                <i class="fas fa-tachometer-alt me-2"></i>Личный кабинет
+                            </a>
+                        {% endif %}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-md-4 text-center">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                            <h2 class="text-warning fw-bold">{{ stats.active_tournaments }}</h2>
+                            <small class="text-light opacity-75">Активных турниров</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                            <h2 class="text-info fw-bold">{{ stats.total_fighters }}</h2>
+                            <small class="text-light opacity-75">Бойцов</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                            <h2 class="text-success fw-bold">{{ stats.active_judges }}</h2>
+                            <small class="text-light opacity-75">Судей</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-white bg-opacity-10 rounded-3 p-3">
+                            <h2 class="text-danger fw-bold">{{ stats.completed_fights }}</h2>
+                            <small class="text-light opacity-75">Проведено боёв</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== ПЕРСОНАЛИЗИРОВАННЫЕ БЛОКИ ===== -->
+{% if user.is_authenticated %}
+    <!-- СУДЬЯ -->
+    {% if user_role and user_role.label == 'Судья' %}
+        <div class="alert alert-info shadow-sm mb-4 border-0">
+            <div class="d-flex align-items-center flex-wrap gap-3">
+                <div class="bg-white bg-opacity-25 rounded-circle p-3">
+                    <i class="fas fa-gavel fa-2x text-white"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <h4 class="alert-heading mb-1">Вы авторизованы как Судья</h4>
+                    <p class="mb-0 opacity-75">Управляйте боями, ведите таймер и фиксируйте результаты через панель судьи.</p>
+                </div>
+                <a href="{% url 'tournaments:judge_dashboard' %}" class="btn btn-light text-info fw-bold">
+                    <i class="fas fa-clipboard-list me-2"></i>Перейти к боям
+                </a>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- АДМИНИСТРАТОР / ОРГАНИЗАТОР -->
+    {% if user.is_superuser or user_role.label == 'Администратор' or user_role.label == 'Организатор' %}
+        <div class="row g-4 mb-4">
+            <div class="col-12">
+                <h4 class="mb-3">
+                    <i class="fas fa-cog me-2 text-secondary"></i>
+                    Панель управления
+                    <span class="badge {{ user_role.badge_class }} ms-2">{{ user_role.label }}</span>
+                </h4>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100 border-primary border-2">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                        <h5 class="card-title">Участники</h5>
+                        <p class="card-text text-muted small">Регистрации, импорт Excel, распределение по категориям, чекпоинты</p>
+                        <a href="{% url 'tournaments:participants_management' %}" class="btn btn-primary w-100">
+                            <i class="fas fa-arrow-right me-1"></i>Управление участниками
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100 border-warning border-2">
+                    <div class="card-body text-center">
+                        <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+                        <h5 class="card-title">Турниры</h5>
+                        <p class="card-text text-muted small">Создание турниров, категории, сетки, расписание боёв</p>
+                        <a href="{% url 'tournaments:tournament_list' %}" class="btn btn-warning text-dark w-100">
+                            <i class="fas fa-arrow-right me-1"></i>Управление турнирами
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100 border-success border-2">
+                    <div class="card-body text-center">
+                        <i class="fas fa-gavel fa-3x text-success mb-3"></i>
+                        <h5 class="card-title">Судьи</h5>
+                        <p class="card-text text-muted small">Добавление судей, лицензии, назначение на бои</p>
+                        <a href="{% url 'tournaments:judge_list' %}" class="btn btn-success w-100">
+                            <i class="fas fa-arrow-right me-1"></i>Управление судьями
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- УЧАСТНИК -->
+    {% if user_role and user_role.label == 'Участник' %}
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-success text-white">
+                        <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Статистика бойца</h5>
+                    </div>
+                    <div class="card-body">
+                        {% if user.fighter %}
+                            <div class="row text-center g-3">
+                                <div class="col-4">
+                                    <div class="p-3 bg-light rounded">
+                                        <h2 class="text-success mb-0">{{ user.fighter.wins|default:0 }}</h2>
+                                        <small class="text-muted">Побед</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-3 bg-light rounded">
+                                        <h2 class="text-danger mb-0">{{ user.fighter.losses|default:0 }}</h2>
+                                        <small class="text-muted">Поражений</small>
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="p-3 bg-light rounded">
+                                        <h2 class="text-warning mb-0">{{ user.fighter.draws|default:0 }}</h2>
+                                        <small class="text-muted">Ничьих</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div class="d-flex gap-2 flex-wrap">
+                                <a href="{% url 'tournaments:fighter_detail' user.fighter.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-user me-1"></i>Профиль бойца
+                                </a>
+                                <a href="{% url 'tournaments:my_registrations' %}" class="btn btn-outline-success btn-sm">
+                                    <i class="fas fa-user-check me-1"></i>Мои регистрации
+                                </a>
+                            </div>
+                        {% else %}
+                            <p class="text-muted mb-0">Профиль бойца не создан. Обратитесь к администратору.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+
+<!-- ===== ТУРНИРЫ ===== -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        {% if current_tournaments %}
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-fire me-2"></i>Текущие турниры</h5>
+                    <span class="badge bg-white text-success">{{ current_tournaments|length }}</span>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for t in current_tournaments %}
+                        <a href="{% url 'tournaments:tournament_detail' t.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ t.name }}</strong>
+                                <span class="badge bg-success">Сейчас</span>
+                            </div>
+                            <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ t.location }} | {{ t.start_date|date:"d.m" }} - {{ t.end_date|date:"d.m.Y" }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+    <div class="col-md-6">
+        {% if upcoming_tournaments %}
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Ближайшие турниры</h5>
+                    <span class="badge bg-white text-info">{{ upcoming_tournaments|length }}</span>
+                </div>
+                <div class="list-group list-group-flush">
+                    {% for t in upcoming_tournaments %}
+                        <a href="{% url 'tournaments:tournament_detail' t.id %}" class="list-group-item list-group-item-action">
+                            <div class="d-flex justify-content-between">
+                                <strong>{{ t.name }}</strong>
+                                <span class="badge bg-info">Скоро</span>
+                            </div>
+                            <small class="text-muted"><i class="fas fa-map-marker-alt me-1"></i>{{ t.location }} | Начало: {{ t.start_date|date:"d.m.Y" }}</small>
+                        </a>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- ===== КАРТОЧКИ ФУНКЦИЙ ===== -->
+<div class="row">
+    <div class="col-md-4">
+        <div class="card text-center h-100 shadow-sm border-0">
+            <div class="card-body">
+                <i class="fas fa-trophy fa-3x text-warning mb-3"></i>
+                <h5>Турниры</h5>
+                <p class="text-muted small">Создавайте и управляйте турнирами, настраивайте категории и сетки</p>
+                <a href="{% url 'tournaments:tournament_list' %}" class="btn btn-outline-warning btn-sm">Все турниры</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100 shadow-sm border-0">
+            <div class="card-body">
+                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                <h5>Участники</h5>
+                <p class="text-muted small">База бойцов, автоматическое распределение по категориям, импорт из Excel</p>
+                <a href="{% url 'tournaments:fighter_list' %}" class="btn btn-outline-info btn-sm">Все бойцы</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card text-center h-100 shadow-sm border-0">
+            <div class="card-body">
+                <i class="fas fa-gavel fa-3x text-success mb-3"></i>
+                <h5>Судейство</h5>
+                <p class="text-muted small">Назначение судей, таймер боёв, фиксация результатов в реальном времени</p>
+                <a href="{% url 'users:login' %}" class="btn btn-outline-success btn-sm">Войти как судья</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

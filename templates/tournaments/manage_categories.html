@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Категории - {{ tournament.name }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_list' %}">Турниры</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_detail' tournament.id %}">{{ tournament.name }}</a></li>
+        <li class="breadcrumb-item active">Категории</li>
+    </ol>
+</nav>
+
+<h1 class="mb-4"><i class="fas fa-tags me-3 text-info"></i>Возрастно-весовые категории</h1>
+
+<!-- Форма создания -->
+<div class="card mb-4 shadow-sm">
+    <div class="card-header bg-success text-white">
+        <h5 class="mb-0"><i class="fas fa-plus me-2"></i>Новая категория</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" class="row g-2 align-items-end">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="create">
+            {{ form|crispy }}
+            <div class="col-12">
+                <button type="submit" class="btn btn-success"><i class="fas fa-plus me-2"></i>Создать категорию</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Список категорий -->
+<div class="card shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover table-striped mb-0">
+            <thead class="table-dark">
+                <tr>
+                    <th>Название</th>
+                    <th>Пол</th>
+                    <th>Вес (кг)</th>
+                    <th>Год рождения</th>
+                    <th>Система</th>
+                    <th>Участников</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat in categories %}
+                    <tr>
+                        <td><strong>{{ cat.name }}</strong></td>
+                        <td>{{ cat.get_gender_display }}</td>
+                        <td>{{ cat.min_weight }} - {{ cat.max_weight }}</td>
+                        <td>{{ cat.min_birth_year }} - {{ cat.max_birth_year }}</td>
+                        <td>{{ cat.get_bracket_system_display }}</td>
+                        <td><span class="badge bg-info">{{ cat.participant_count }}</span></td>
+                        <td>
+                            <!-- Кнопка редактирования -->
+                            <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editCatModal{{ cat.id }}">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <!-- Кнопка удаления -->
+                            <form method="post" class="d-inline">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="delete">
+                                <input type="hidden" name="category_id" value="{{ cat.id }}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Удалить категорию?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">Категории не созданы</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Модальные окна редактирования -->
+{% for cat in categories %}
+<div class="modal fade" id="editCatModal{{ cat.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="edit">
+                <input type="hidden" name="category_id" value="{{ cat.id }}">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title">Редактирование: {{ cat.name }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label">Название категории</label>
+                            <input type="text" name="name" class="form-control" value="{{ cat.name }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Пол</label>
+                            <select name="gender" class="form-select" required>
+                                <option value="M" {% if cat.gender == 'M' %}selected{% endif %}>Мужской</option>
+                                <option value="F" {% if cat.gender == 'F' %}selected{% endif %}>Женский</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Система проведения</label>
+                            <select name="bracket_system" class="form-select" required>
+                                <option value="single_elimination" {% if cat.bracket_system == 'single_elimination' %}selected{% endif %}>Олимпийская система</option>
+                                <option value="round_robin" {% if cat.bracket_system == 'round_robin' %}selected{% endif %}>Круговая система</option>
+                                <option value="mixed" {% if cat.bracket_system == 'mixed' %}selected{% endif %}>Смешанная система</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Мин. год рождения</label>
+                            <input type="number" name="min_birth_year" class="form-control" value="{{ cat.min_birth_year }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Макс. год рождения</label>
+                            <input type="number" name="max_birth_year" class="form-control" value="{{ cat.max_birth_year }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Мин. вес (кг)</label>
+                            <input type="number" name="min_weight" class="form-control" step="0.01" value="{{ cat.min_weight }}" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Макс. вес (кг)</label>
+                            <input type="number" name="max_weight" class="form-control" step="0.01" value="{{ cat.max_weight }}" required>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning mt-3 mb-0">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Внимание:</strong> если категория уже используется в сгенерированных сетках, изменение типа сетки не пересоздаст их автоматически. Удалите и создайте сетки заново при необходимости.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save me-1"></i>Сохранить изменения</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}
