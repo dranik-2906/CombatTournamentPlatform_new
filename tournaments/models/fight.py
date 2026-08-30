@@ -83,7 +83,7 @@ class Fight(models.Model):
 
     fighter1 = models.ForeignKey(
         Fighter, on_delete=models.CASCADE,
-        null=True, blank=True,  # <-- ДОБАВЛЕНО
+        null=True, blank=True,
         related_name='fights_as_fighter1', verbose_name='Боец 1'
     )
 
@@ -115,11 +115,22 @@ class Fight(models.Model):
     win_round = models.IntegerField(null=True, blank=True, verbose_name='Раунд победы')
     is_draw = models.BooleanField(default=False, verbose_name='Ничья')
 
+    # === СУДЕЙСТВО ===
     judge = models.ForeignKey(
         Judge, on_delete=models.SET_NULL,
         null=True, blank=True, related_name='fights',
-        verbose_name='Судья'
+        verbose_name='Судья (общий)'
     )
+    head_judge = models.ForeignKey(
+        Judge, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='fights_as_head',
+        verbose_name='Главный судья'
+    )
+    side_judges = models.ManyToManyField(
+        Judge, blank=True, related_name='fights_as_side',
+        verbose_name='Боковые судьи'
+    )
+
     judge_notes = models.TextField(blank=True, verbose_name='Заметки судьи')
 
     round_number = models.IntegerField(default=1, verbose_name='Номер раунда')
@@ -131,7 +142,11 @@ class Fight(models.Model):
         verbose_name='Следующий бой'
     )
 
-    # Timer fields
+    # === Timer fields (переопределяемые настройки боя) ===
+    total_rounds = models.PositiveIntegerField(default=3, verbose_name='Всего раундов в бою')
+    round_duration = models.PositiveIntegerField(default=180, verbose_name='Длительность раунда (сек)')
+    break_duration = models.PositiveIntegerField(default=60, verbose_name='Длительность перерыва (сек)')
+
     current_round = models.PositiveIntegerField(default=1, verbose_name='Текущий раунд')
     round_time_remaining = models.PositiveIntegerField(
         null=True, blank=True, verbose_name='Осталось времени раунда (сек)'
@@ -204,3 +219,58 @@ class Fight(models.Model):
         if self.winner == self.fighter1:
             return self.fighter2
         return self.fighter1
+
+    @property
+    def is_boxing_fight(self):
+        return self.tournament.is_boxing
+
+    def get_round_scores_summary(self):
+        """Возвращает сводку очков по раундам для бокса"""
+        if not self.is_boxing_fight:
+            return None
+        scores = self.round_scores.all()
+        if not scores.exists():
+            return None
+
+        result = {}
+        for rs in scores:
+            key = rs.round_number
+            if key not in result:
+                result[key] = {'f1': 0, 'f2': 0, 'judges': 0}
+            result[key]['f1'] += rs.score_fighter1
+            result[key]['f2'] += rs.score_fighter2
+            result[key]['judges'] += 1
+        return result
+
+    def get_total_round_scores(self):
+        """Итоговые очки по сумме раундов"""
+        summary = self.get_round_scores_summary()
+        if not summary:
+            return None
+        total_f1 = sum(v['f1'] for v in summary.values())
+        total_f2 = sum(v['f2'] for v in summary.values())
+        return {'fighter1': total_f1, 'fighter2': total_f2}
+
+
+class RoundScore(models.Model):
+    """Оценка бокового судьи за раунд (только для бокса)"""
+    fight = models.ForeignKey(
+        Fight, on_delete=models.CASCADE,
+        related_name='round_scores', verbose_name='Бой'
+    )
+    judge = models.ForeignKey(
+        Judge, on_delete=models.CASCADE,
+        related_name='round_scores', verbose_name='Судья'
+    )
+    round_number = models.PositiveIntegerField(verbose_name='Номер раунда')
+    score_fighter1 = models.IntegerField(default=0, verbose_name='Очки боксёра 1')
+    score_fighter2 = models.IntegerField(default=0, verbose_name='Очки боксёра 2')
+
+    class Meta:
+        verbose_name = 'Оценка за раунд'
+        verbose_name_plural = 'Оценки за раунды'
+        unique_together = ['fight', 'judge', 'round_number']
+        ordering = ['round_number', 'judge__last_name']
+
+    def __str__(self):
+        return f"Раунд {self.round_number}: {self.judge} — {self.score_fighter1}:{self.score_fighter2}"

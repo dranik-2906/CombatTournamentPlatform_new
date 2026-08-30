@@ -8,6 +8,10 @@
         <div class="card shadow-lg">
             <div class="card-header bg-dark text-white">
                 <h4 class="mb-0">Таймер боя #{{ fight.id }}</h4>
+                <small class="text-light">
+                    {% if is_head_judge %}<span class="badge bg-warning text-dark">Главный судья</span>{% endif %}
+                    {% if is_side_judge %}<span class="badge bg-info">Боковой судья</span>{% endif %}
+                </small>
             </div>
             <div class="card-body">
                 <div class="row mb-4">
@@ -17,11 +21,13 @@
                 </div>
 
                 <div class="mb-4">
-                    <h5 class="text-muted">Раунд <span id="currentRound">{{ fight.current_round }}</span> / {{ timer_settings.number_of_rounds }}</h5>
-                    <h1 class="display-1 fw-bold" id="timerDisplay">{{ fight.round_time_remaining|default:timer_settings.round_duration }}</h1>
+                    <h5 class="text-muted">Раунд <span id="currentRound">{{ fight.current_round }}</span> / <span id="totalRoundsDisplay">{{ fight.total_rounds }}</span></h5>
+                    <h1 class="display-1 fw-bold" id="timerDisplay">--:--</h1>
                     <span class="badge bg-secondary" id="timerState">{{ fight.get_status_display }}</span>
                 </div>
 
+                {% if is_head_judge or not is_side_judge %}
+                <!-- Управление таймером (главный или общий судья) -->
                 <div class="btn-group btn-group-lg mb-3">
                     <button class="btn btn-success" id="btnStart"><i class="fas fa-play"></i> Старт</button>
                     <button class="btn btn-warning" id="btnPause"><i class="fas fa-pause"></i> Пауза</button>
@@ -29,8 +35,41 @@
                     <button class="btn btn-secondary" id="btnReset"><i class="fas fa-redo"></i> Сброс</button>
                     <button class="btn btn-primary" id="btnNext"><i class="fas fa-forward"></i> След. раунд</button>
                 </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-eye me-2"></i>Таймер управляется главным судьёй. Вы можете только наблюдать.
+                </div>
+                {% endif %}
 
-                <form method="post" action="{% url 'tournaments:complete_fight_ajax' tournament.id fight.id %}" id="completeForm">
+                {% if is_head_judge %}
+                <!-- Панель настроек боя (только главный судья) -->
+                <div class="card mt-3 border-warning">
+                    <div class="card-header bg-warning text-dark">
+                        <i class="fas fa-cogs me-2"></i>Настройки боя
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Раундов</label>
+                                <input type="number" id="setting-total-rounds" class="form-control" value="{{ fight.total_rounds }}" min="1" max="20">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Длительность раунда (сек)</label>
+                                <input type="number" id="setting-round-dur" class="form-control" value="{{ fight.round_duration }}" min="10" step="10">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Длительность перерыва (сек)</label>
+                                <input type="number" id="setting-break-dur" class="form-control" value="{{ fight.break_duration }}" min="5" step="5">
+                            </div>
+                        </div>
+                        <button class="btn btn-warning w-100 mt-3" id="btnSaveSettings">
+                            <i class="fas fa-save me-2"></i>Применить настройки
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="post" action="{% url 'tournaments:complete_fight_ajax' tournament.id fight.id %}" id="completeForm" class="mt-4">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger btn-lg w-100">
                         <i class="fas fa-flag-checkered me-2"></i>Завершить бой
@@ -43,33 +82,114 @@
 
 <script>
 let timerInterval;
-let timeRemaining = {{ fight.round_time_remaining|default:timer_settings.round_duration }};
+let timeRemaining = {{ fight.round_time_remaining|default:fight.round_duration }};
 let isRunning = false;
+let isBreak = false;
+let roundDuration = {{ fight.round_duration }};
+let breakDuration = {{ fight.break_duration }};
+let totalRounds = {{ fight.total_rounds }};
+let currentRound = {{ fight.current_round }};
 
-function updateDisplay() {
-    const mins = Math.floor(timeRemaining / 60);
-    const secs = timeRemaining % 60;
-    document.getElementById('timerDisplay').textContent = 
-        String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+function formatTime(seconds) {
+    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return m + ':' + s;
 }
 
-function sendAction(action) {
+function updateDisplay() {
+    document.getElementById('timerDisplay').textContent = formatTime(timeRemaining);
+    document.getElementById('currentRound').textContent = currentRound;
+    document.getElementById('totalRoundsDisplay').textContent = totalRounds;
+}
+
+function sendAction(action, extraData) {
+    const payload = {action: action};
+    if (extraData) Object.assign(payload, extraData);
     fetch('{% url "tournaments:timer_control" tournament.id fight.id %}', {
         method: 'POST',
         headers: {'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/json'},
-        body: JSON.stringify({action: action})
+        body: JSON.stringify(payload)
     }).then(r => r.json()).then(data => {
         if (data.success) {
-            document.getElementById('currentRound').textContent = data.current_round;
+            currentRound = data.current_round;
+            totalRounds = data.total_rounds;
+            roundDuration = data.round_duration;
+            breakDuration = data.break_duration;
+            if (action !== 'update_settings') {
+                timeRemaining = isBreak ? data.break_time : data.round_time;
+            }
+            updateDisplay();
+        } else {
+            alert(data.error || 'Ошибка');
         }
-    });
+    }).catch(err => console.error(err));
 }
 
-document.getElementById('btnStart').onclick = () => { sendAction('start_round'); isRunning = true; };
-document.getElementById('btnPause').onclick = () => { sendAction('pause_round'); isRunning = false; };
-document.getElementById('btnBreak').onclick = () => { sendAction('start_break'); isRunning = false; };
-document.getElementById('btnReset').onclick = () => { sendAction('reset_round'); isRunning = false; timeRemaining = {{ timer_settings.round_duration }}; updateDisplay(); };
-document.getElementById('btnNext').onclick = () => { sendAction('next_round'); };
+{% if is_head_judge or not is_side_judge %}
+document.getElementById('btnStart').onclick = () => {
+    sendAction('start_round');
+    isRunning = true; isBreak = false;
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (timeRemaining > 0) { timeRemaining--; updateDisplay(); }
+        else { clearInterval(timerInterval); isRunning = false; alert('Время вышло!'); }
+    }, 1000);
+};
+document.getElementById('btnPause').onclick = () => {
+    sendAction('pause_round');
+    isRunning = false;
+    clearInterval(timerInterval);
+};
+document.getElementById('btnBreak').onclick = () => {
+    sendAction('start_break');
+    isRunning = true; isBreak = true;
+    timeRemaining = breakDuration;
+    updateDisplay();
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (timeRemaining > 0) { timeRemaining--; updateDisplay(); }
+        else { clearInterval(timerInterval); isRunning = false; alert('Перерыв окончен!'); }
+    }, 1000);
+};
+document.getElementById('btnReset').onclick = () => {
+    sendAction('reset_round');
+    isRunning = false; isBreak = false;
+    clearInterval(timerInterval);
+    timeRemaining = roundDuration;
+    currentRound = 1;
+    updateDisplay();
+};
+document.getElementById('btnNext').onclick = () => {
+    if (currentRound >= totalRounds) {
+        alert('Это последний раунд');
+        return;
+    }
+    sendAction('next_round');
+    isRunning = false; isBreak = false;
+    clearInterval(timerInterval);
+    timeRemaining = roundDuration;
+    currentRound++;
+    updateDisplay();
+};
+{% endif %}
+
+{% if is_head_judge %}
+document.getElementById('btnSaveSettings').onclick = () => {
+    const total = parseInt(document.getElementById('setting-total-rounds').value);
+    const rd = parseInt(document.getElementById('setting-round-dur').value);
+    const bd = parseInt(document.getElementById('setting-break-dur').value);
+    sendAction('update_settings', {
+        total_rounds: total,
+        round_duration: rd,
+        break_duration: bd
+    });
+};
+{% endif %}
+
+// Периодически синхронизируем состояние с сервером
+setInterval(() => {
+    sendAction('get_state');
+}, 5000);
 
 updateDisplay();
 </script>

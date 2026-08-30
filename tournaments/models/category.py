@@ -59,6 +59,11 @@ class AgeWeightCategory(models.Model):
         max_length=20, choices=BRACKET_SYSTEM_CHOICES,
         default='single_elimination', verbose_name='Система проведения'
     )
+    # === НОВОЕ: для бокса ===
+    side_judges_count = models.PositiveIntegerField(
+        default=0, verbose_name='Количество боковых судей',
+        help_text='Заполняется только для бокса (обычно 3 или 5)'
+    )
 
     class Meta:
         verbose_name = 'Возрастно-весовая категория'

@@ -3,7 +3,7 @@ from .fighter import Fighter
 from .judge import Judge
 from .category import AgeGroup, WeightCategory, AgeWeightCategory
 from .bracket import Bracket, BracketNode
-from .fight import Fight, Match
+from .fight import Fight, Match, RoundScore
 from .timer import TimerSettings
 from .registration import (
     TournamentRegistration,
@@ -22,6 +22,7 @@ __all__ = [
     'BracketNode',
     'Fight',
     'Match',
+    'RoundScore',
     'TimerSettings',
     'TournamentRegistration',
     'TournamentCheckpoint',

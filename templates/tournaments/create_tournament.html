@@ -1,28 +1,73 @@
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Создать турнир - Combat Platform{% endblock %}
+{% block title %}Создание турнира{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0"><i class="fas fa-plus me-2"></i>Создание турнира</h4>
+        <div class="card shadow">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Новый турнир</h4>
             </div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
                     {{ form|crispy }}
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-success">
+
+                    <!-- Подсказка о системе судейства -->
+                    <div id="judge-system-info" class="alert alert-info d-none mt-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span id="judge-system-text"></span>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-success btn-lg">
                             <i class="fas fa-save me-2"></i>Создать турнир
                         </button>
-                        <a href="{% url 'tournaments:tournament_list' %}" class="btn btn-outline-secondary">Отмена</a>
+                        <a href="{% url 'tournaments:tournament_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Назад к списку
+                        </a>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sportSelect = document.getElementById('id_sport_type');
+    const infoBlock = document.getElementById('judge-system-info');
+    const infoText = document.getElementById('judge-system-text');
+
+    const judgeInfo = {
+        'boxing': 'Бокс: будет использоваться система главного судьи + боковые судьи (оценки за раунды). При создании категории укажите количество боковых судей.',
+        'mma': 'MMA: будет использоваться система главного судьи + боковые судьи (оценки за раунды). При создании категории укажите количество боковых судей.',
+        'kickboxing': 'Кикбоксинг: будет использоваться система главного судьи + боковые судьи (оценки за раунды). При создании категории укажите количество боковых судей.',
+        'sambo': 'Боевое самбо: бои проводятся под управлением одного судьи (общий).',
+        'judo': 'Дзюдо: бои проводятся под управлением одного судьи (общий).',
+        'wrestling': 'Вольная борьба: бои проводятся под управлением одного судьи (общий).',
+        'other': 'Выберите вид спорта для отображения информации о судействе.'
+    };
+
+    function updateInfo() {
+        const val = sportSelect.value;
+        if (judgeInfo[val]) {
+            infoText.textContent = judgeInfo[val];
+            infoBlock.classList.remove('d-none');
+            if (['boxing', 'mma', 'kickboxing'].includes(val)) {
+                infoBlock.className = 'alert alert-warning mt-3';
+            } else {
+                infoBlock.className = 'alert alert-info mt-3';
+            }
+        } else {
+            infoBlock.classList.add('d-none');
+        }
+    }
+
+    sportSelect.addEventListener('change', updateInfo);
+    updateInfo(); // при загрузке
+});
+</script>
 {% endblock %}

@@ -6,6 +6,8 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
+
 <nav aria-label="breadcrumb" class="mb-3">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="{% url 'tournaments:judge_dashboard' %}">Панель судьи</a></li>
@@ -14,7 +16,7 @@
 </nav>
 
 <div class="row">
-    <!-- Левая колонка: инфо, таймер, настройки -->
+    <!-- Левая колонка -->
     <div class="col-md-4">
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-dark text-white">
@@ -23,7 +25,12 @@
             <div class="card-body">
                 <p><strong>Турнир:</strong> {{ fight.tournament.name }}</p>
                 <p><strong>Категория:</strong> {{ fight.age_weight_category|default:"—" }}</p>
-                <p><strong>Раунд:</strong> {{ fight.round_number }}</p>
+                <p><strong>Раунд:</strong> <span id="info-current-round">{{ fight.current_round }}</span> / {{ fight.total_rounds }}</p>
+                <p><strong>Роль:</strong>
+                    {% if is_head_judge %}<span class="badge bg-warning text-dark">Главный судья</span>{% endif %}
+                    {% if is_side_judge %}<span class="badge bg-info">Боковой судья</span>{% endif %}
+                    {% if not is_head_judge and not is_side_judge %}<span class="badge bg-secondary">Судья</span>{% endif %}
+                </p>
                 <p><strong>Статус:</strong>
                     <span class="badge bg-{% if fight.status == 'completed' %}success{% elif fight.status == 'in_progress' %}warning text-dark{% else %}secondary{% endif %}">
                         {{ fight.get_status_display }}
@@ -33,68 +40,75 @@
         </div>
 
         {% if fight.status != 'completed' %}
-        <!-- Настройки таймера (сворачиваемые) -->
-        <div class="card shadow-sm mb-3">
-            <div class="card-header bg-secondary text-white" style="cursor:pointer;" data-bs-toggle="collapse" data-bs-target="#timerSettingsCollapse" aria-expanded="false">
-                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Настройки таймера</h6>
-            </div>
-            <div class="collapse" id="timerSettingsCollapse">
-                <div class="card-body">
-                    <form method="post" action="">
-                        {% csrf_token %}
-                        <input type="hidden" name="update_timer" value="1">
-                        <div class="mb-2">
-                            <label class="form-label small">Длительность раунда (сек)</label>
-                            <input type="number" name="round_duration" class="form-control form-control-sm" value="{{ timer_settings.round_duration }}" min="10" step="10">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small">Длительность перерыва (сек)</label>
-                            <input type="number" name="break_duration" class="form-control form-control-sm" value="{{ timer_settings.break_duration }}" min="5" step="5">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small">Количество раундов</label>
-                            <input type="number" name="number_of_rounds" class="form-control form-control-sm" value="{{ timer_settings.number_of_rounds }}" min="1" max="20">
-                        </div>
-                        <button type="submit" class="btn btn-secondary btn-sm w-100">
-                            <i class="fas fa-save me-1"></i>Сохранить
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-
         <!-- Таймер -->
-        <div class="card shadow-sm mb-4">
+        <div class="card shadow-sm mb-4 border-primary">
             <div class="card-header bg-primary text-white">
                 <h5 class="mb-0"><i class="fas fa-stopwatch me-2"></i>Таймер</h5>
             </div>
             <div class="card-body text-center">
-                <h1 id="timer-display" class="display-4 fw-bold font-monospace">03:00</h1>
-                <p class="text-muted mb-3">Раунд <span id="current-round-display">1</span> / <span id="total-rounds-display">{{ timer_settings.number_of_rounds }}</span></p>
-                <div class="btn-group w-100">
+                <h1 id="timer-display" class="display-4 fw-bold font-monospace text-primary">--:--</h1>
+                <p class="text-muted mb-3">
+                    Раунд <span id="current-round-display" class="fw-bold">{{ fight.current_round }}</span> /
+                    <span id="total-rounds-display">{{ fight.total_rounds }}</span>
+                </p>
+
+                {% if is_head_judge %}
+                <div class="btn-group w-100 mb-2">
                     <button class="btn btn-success" id="btn-start" onclick="timerAction('start_round')"><i class="fas fa-play"></i></button>
                     <button class="btn btn-warning" id="btn-pause" onclick="timerAction('pause_round')"><i class="fas fa-pause"></i></button>
-                    <button class="btn btn-danger" id="btn-reset" onclick="timerAction('reset_round')"><i class="fas fa-redo"></i></button>
+                    <button class="btn btn-info" id="btn-break" onclick="timerAction('start_break')"><i class="fas fa-coffee"></i></button>
+                    <button class="btn btn-secondary" id="btn-reset" onclick="timerAction('reset_round')"><i class="fas fa-redo"></i></button>
                 </div>
-                <button class="btn btn-outline-primary btn-sm w-100 mt-2" onclick="timerAction('next_round')">
+                <button class="btn btn-outline-primary btn-sm w-100" id="btn-next" onclick="timerAction('next_round')">
                     <i class="fas fa-forward me-1"></i>Следующий раунд
+                </button>
+                {% else %}
+                <div class="alert alert-info py-2 mb-0">
+                    <small><i class="fas fa-eye me-1"></i>Таймер управляется главным судьёй</small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        {% if is_head_judge %}
+        <!-- Настройки боя -->
+        <div class="card shadow-sm mb-3 border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="fas fa-cog me-2"></i>Настройки боя</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <label class="form-label small">Количество раундов</label>
+                    <input type="number" id="fight-total-rounds" class="form-control form-control-sm" value="{{ fight.total_rounds }}" min="1" max="20">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Длительность раунда (сек)</label>
+                    <input type="number" id="fight-round-dur" class="form-control form-control-sm" value="{{ fight.round_duration }}" min="10" step="10">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small">Длительность перерыва (сек)</label>
+                    <input type="number" id="fight-break-dur" class="form-control form-control-sm" value="{{ fight.break_duration }}" min="5" step="5">
+                </div>
+                <button type="button" class="btn btn-warning btn-sm w-100" onclick="saveFightSettings()">
+                    <i class="fas fa-save me-1"></i>Применить
                 </button>
             </div>
         </div>
         {% endif %}
+        {% endif %}
     </div>
 
-    <!-- Правая колонка: бойцы и результат -->
+    <!-- Правая колонка -->
     <div class="col-md-8">
         <div class="row mb-4">
             <div class="col-md-6">
                 <div class="card border-primary shadow-sm h-100">
                     <div class="card-header bg-primary text-white text-center">
-                        <h5 class="mb-0">{{ fight.fighter1.full_name }}</h5>
+                        <h5 class="mb-0">{{ fight.fighter1.full_name|default:"—" }}</h5>
                     </div>
                     <div class="card-body text-center">
                         <h1 class="display-1 text-primary" id="score1-display">{{ fight.score_fighter1 }}</h1>
-                        {% if fight.status != 'completed' %}
+                        {% if fight.status != 'completed' and not is_side_judge %}
                         <div class="btn-group mt-3">
                             <button class="btn btn-outline-primary btn-lg" onclick="changeScore(1, 1)">+1</button>
                             <button class="btn btn-outline-primary btn-lg" onclick="changeScore(1, -1)">-1</button>
@@ -110,7 +124,7 @@
                     </div>
                     <div class="card-body text-center">
                         <h1 class="display-1 text-danger" id="score2-display">{{ fight.score_fighter2 }}</h1>
-                        {% if fight.status != 'completed' %}
+                        {% if fight.status != 'completed' and not is_side_judge %}
                         <div class="btn-group mt-3">
                             <button class="btn btn-outline-danger btn-lg" onclick="changeScore(2, 1)">+1</button>
                             <button class="btn btn-outline-danger btn-lg" onclick="changeScore(2, -1)">-1</button>
@@ -121,8 +135,94 @@
             </div>
         </div>
 
+        {% if is_boxing and fight.status != 'completed' %}
+            {% if is_side_judge %}
+            <!-- Панель бокового судьи -->
+            <div class="card mt-3 border-info">
+                <div class="card-header bg-info text-white">
+                    <i class="fas fa-clipboard-list me-2"></i>Оценки за раунды (боковой судья)
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small">Таймер управляется главным судьёй. Выставьте очки за каждый раунд.</p>
+                    <table class="table table-sm table-bordered">
+                        <thead>
+                            <tr class="table-light">
+                                <th>Раунд</th>
+                                <th>{{ fight.fighter1 }}</th>
+                                <th>{{ fight.fighter2 }}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in rounds_range %}
+                            <tr>
+                                <td class="align-middle fw-bold">{{ r }}</td>
+                                <td><input type="number" class="form-control score-f1" data-round="{{ r }}" min="0" value="{% for s in my_scores %}{% if s.round_number == r %}{{ s.score_fighter1 }}{% endif %}{% endfor %}"></td>
+                                <td><input type="number" class="form-control score-f2" data-round="{{ r }}" min="0" value="{% for s in my_scores %}{% if s.round_number == r %}{{ s.score_fighter2 }}{% endif %}{% endfor %}"></td>
+                                <td class="align-middle"><button class="btn btn-sm btn-success save-score" data-round="{{ r }}">Сохранить</button></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {% elif is_head_judge %}
+            <!-- Панель главного судьи: оценки боковых + итоги -->
+            <div class="card mt-3 border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-gavel me-2"></i>Оценки боковых судей
+                </div>
+                <div class="card-body">
+                    <div id="scores-container">
+                        <p class="text-muted">Загрузка оценок...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ИТОГОВЫЙ ПОДСЧЁТ (появляется автоматически после последнего раунда) -->
+            <div class="card mt-3 border-success d-none" id="final-calculation-block">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-calculator me-2"></i>Итоговый подсчёт
+                </div>
+                <div class="card-body">
+                    <div class="row text-center mb-3">
+                        <div class="col-md-6">
+                            <h4 class="text-primary">{{ fight.fighter1 }}</h4>
+                            <h2 class="display-4" id="final-total-f1">0</h2>
+                        </div>
+                        <div class="col-md-6">
+                            <h4 class="text-danger">{{ fight.fighter2 }}</h4>
+                            <h2 class="display-4" id="final-total-f2">0</h2>
+                        </div>
+                    </div>
+                    <div class="alert alert-info text-center" id="final-verdict">
+                        <strong>Победитель по очкам:</strong> <span id="auto-winner-name">—</span>
+                    </div>
+
+                    <hr>
+                    <h5 class="mb-3">Подтвердить результат</h5>
+                    <div class="row">
+                        <div class="col-md-8">
+                            <select id="final-winner" class="form-select form-select-lg">
+                                <option value="">-- Выберите победителя --</option>
+                                <option value="{{ fight.fighter1.id }}">{{ fight.fighter1 }}</option>
+                                <option value="{{ fight.fighter2.id }}">{{ fight.fighter2 }}</option>
+                                <option value="draw">Ничья</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-danger btn-lg w-100" onclick="finalizeFight()">
+                                <i class="fas fa-flag-checkered me-1"></i>Завершить бой
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+
         {% if fight.status == 'completed' %}
-        <!-- РЕЗУЛЬТАТЫ БОЯ -->
+        <!-- Результаты -->
         <div class="card shadow-sm border-success">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0"><i class="fas fa-clipboard-check me-2"></i>Результаты боя</h5>
@@ -130,7 +230,7 @@
             <div class="card-body">
                 <div class="row text-center mb-4">
                     <div class="col-md-6">
-                        <h3 class="text-primary">{{ fight.fighter1.full_name }}</h3>
+                        <h3 class="text-primary">{{ fight.fighter1.full_name|default:"—" }}</h3>
                         <h1 class="display-4">{{ fight.score_fighter1 }}</h1>
                     </div>
                     <div class="col-md-6">
@@ -163,7 +263,8 @@
             </div>
         </div>
         {% else %}
-        <!-- Форма завершения -->
+        <!-- Форма завершения (для не-бокса) -->
+        {% if not is_boxing or not is_side_judge %}
         <div class="card shadow-sm">
             <div class="card-header bg-success text-white">
                 <h5 class="mb-0"><i class="fas fa-check-circle me-2"></i>Завершение боя</h5>
@@ -194,38 +295,40 @@
             </div>
         </div>
         {% endif %}
+        {% endif %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    {% if fight.status != 'completed' %}
-    // --- Очки ---
-    let score1 = {{ fight.score_fighter1 }};
-    let score2 = {{ fight.score_fighter2 }};
-
-    function changeScore(fighter, delta) {
-        if (fighter === 1) {
-            score1 = Math.max(0, score1 + delta);
-            document.getElementById('score1-display').textContent = score1;
-            document.getElementById('score_fighter1').value = score1;
-        } else {
-            score2 = Math.max(0, score2 + delta);
-            document.getElementById('score2-display').textContent = score2;
-            document.getElementById('score_fighter2').value = score2;
+    // === CSRF из cookie ===
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
         }
+        return cookieValue;
     }
+    const csrfToken = getCookie('csrftoken');
 
-    // --- Таймер ---
-    let roundDuration = {{ timer_settings.round_duration|default:180 }};
-    let breakDuration = {{ timer_settings.break_duration|default:60 }};
-    let totalRounds = {{ timer_settings.number_of_rounds|default:3 }};
-    let currentRound = 1;
-    let timeLeft = roundDuration;
+    // === Таймер ===
+    let roundDuration = {{ fight.round_duration }};
+    let breakDuration = {{ fight.break_duration }};
+    let totalRounds = {{ fight.total_rounds }};
+    let currentRound = {{ fight.current_round }};
+    let timeLeft = {{ fight.round_time_remaining|default:fight.round_duration }};
     let isRunning = false;
-    let timerInterval = null;
     let isBreak = false;
+    let timerInterval = null;
+    let lastRoundScores = null; // кэш оценок для итогового подсчёта
 
     function formatTime(seconds) {
         const m = Math.floor(seconds / 60).toString().padStart(2, '0');
@@ -234,25 +337,14 @@
     }
 
     function updateDisplay() {
-        document.getElementById('timer-display').textContent = formatTime(timeLeft);
-        document.getElementById('current-round-display').textContent = currentRound;
-        document.getElementById('total-rounds-display').textContent = totalRounds;
-    }
-
-    function playBeep() {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain);
-            gain.connect(ctx.destination);
-            osc.frequency.value = 880;
-            gain.gain.value = 0.1;
-            osc.start();
-            setTimeout(() => osc.stop(), 300);
-        } catch (e) {
-            // Audio не поддерживается — игнорируем
-        }
+        const el = document.getElementById('timer-display');
+        if (el) el.textContent = formatTime(timeLeft);
+        const cr = document.getElementById('current-round-display');
+        if (cr) cr.textContent = currentRound;
+        const tr = document.getElementById('total-rounds-display');
+        if (tr) tr.textContent = totalRounds;
+        const infoCr = document.getElementById('info-current-round');
+        if (infoCr) infoCr.textContent = currentRound;
     }
 
     function startLocalTimer() {
@@ -261,60 +353,270 @@
             if (timeLeft > 0) {
                 timeLeft--;
                 updateDisplay();
-                if (timeLeft === 10) playBeep(); // предупреждение за 10 сек
             } else {
                 clearInterval(timerInterval);
+                timerInterval = null;
                 isRunning = false;
-                playBeep();
-                alert((isBreak ? 'Перерыв' : 'Раунд ' + currentRound) + ' завершён!');
+
+                // === АВТОПОДСЧЁТ ПОСЛЕ ПОСЛЕДНЕГО РАУНДА ===
+                if (!isBreak && currentRound >= totalRounds) {
+                    // Все раунды завершены — показываем итоги
+                    showFinalCalculation();
+                    alert('Все раунды завершены! Подсчитаны итоговые очки.');
+                } else if (!isBreak) {
+                    // Раунд закончился, но не последний — предложить перерыв
+                    alert('Раунд окончен! Нажмите "Перерыв" перед следующим раундом.');
+                } else {
+                    alert('Перерыв окончен!');
+                }
             }
         }, 1000);
     }
 
-    function timerAction(action) {
-        // Локальное действие — выполняем мгновенно, не ждём сервер
-        if (action === 'start_round') {
-            if (!isRunning) {
-                isRunning = true;
-                isBreak = false;
-                startLocalTimer();
-            }
-        } else if (action === 'pause_round') {
-            isRunning = false;
+    function stopLocalTimer() {
+        if (timerInterval) {
             clearInterval(timerInterval);
-        } else if (action === 'reset_round') {
-            isRunning = false;
-            clearInterval(timerInterval);
-            timeLeft = roundDuration;
-            currentRound = 1;
-            isBreak = false;
-            updateDisplay();
-        } else if (action === 'next_round') {
-            if (currentRound < totalRounds) {
-                currentRound++;
-                timeLeft = roundDuration;
-                isRunning = false;
-                isBreak = false;
-                clearInterval(timerInterval);
-                updateDisplay();
-            } else {
-                alert('Это был последний раунд');
-            }
+            timerInterval = null;
         }
+    }
 
-        // Фоновый запрос на сервер (не блокирует UI, не ломает таймер при ошибке)
+    function timerAction(action) {
         const url = "{% url 'tournaments:timer_control' fight.tournament.id fight.id %}";
         fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                'X-CSRFToken': csrfToken || ''
             },
             body: JSON.stringify({action: action})
-        }).catch(err => console.error('Fetch error:', err));
+        }).then(r => r.json()).then(data => {
+            if (data.success) {
+                currentRound = data.current_round;
+                totalRounds = data.total_rounds;
+                roundDuration = data.round_duration;
+                breakDuration = data.break_duration;
+                isBreak = data.is_break || false;
+
+                if (action === 'start_round') {
+                    isRunning = true;
+                    timeLeft = data.round_time;
+                    startLocalTimer();
+                } else if (action === 'start_break') {
+                    isRunning = true;
+                    isBreak = true;
+                    timeLeft = data.break_time;
+                    startLocalTimer();
+                } else if (action === 'pause_round') {
+                    isRunning = false;
+                    stopLocalTimer();
+                } else if (action === 'reset_round') {
+                    isRunning = false;
+                    isBreak = false;
+                    stopLocalTimer();
+                    timeLeft = data.round_time;
+                    hideFinalCalculation();
+                } else if (action === 'next_round') {
+                    isRunning = false;
+                    isBreak = false;
+                    stopLocalTimer();
+                    timeLeft = data.round_time;
+                } else if (action === 'get_state') {
+                    if (data.is_running && !timerInterval) {
+                        isRunning = true;
+                        isBreak = data.is_break;
+                        timeLeft = isBreak ? data.break_time : data.round_time;
+                        startLocalTimer();
+                    } else if (!data.is_running && timerInterval) {
+                        stopLocalTimer();
+                    }
+                }
+                updateDisplay();
+            } else {
+                alert(data.error || 'Ошибка сервера');
+            }
+        }).catch(err => {
+            console.error('Fetch error:', err);
+            alert('Ошибка сети. Проверьте, что сервер запущен.');
+        });
     }
 
-    updateDisplay();
+    // === Показать итоговый подсчёт (главный судья) ===
+    function showFinalCalculation() {
+        const block = document.getElementById('final-calculation-block');
+        if (!block) return;
+
+        block.classList.remove('d-none');
+        block.scrollIntoView({behavior: 'smooth'});
+
+        // Обновляем итоги на основе последних загруженных данных
+        if (lastRoundScores && lastRoundScores.totals) {
+            const t1 = lastRoundScores.totals.fighter1 || 0;
+            const t2 = lastRoundScores.totals.fighter2 || 0;
+
+            const el1 = document.getElementById('final-total-f1');
+            const el2 = document.getElementById('final-total-f2');
+            if (el1) el1.textContent = t1;
+            if (el2) el2.textContent = t2;
+
+            // Автоматически определяем победителя
+            const select = document.getElementById('final-winner');
+            const verdict = document.getElementById('auto-winner-name');
+
+            if (t1 > t2) {
+                if (select) select.value = "{{ fight.fighter1.id }}";
+                if (verdict) verdict.textContent = "{{ fight.fighter1 }} (по очкам)";
+                if (verdict) verdict.className = "text-primary fw-bold";
+            } else if (t2 > t1) {
+                if (select) select.value = "{{ fight.fighter2.id }}";
+                if (verdict) verdict.textContent = "{{ fight.fighter2 }} (по очкам)";
+                if (verdict) verdict.className = "text-danger fw-bold";
+            } else {
+                if (select) select.value = "draw";
+                if (verdict) verdict.textContent = "Ничья (равное количество очков)";
+                if (verdict) verdict.className = "text-muted fw-bold";
+            }
+        }
+    }
+
+    function hideFinalCalculation() {
+        const block = document.getElementById('final-calculation-block');
+        if (block) block.classList.add('d-none');
+    }
+
+    // === Очки ===
+    let score1 = {{ fight.score_fighter1 }};
+    let score2 = {{ fight.score_fighter2 }};
+
+    function changeScore(fighter, delta) {
+        if (fighter === 1) {
+            score1 = Math.max(0, score1 + delta);
+            const el = document.getElementById('score1-display');
+            if (el) el.textContent = score1;
+            const inp = document.getElementById('score_fighter1');
+            if (inp) inp.value = score1;
+        } else {
+            score2 = Math.max(0, score2 + delta);
+            const el = document.getElementById('score2-display');
+            if (el) el.textContent = score2;
+            const inp = document.getElementById('score_fighter2');
+            if (inp) inp.value = score2;
+        }
+    }
+
+    // === Настройки боя ===
+    {% if is_head_judge %}
+    function saveFightSettings() {
+        const totalEl = document.getElementById('fight-total-rounds');
+        const rdEl = document.getElementById('fight-round-dur');
+        const bdEl = document.getElementById('fight-break-dur');
+        if (!totalEl || !rdEl || !bdEl) return;
+
+        const url = "{% url 'tournaments:timer_control' fight.tournament.id fight.id %}";
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken || ''
+            },
+            body: JSON.stringify({
+                action: 'update_settings',
+                total_rounds: parseInt(totalEl.value),
+                round_duration: parseInt(rdEl.value),
+                break_duration: parseInt(bdEl.value)
+            })
+        }).then(r => r.json()).then(data => {
+            if (data.success) {
+                totalRounds = data.total_rounds;
+                roundDuration = data.round_duration;
+                breakDuration = data.break_duration;
+                timeLeft = data.round_time;
+                updateDisplay();
+                alert('Настройки применены');
+            } else {
+                alert(data.error || 'Ошибка');
+            }
+        }).catch(err => console.error(err));
+    }
     {% endif %}
+
+    // === Бокс: оценки бокового судьи ===
+    {% if is_side_judge %}
+    document.querySelectorAll('.save-score').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const round = this.dataset.round;
+            const row = this.closest('tr');
+            const f1 = row.querySelector('.score-f1').value;
+            const f2 = row.querySelector('.score-f2').value;
+            fetch("{% url 'tournaments:submit_round_score' fight.tournament.id fight.id %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken || '',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    round_number: parseInt(round),
+                    score_fighter1: parseInt(f1) || 0,
+                    score_fighter2: parseInt(f2) || 0
+                })
+            }).then(r => r.json()).then(data => {
+                alert(data.message || data.error);
+            }).catch(err => console.error(err));
+        });
+    });
+    {% endif %}
+
+    // === Бокс: панель главного судьи ===
+    {% if is_head_judge and is_boxing %}
+    function loadScores() {
+        const container = document.getElementById('scores-container');
+        if (!container) return;
+
+        fetch("{% url 'tournaments:get_round_scores' fight.tournament.id fight.id %}")
+            .then(r => r.json()).then(data => {
+                lastRoundScores = data; // сохраняем для итогового подсчёта
+                if (!data.success) {
+                    container.innerHTML = '<p class="text-muted">Нет данных</p>';
+                    return;
+                }
+                let html = '<table class="table table-sm table-bordered"><thead><tr class="table-light"><th>Раунд</th><th>Судья</th><th>{{ fight.fighter1 }}</th><th>{{ fight.fighter2 }}</th></tr></thead><tbody>';
+                data.scores.forEach(s => {
+                    html += `<tr><td>${s.round_number}</td><td>${s.judge__first_name} ${s.judge__last_name}</td><td>${s.score_fighter1}</td><td>${s.score_fighter2}</td></tr>`;
+                });
+                html += '</tbody></table>';
+                if (data.totals) {
+                    html += `<div class="alert alert-light border mt-2"><strong>Итого по раундам:</strong> {{ fight.fighter1 }} <span class="text-primary fw-bold">${data.totals.fighter1}</span> — {{ fight.fighter2 }} <span class="text-danger fw-bold">${data.totals.fighter2}</span></div>`;
+                }
+                container.innerHTML = html;
+            }).catch(err => {
+                console.error(err);
+                container.innerHTML = '<p class="text-muted">Ошибка загрузки</p>';
+            });
+    }
+    setInterval(loadScores, 5000);
+    loadScores();
+
+    function finalizeFight() {
+        const winnerEl = document.getElementById('final-winner');
+        if (!winnerEl) return;
+        const winner = winnerEl.value;
+        if (!winner) { alert('Выберите победителя'); return; }
+
+        fetch("{% url 'tournaments:head_judge_finalize' fight.tournament.id fight.id %}", {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken || '',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({winner_id: winner, method: 'points'})
+        }).then(r => r.json()).then(data => {
+            alert(data.message || data.error);
+            if (data.success) location.reload();
+        }).catch(err => console.error(err));
+    }
+    {% endif %}
+
+    // При загрузке — синхронизируемся
+    timerAction('get_state');
+    updateDisplay();
 </script>
 {% endblock %}

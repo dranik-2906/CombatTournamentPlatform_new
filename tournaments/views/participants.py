@@ -99,31 +99,38 @@ def participants_management(request):
 @login_required
 @tournament_admin_required
 def add_participant(request, tournament_id):
-    """Добавление нового участника"""
     tournament = get_object_or_404(Tournament, pk=tournament_id)
-
     if request.method == 'POST':
         form = FighterForm(request.POST, request.FILES)
         if form.is_valid():
-            fighter = form.save()
-            reg, created = TournamentRegistration.objects.get_or_create(
-                tournament=tournament, fighter=fighter,
-                defaults={'is_approved': False}
+            # Автоматически создаём пользователя для бойца
+            from django.contrib.auth.models import User
+            import random
+            first = form.cleaned_data['first_name']
+            last = form.cleaned_data['last_name']
+            username = f"fighter_{first.lower()}_{last.lower()}_{random.randint(1000, 9999)}"
+            user = User.objects.create_user(
+                username=username,
+                first_name=first,
+                last_name=last,
+                email=f"{username}@local.local",
+                password='fighter123'
             )
-            for cp in tournament.checkpoints.all():
-                RegistrationCheckpoint.objects.get_or_create(
-                    registration=reg, checkpoint=cp, defaults={'is_checked': False}
-                )
+            fighter = form.save(commit=False)
+            fighter.user = user
+            fighter.save()
 
-            messages.success(request, f'Боец {fighter.full_name} добавлен. Логин: {fighter.user.username}')
-            return redirect(f"{reverse('tournaments:participants_management')}?tournament={tournament_id}")
+            TournamentRegistration.objects.create(
+                tournament=tournament,
+                fighter=fighter,
+            )
+            messages.success(request, f'Боец {fighter.full_name} добавлен и зарегистрирован на турнир')
+            return redirect('tournaments:participants_management')
     else:
         form = FighterForm()
-
     return render(request, 'tournaments/add_participant.html', {
         'form': form, 'tournament': tournament
     })
-
 
 @login_required
 @tournament_admin_required

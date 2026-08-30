@@ -17,9 +17,12 @@ logger = logging.getLogger('tournaments')
 @judge_required
 def judge_dashboard(request):
     """Главная панель судьи"""
+    from django.db.models import Q
     fights = Fight.objects.filter(
-        judge=request.user.judge
-    ).select_related('tournament', 'bracket', 'fighter1', 'fighter2').order_by('start_time')
+        Q(judge=request.user.judge) |
+        Q(head_judge=request.user.judge) |
+        Q(side_judges=request.user.judge)
+    ).distinct().select_related('tournament', 'bracket', 'fighter1', 'fighter2').order_by('start_time')
 
     scheduled = fights.filter(status='scheduled')
     in_progress = fights.filter(status='in_progress')
@@ -36,9 +39,12 @@ def judge_dashboard(request):
 @judge_required
 def judge_my_fights(request):
     """Список боёв судьи"""
+    from django.db.models import Q
     fights = Fight.objects.filter(
-        judge=request.user.judge
-    ).select_related('tournament', 'bracket', 'fighter1', 'fighter2').order_by('-created_at')
+        Q(judge=request.user.judge) |
+        Q(head_judge=request.user.judge) |
+        Q(side_judges=request.user.judge)
+    ).distinct().select_related('tournament', 'bracket', 'fighter1', 'fighter2').order_by('-created_at')
 
     return render(request, 'tournaments/judge_my_fights.html', {
         'fights': fights,
@@ -48,31 +54,61 @@ def judge_my_fights(request):
 @login_required
 @judge_required
 def judge_fight_panel(request, fight_id):
-    """Панель ведения боя"""
+    """Панель ведения боя — разделена на head/side/general"""
     fight = get_object_or_404(
-        Fight.objects.select_related('fighter1', 'fighter2', 'tournament', 'bracket'),
-        pk=fight_id, judge=request.user.judge
+        Fight.objects.select_related('fighter1', 'fighter2', 'tournament', 'bracket', 'head_judge'),
+        pk=fight_id
     )
+
+    # Проверка доступа
+    is_head = fight.head_judge == request.user.judge
+    is_side = request.user.judge in fight.side_judges.all()
+    is_general = fight.judge == request.user.judge
+
+    if not (is_head or is_side or is_general):
+        messages.error(request, 'У вас нет прав на ведение этого боя')
+        return redirect('tournaments:judge_dashboard')
+
+    # Определяем роль для шаблона
+    judge_role = 'head' if is_head else ('side' if is_side else 'general')
 
     timer_settings, _ = TimerSettings.objects.get_or_create(
         tournament=fight.tournament,
         defaults={'round_duration': 180, 'break_duration': 60, 'number_of_rounds': 3}
     )
 
+    # Для бокса: подгружаем оценки
+    my_scores = []
+    if fight.tournament.is_boxing and is_side:
+        my_scores = list(
+            fight.round_scores.filter(judge=request.user.judge)
+            .values('round_number', 'score_fighter1', 'score_fighter2')
+        )
+
+    all_scores = []
+    if fight.tournament.is_boxing and is_head:
+        all_scores = list(
+            fight.round_scores.select_related('judge').values(
+                'round_number', 'judge__first_name', 'judge__last_name',
+                'score_fighter1', 'score_fighter2'
+            )
+        )
+
     if request.method == 'POST':
-        # Редактирование настроек таймера
+        # Редактирование настроек таймера (fallback POST, основной способ — AJAX)
         if 'update_timer' in request.POST:
             try:
-                timer_settings.round_duration = max(10, int(request.POST.get('round_duration', 180)))
-                timer_settings.break_duration = max(5, int(request.POST.get('break_duration', 60)))
-                timer_settings.number_of_rounds = max(1, min(20, int(request.POST.get('number_of_rounds', 3))))
-                timer_settings.save()
-                messages.success(request, 'Настройки таймера обновлены')
+                ts, _ = TimerSettings.objects.get_or_create(tournament=fight.tournament)
+                ts.round_duration = max(10, int(request.POST.get('round_duration', 180)))
+                ts.break_duration = max(5, int(request.POST.get('break_duration', 60)))
+                ts.number_of_rounds = max(1, min(20, int(request.POST.get('number_of_rounds', 3))))
+                ts.save()
+                messages.success(request, 'Настройки таймера по умолчанию обновлены')
             except (ValueError, TypeError):
                 messages.error(request, 'Неверные значения таймера')
             return redirect('tournaments:judge_fight_panel', fight_id=fight_id)
 
-        # Завершение боя через FightService
+        # Завершение боя
         form = FightResultForm(request.POST, instance=fight, fight=fight)
         if form.is_valid():
             winner = form.cleaned_data.get('winner')
@@ -104,16 +140,32 @@ def judge_fight_panel(request, fight_id):
         'fight': fight,
         'form': form,
         'timer_settings': timer_settings,
+        'judge_role': judge_role,
+        'is_head_judge': is_head,
+        'is_side_judge': is_side,
+        'is_boxing': fight.tournament.is_boxing,
+        'my_scores': my_scores,
+        'all_scores': all_scores,
+        'rounds_range': range(1, fight.total_rounds + 1),
     })
 
 
 @login_required
 @judge_required
 def judge_update_result(request, tournament_id, fight_id):
-    """Обновление результата судьёй (использует FightService)"""
+    """Обновление результата судьёй"""
     fight = get_object_or_404(
-        Fight, pk=fight_id, tournament_id=tournament_id, judge=request.user.judge
+        Fight, pk=fight_id, tournament_id=tournament_id,
     )
+    # Доступ: любой назначенный судья
+    is_assigned = (
+        fight.judge == request.user.judge or
+        fight.head_judge == request.user.judge or
+        request.user.judge in fight.side_judges.all()
+    )
+    if not is_assigned:
+        messages.error(request, 'Нет прав')
+        return redirect('tournaments:judge_dashboard')
 
     if request.method == 'POST':
         form = FightResultForm(request.POST, instance=fight, fight=fight)
@@ -149,8 +201,16 @@ def judge_update_result(request, tournament_id, fight_id):
 def update_judge_notes(request, tournament_id, fight_id):
     """Обновление заметок судьи"""
     fight = get_object_or_404(
-        Fight, pk=fight_id, tournament_id=tournament_id, judge=request.user.judge
+        Fight, pk=fight_id, tournament_id=tournament_id,
     )
+    is_assigned = (
+        fight.judge == request.user.judge or
+        fight.head_judge == request.user.judge or
+        request.user.judge in fight.side_judges.all()
+    )
+    if not is_assigned:
+        messages.error(request, 'Нет прав')
+        return redirect('tournaments:judge_dashboard')
 
     if request.method == 'POST':
         notes = request.POST.get('judge_notes', '')
@@ -159,110 +219,6 @@ def update_judge_notes(request, tournament_id, fight_id):
         messages.success(request, 'Заметки сохранены')
 
     return redirect('tournaments:judge_fight_panel', fight_id=fight_id)
-
-
-@login_required
-@judge_required
-def fight_timer(request, tournament_id, fight_id):
-    """Страница таймера боя"""
-    fight = get_object_or_404(
-        Fight, pk=fight_id, tournament_id=tournament_id, judge=request.user.judge
-    )
-    timer_settings, _ = TimerSettings.objects.get_or_create(
-        tournament=fight.tournament,
-        defaults={'round_duration': 180, 'break_duration': 60, 'number_of_rounds': 3}
-    )
-    return render(request, 'tournaments/fight_timer.html', {
-        'fight': fight,
-        'timer_settings': timer_settings,
-    })
-
-
-@login_required
-@judge_required
-def timer_control(request, tournament_id, fight_id):
-    """AJAX управление таймером (фоновый лог)"""
-    fight = get_object_or_404(
-        Fight, pk=fight_id, tournament_id=tournament_id, judge=request.user.judge
-    )
-
-    try:
-        data = json.loads(request.body)
-    except (json.JSONDecodeError, TypeError):
-        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
-
-    action = data.get('action')
-
-    timer_settings, _ = TimerSettings.objects.get_or_create(
-        tournament=fight.tournament,
-        defaults={'round_duration': 180, 'break_duration': 60, 'number_of_rounds': 3}
-    )
-
-    if action == 'start_round':
-        return JsonResponse({
-            'status': 'ok',
-            'action': 'round_started',
-            'round_duration': timer_settings.round_duration,
-        })
-    elif action == 'pause_round':
-        return JsonResponse({'status': 'ok', 'action': 'round_paused'})
-    elif action == 'reset_round':
-        return JsonResponse({
-            'status': 'ok',
-            'action': 'round_reset',
-            'round_duration': timer_settings.round_duration,
-        })
-    elif action == 'next_round':
-        return JsonResponse({
-            'status': 'ok',
-            'action': 'next_round',
-            'round_duration': timer_settings.round_duration,
-            'number_of_rounds': timer_settings.number_of_rounds,
-        })
-    elif action == 'start_break':
-        return JsonResponse({
-            'status': 'ok',
-            'action': 'break_started',
-            'break_duration': timer_settings.break_duration,
-        })
-
-    return JsonResponse({'status': 'error', 'message': 'Unknown action'})
-
-
-@login_required
-@judge_required
-def complete_fight_ajax(request, tournament_id, fight_id):
-    """AJAX завершение боя из таймера (использует FightService)"""
-    fight = get_object_or_404(
-        Fight, pk=fight_id, tournament_id=tournament_id, judge=request.user.judge
-    )
-
-    winner_id = request.POST.get('winner_id')
-    winner = None
-    if winner_id:
-        if int(winner_id) == fight.fighter1_id:
-            winner = fight.fighter1
-        elif fight.fighter2_id and int(winner_id) == fight.fighter2_id:
-            winner = fight.fighter2
-
-    try:
-        success, msg = FightService.complete_fight(
-            fight,
-            winner=winner,
-            method=request.POST.get('win_method', ''),
-            notes=request.POST.get('judge_notes', ''),
-            scores={
-                'fighter1': int(request.POST.get('score_fighter1', 0)),
-                'fighter2': int(request.POST.get('score_fighter2', 0)),
-            }
-        )
-        if success:
-            return JsonResponse({'status': 'ok', 'message': msg})
-        else:
-            return JsonResponse({'status': 'error', 'message': msg})
-    except Exception as e:
-        logger.exception("AJAX fight completion error")
-        return JsonResponse({'status': 'error', 'message': str(e)})
 
 
 # ==================== УПРАВЛЕНИЕ СУДЬЯМИ (АДМИН) ====================

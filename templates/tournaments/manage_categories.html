@@ -23,7 +23,21 @@
         <form method="post" class="row g-2 align-items-end">
             {% csrf_token %}
             <input type="hidden" name="action" value="create">
-            {{ form|crispy }}
+
+            <!-- Основные поля -->
+            <div class="col-md-4">{{ form.name|as_crispy_field }}</div>
+            <div class="col-md-2">{{ form.gender|as_crispy_field }}</div>
+            <div class="col-md-3">{{ form.min_birth_year|as_crispy_field }}</div>
+            <div class="col-md-3">{{ form.max_birth_year|as_crispy_field }}</div>
+            <div class="col-md-3">{{ form.min_weight|as_crispy_field }}</div>
+            <div class="col-md-3">{{ form.max_weight|as_crispy_field }}</div>
+            <div class="col-md-3">{{ form.bracket_system|as_crispy_field }}</div>
+
+            <!-- Поле боковых судей — только для бокс/MMA/кикбоксинг -->
+            <div class="col-md-3" id="side-judges-block" style="{% if tournament.sport_type not in 'boxing,mma,kickboxing' %}display:none{% endif %}">
+                {{ form.side_judges_count|as_crispy_field }}
+            </div>
+
             <div class="col-12">
                 <button type="submit" class="btn btn-success"><i class="fas fa-plus me-2"></i>Создать категорию</button>
             </div>
@@ -43,6 +57,7 @@
                     <th>Год рождения</th>
                     <th>Система</th>
                     <th>Участников</th>
+                    <th>Боковых судей</th>
                     <th>Действия</th>
                 </tr>
             </thead>
@@ -56,11 +71,16 @@
                         <td>{{ cat.get_bracket_system_display }}</td>
                         <td><span class="badge bg-info">{{ cat.participant_count }}</span></td>
                         <td>
-                            <!-- Кнопка редактирования -->
+                            {% if tournament.sport_type in 'boxing,mma,kickboxing' %}
+                                <span class="badge bg-warning text-dark">{{ cat.side_judges_count }}</span>
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
                             <button class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editCatModal{{ cat.id }}">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <!-- Кнопка удаления -->
                             <form method="post" class="d-inline">
                                 {% csrf_token %}
                                 <input type="hidden" name="action" value="delete">
@@ -72,7 +92,7 @@
                         </td>
                     </tr>
                 {% empty %}
-                    <tr><td colspan="7" class="text-center text-muted py-4">Категории не созданы</td></tr>
+                    <tr><td colspan="8" class="text-center text-muted py-4">Категории не созданы</td></tr>
                 {% endfor %}
             </tbody>
         </table>
@@ -129,6 +149,12 @@
                             <label class="form-label">Макс. вес (кг)</label>
                             <input type="number" name="max_weight" class="form-control" step="0.01" value="{{ cat.max_weight }}" required>
                         </div>
+                        {% if tournament.sport_type in 'boxing,mma,kickboxing' %}
+                        <div class="col-md-6">
+                            <label class="form-label">Боковых судей</label>
+                            <input type="number" name="side_judges_count" class="form-control" min="0" max="10" value="{{ cat.side_judges_count }}" required>
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="alert alert-warning mt-3 mb-0">
                         <i class="fas fa-exclamation-triangle me-2"></i>

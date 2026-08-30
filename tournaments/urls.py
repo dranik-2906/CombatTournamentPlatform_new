@@ -33,16 +33,22 @@ urlpatterns = [
     # Бои
     path('<int:tournament_id>/fights/', views.fights_management, name='fights_management'),
     path('<int:tournament_id>/fight/<int:fight_id>/assign-judge/', views.assign_judge, name='assign_judge'),
+    path('<int:tournament_id>/fight/<int:fight_id>/assign-boxing-judges/', views.assign_boxing_judges, name='assign_boxing_judges'),
     path('<int:tournament_id>/fight/<int:fight_id>/update/', views.admin_update_fight, name='admin_update_fight'),
     path('<int:tournament_id>/fight/<int:fight_id>/delete/', views.delete_fight, name='delete_fight'),
     path('<int:tournament_id>/timer-settings/', views.timer_settings_view, name='timer_settings'),
     path('fight/<int:fight_id>/results/', views.fight_results, name='fight_results'),
     path('<int:tournament_id>/fights/delete-all/', views.delete_all_fights, name='delete_all_fights'),
 
-    # Таймер (для судьи)
+    # Таймер (единый endpoint из fights.py)
     path('<int:tournament_id>/fight/<int:fight_id>/timer/', views.fight_timer, name='fight_timer'),
     path('<int:tournament_id>/fight/<int:fight_id>/timer/control/', views.timer_control, name='timer_control'),
     path('<int:tournament_id>/fight/<int:fight_id>/timer/complete/', views.complete_fight_ajax, name='complete_fight_ajax'),
+
+    # Бокс: оценки раундов (AJAX)
+    path('<int:tournament_id>/fight/<int:fight_id>/round-scores/', views.get_round_scores, name='get_round_scores'),
+    path('<int:tournament_id>/fight/<int:fight_id>/submit-round-score/', views.submit_round_score, name='submit_round_score'),
+    path('<int:tournament_id>/fight/<int:fight_id>/head-finalize/', views.head_judge_finalize, name='head_judge_finalize'),
 
     # Судьи
     path('judge/dashboard/', views.judge_dashboard, name='judge_dashboard'),

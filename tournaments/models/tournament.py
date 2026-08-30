@@ -5,6 +5,16 @@ logger = logging.getLogger('tournaments')
 
 GENDER_CHOICES = (('M', 'Мужской'), ('F', 'Женский'))
 
+SPORT_TYPES = (
+    ('boxing', 'Бокс'),
+    ('sambo', 'Боевое самбо'),
+    ('mma', 'MMA'),
+    ('kickboxing', 'Кикбоксинг'),
+    ('judo', 'Дзюдо'),
+    ('wrestling', 'Вольная борьба'),
+    ('other', 'Другое'),
+)
+
 BRACKET_TYPES = (
     ('single_elimination', 'Олимпийская система'),
     ('round_robin', 'Круговая система'),
@@ -14,7 +24,10 @@ BRACKET_TYPES = (
 
 class Tournament(models.Model):
     name = models.CharField(max_length=200, verbose_name='Название турнира')
-    sport_type = models.CharField(max_length=100, default='Боевое самбо', verbose_name='Вид спорта')
+    sport_type = models.CharField(
+        max_length=20, choices=SPORT_TYPES, default='sambo',
+        verbose_name='Вид спорта'
+    )
     start_date = models.DateField(verbose_name='Дата начала')
     end_date = models.DateField(verbose_name='Дата окончания')
     location = models.CharField(max_length=200, verbose_name='Место проведения')
@@ -44,6 +57,10 @@ class Tournament(models.Model):
         elif self.start_date <= today <= self.end_date:
             return 'В процессе'
         return 'Запланирован'
+
+    @property
+    def is_boxing(self):
+        return self.sport_type == 'boxing'
 
     @property
     def total_registrations(self):

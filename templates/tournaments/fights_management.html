@@ -24,7 +24,7 @@
     {% endif %}
 </div>
 
-<!-- Действия администратора (включая удаление всех боёв) -->
+<!-- Действия администратора -->
 {% if is_admin and total > 0 %}
     <div class="d-flex gap-2 mb-3 flex-wrap">
         <form method="post" action="{% url 'tournaments:delete_all_fights' tournament.id %}"
@@ -70,7 +70,7 @@
                     <th>Боец 1</th>
                     <th>Боец 2</th>
                     <th>Победитель</th>
-                    <th>Судья</th>
+                    <th>Судьи</th>
                     <th>Статус</th>
                     <th>Действия</th>
                 </tr>
@@ -100,10 +100,22 @@
                             {% endif %}
                         </td>
                         <td>
-                            {% if fight.judge %}
-                                {{ fight.judge.full_name }} <span class="badge bg-info">{{ fight.judge.get_judge_type_display }}</span>
+                            {% if tournament.sport_type == 'boxing' or tournament.sport_type == 'mma' or tournament.sport_type == 'kickboxing' %}
+                                {% if fight.head_judge %}
+                                    <span class="badge bg-warning text-dark" title="Главный судья">{{ fight.head_judge.full_name }}</span>
+                                {% endif %}
+                                {% for sj in fight.side_judges.all %}
+                                    <span class="badge bg-info" title="Боковой судья">{{ sj.last_name }}</span>
+                                {% endfor %}
+                                {% if not fight.head_judge and not fight.side_judges.exists %}
+                                    <span class="badge bg-danger">Не назначены</span>
+                                {% endif %}
                             {% else %}
-                                <span class="badge bg-danger">Не назначен</span>
+                                {% if fight.judge %}
+                                    {{ fight.judge.full_name }} <span class="badge bg-info">{{ fight.judge.get_category_display }}</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Не назначен</span>
+                                {% endif %}
                             {% endif %}
                         </td>
                         <td>
@@ -113,7 +125,6 @@
                         </td>
                         <td>
                             {% if is_admin %}
-                                <!-- Админ: результаты / просмотр / назначить судью / удалить -->
                                 {% if fight.status == 'completed' %}
                                     <a href="{% url 'tournaments:fight_results' fight.id %}" class="btn btn-sm btn-success me-1">
                                         <i class="fas fa-clipboard-list me-1"></i>Результаты
@@ -122,10 +133,16 @@
                                     <a href="{% url 'tournaments:judge_fight_panel' fight.id %}" class="btn btn-sm btn-outline-primary me-1">
                                         <i class="fas fa-eye me-1"></i>Просмотр
                                     </a>
-                                    {% if not fight.judge %}
-                                        <a href="{% url 'tournaments:assign_judge' tournament.id fight.id %}" class="btn btn-sm btn-outline-info me-1">
-                                            <i class="fas fa-gavel me-1"></i>Судья
+                                    {% if tournament.sport_type == 'boxing' or tournament.sport_type == 'mma' or tournament.sport_type == 'kickboxing' %}
+                                        <a href="{% url 'tournaments:assign_boxing_judges' tournament.id fight.id %}" class="btn btn-sm btn-outline-warning me-1">
+                                            <i class="fas fa-gavel me-1"></i>Судьи (бокс)
                                         </a>
+                                    {% else %}
+                                        {% if not fight.judge %}
+                                            <a href="{% url 'tournaments:assign_judge' tournament.id fight.id %}" class="btn btn-sm btn-outline-info me-1">
+                                                <i class="fas fa-gavel me-1"></i>Судья
+                                            </a>
+                                        {% endif %}
                                     {% endif %}
                                 {% endif %}
                                 <form method="post" action="{% url 'tournaments:delete_fight' tournament.id fight.id %}" class="d-inline" onsubmit="return confirm('Удалить бой?')">
@@ -136,7 +153,6 @@
                                 </form>
 
                             {% elif is_judge_view %}
-                                <!-- Судья: результаты / продолжить / вести бой -->
                                 {% if fight.status == 'completed' %}
                                     <a href="{% url 'tournaments:fight_results' fight.id %}" class="btn btn-sm btn-success">
                                         <i class="fas fa-clipboard-list me-1"></i>Результаты
@@ -161,7 +177,6 @@
     </div>
 </div>
 
-<!-- Пагинация -->
 {% if fights.has_other_pages %}
     <nav class="mt-3">
         <ul class="pagination justify-content-center">
