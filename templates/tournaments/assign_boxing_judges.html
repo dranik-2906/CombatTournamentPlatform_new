@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Назначение судей — Бой #{{ fight.id }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_list' %}">Турниры</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:tournament_detail' tournament.id %}">{{ tournament.name }}</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'tournaments:fights_management' tournament.id %}">Бои</a></li>
+        <li class="breadcrumb-item active">Назначение судей</li>
+    </ol>
+</nav>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="fas fa-gavel me-2"></i>Назначение судей на бой</h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <strong>Бой:</strong> {{ fight.fighter1 }} vs {{ fight.fighter2|default:"—" }}<br>
+                    <strong>Категория:</strong> {{ fight.age_weight_category|default:"—" }}<br>
+                    <strong>Требуется боковых судей:</strong> <span class="badge bg-warning text-dark">{{ side_count }}</span>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Главный судья <span class="text-danger">*</span></label>
+                        <select name="head_judge" class="form-select" required>
+                            <option value="">-- Выберите главного судью --</option>
+                            {% for j in head_judges %}
+                            <option value="{{ j.id }}" {% if selected_head == j.id %}selected{% endif %}>
+                                {{ j.full_name }} ({{ j.get_category_display }})
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div class="form-text">Главный судья управляет таймером и выбирает победителя по итогам оценок.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Боковые судьи <span class="text-danger">*</span> (выбрать ровно {{ side_count }})</label>
+                        <div class="row">
+                            {% for j in side_judges %}
+                            <div class="col-md-6 mb-2">
+                                <div class="form-check border rounded p-2">
+                                    <input class="form-check-input" type="checkbox" name="side_judges" value="{{ j.id }}"
+                                        id="side_judge_{{ j.id }}"
+                                        {% if j.id in selected_side %}checked{% endif %}>
+                                    <label class="form-check-label" for="side_judge_{{ j.id }}">
+                                        <strong>{{ j.full_name }}</strong><br>
+                                        <small class="text-muted">{{ j.get_category_display }}</small>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="form-text">Боковые судьи выставляют оценки за каждый раунд, но не управляют таймером.</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg">
+                            <i class="fas fa-save me-2"></i>Сохранить назначение
+                        </button>
+                        <a href="{% url 'tournaments:fights_management' tournament.id %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Назад к списку боёв
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
