@@ -22,6 +22,25 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.get_role_display()}"
 
+    @property
+    def actual_role(self):
+        """
+        Актуальная роль с учётом связанных объектов.
+        Используется в шаблонах, когда поле role могло ещё не синхронизироваться.
+        """
+        user = self.user
+        if user.is_superuser:
+            return 'system_admin'
+        if self.role in ('system_admin', 'tournament_admin'):
+            return self.role
+        if hasattr(user, 'judge') and user.judge.is_active:
+            return 'judge'
+        if hasattr(user, 'fighter'):
+            return 'fighter'
+        return self.role or 'fighter'
+
+    def get_actual_role_display(self):
+        return dict(self.ROLE_CHOICES).get(self.actual_role, 'Не определена')
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

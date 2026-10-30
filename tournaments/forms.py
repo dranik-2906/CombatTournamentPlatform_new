@@ -99,14 +99,21 @@ class FightResultForm(forms.ModelForm):
 class JudgeForm(forms.ModelForm):
     class Meta:
         model = Judge
-        fields = ['first_name', 'last_name', 'category', 'is_active']
+        fields = ['first_name', 'last_name', 'date_of_birth', 'category', 'judge_type', 'license_number', 'experience_years', 'is_active']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'category': forms.Select(attrs={'class': 'form-select'}),
+            'judge_type': forms.Select(attrs={'class': 'form-select'}),
+            'license_number': forms.TextInput(attrs={'class': 'form-control'}),
+            'experience_years': forms.NumberInput(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
-
+        labels = {
+            'date_of_birth': 'Дата рождения (для пароля)',
+            'judge_type': 'Тип судьи',
+        }
 
 class TimerSettingsForm(forms.ModelForm):
     class Meta:

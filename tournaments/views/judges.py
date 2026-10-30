@@ -9,6 +9,7 @@ from users.decorators import judge_required, tournament_admin_required
 from ..models import Fight, TimerSettings, Judge
 from ..forms import FightResultForm, JudgeForm
 from ..services import FightService
+from django.contrib.auth.models import User
 
 logger = logging.getLogger('tournaments')
 
@@ -71,6 +72,7 @@ def judge_fight_panel(request, fight_id):
 
     # Определяем роль для шаблона
     judge_role = 'head' if is_head else ('side' if is_side else 'general')
+    can_control_timer = is_head or is_general or request.user.is_superuser
 
     timer_settings, _ = TimerSettings.objects.get_or_create(
         tournament=fight.tournament,
@@ -136,6 +138,7 @@ def judge_fight_panel(request, fight_id):
     else:
         form = FightResultForm(instance=fight, fight=fight)
 
+
     return render(request, 'tournaments/judge_fight_panel.html', {
         'fight': fight,
         'form': form,
@@ -143,12 +146,12 @@ def judge_fight_panel(request, fight_id):
         'judge_role': judge_role,
         'is_head_judge': is_head,
         'is_side_judge': is_side,
+        'can_control_timer': can_control_timer, # <-- ДОБАВИТЬ ЭТО
         'is_boxing': fight.tournament.is_boxing,
         'my_scores': my_scores,
         'all_scores': all_scores,
         'rounds_range': range(1, fight.total_rounds + 1),
     })
-
 
 @login_required
 @judge_required
@@ -234,12 +237,42 @@ def judge_list(request):
 @login_required
 @tournament_admin_required
 def add_judge(request):
-    """Добавление нового судьи"""
+    """Добавление нового судьи с автосозданием аккаунта"""
     if request.method == 'POST':
         form = JudgeForm(request.POST)
         if form.is_valid():
-            form.save()
-            messages.success(request, 'Судья добавлен')
+            judge = form.save(commit=False)  # Пока не сохраняем в БД
+
+            # 1. Генерируем уникальный логин: judge{порядковый номер}
+            count = Judge.objects.count() + 1
+            username = f"judge{count}"
+            # На всякий случай проверяем, нет ли уже такого логина (если судей удаляли)
+            while User.objects.filter(username=username).exists():
+                count += 1
+                username = f"judge{count}"
+
+            # 2. Генерируем пароль из даты рождения (например, judge2906)
+            dob = form.cleaned_data.get('date_of_birth')
+            if dob:
+                password = f"judge{dob.strftime('%d%m')}"
+            else:
+                password = "judge1234"  # Если дата не указана
+
+            # 3. Создаем пользователя в системе
+            user = User.objects.create_user(username=username, password=password)
+            user.first_name = judge.first_name
+            user.last_name = judge.last_name
+            user.save()
+
+            # 4. Привязываем пользователя к судье и сохраняем
+            judge.user = user
+            judge.save()
+
+            # Сообщение админу с созданными данными
+            messages.success(
+                request,
+                f'Судья {judge.last_name} добавлен! Логин: {username}, Пароль: {password}'
+            )
             return redirect('tournaments:judge_list')
     else:
         form = JudgeForm()

@@ -23,6 +23,10 @@ class Judge(models.Model):
     )
     first_name = models.CharField(max_length=100, verbose_name='Имя')
     last_name = models.CharField(max_length=100, verbose_name='Фамилия')
+
+    # ВОТ ЭТО ПОЛЕ НУЖНО ДОБАВИТЬ:
+    date_of_birth = models.DateField(verbose_name='Дата рождения', null=True, blank=True)
+
     category = models.CharField(
         max_length=2, choices=JUDGE_CATEGORY_CHOICES, verbose_name='Категория'
     )
@@ -48,7 +52,7 @@ class Judge(models.Model):
         return f"{self.first_name} {self.last_name}"
 
     def save(self, *args, **kwargs):
-        if self.user:
+        if self.user_id:
             if self.first_name and not self.user.first_name:
                 self.user.first_name = self.first_name
             if self.last_name and not self.user.last_name:

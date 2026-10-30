@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.utils import timezone
 from tournaments.models import Tournament, Fighter, Judge, Fight
+from users.decorators import get_user_role
 
 logger = logging.getLogger('users')
 
