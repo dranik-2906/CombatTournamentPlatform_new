@@ -7667,3 +7667,1296 @@ ValueError: Cannot assign "'Иван Иванов'": "Bracket.winner" must be a "Fighter" 
 [2026-10-28 14:50:26,400] INFO django.server "GET / HTTP/1.1" 200 15740
 [2026-10-28 14:50:37,692] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 21823
 [2026-10-28 14:50:40,428] INFO django.server "GET / HTTP/1.1" 200 15740
+[2026-10-30 13:35:03,796] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 13:43:10,112] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\services\bracket_service.py changed, reloading.
+[2026-10-30 13:43:11,106] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 13:43:32,949] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 13:43:59,023] INFO django.server "GET / HTTP/1.1" 200 13621
+[2026-10-30 13:43:59,462] WARNING django.request Not Found: /favicon.ico
+[2026-10-30 13:43:59,462] WARNING django.server "GET /favicon.ico HTTP/1.1" 404 3038
+[2026-10-30 13:44:01,076] INFO django.server "GET / HTTP/1.1" 200 13621
+[2026-10-30 13:44:03,033] INFO django.server "GET / HTTP/1.1" 200 13621
+[2026-10-30 13:44:03,542] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17246
+[2026-10-30 13:44:04,442] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 21823
+[2026-10-30 13:44:05,001] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17246
+[2026-10-30 13:44:05,689] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11845
+[2026-10-30 13:44:07,670] INFO django.server "GET /tournaments/5/bracket/7/ HTTP/1.1" 200 28376
+[2026-10-30 13:44:09,060] INFO django.server "GET /tournaments/5/bracket/7/delete/ HTTP/1.1" 302 0
+[2026-10-30 13:44:09,079] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11732
+[2026-10-30 13:44:16,631] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 32391
+[2026-10-30 13:44:19,394] INFO django.server "GET /tournaments/5/participants/add/ HTTP/1.1" 200 9833
+[2026-10-30 13:44:43,592] INFO django.server "POST /tournaments/5/participants/add/ HTTP/1.1" 302 0
+[2026-10-30 13:44:43,603] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7914
+[2026-10-30 13:44:47,232] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 43093
+[2026-10-30 13:44:50,169] INFO django.server "GET /tournaments/5/auto-assign/ HTTP/1.1" 302 0
+[2026-10-30 13:44:50,197] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 43470
+[2026-10-30 13:44:56,899] INFO django.server "POST /tournaments/registration/7/update/ HTTP/1.1" 302 0
+[2026-10-30 13:44:56,928] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 43855
+[2026-10-30 13:44:59,222] INFO django.server "GET /tournaments/5/participants/add/ HTTP/1.1" 200 9833
+[2026-10-30 13:45:16,447] INFO django.server "POST /tournaments/5/participants/add/ HTTP/1.1" 302 0
+[2026-10-30 13:45:16,456] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7914
+[2026-10-30 13:45:18,016] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 53789
+[2026-10-30 13:45:22,626] INFO django.server "POST /tournaments/registration/8/update/ HTTP/1.1" 302 0
+[2026-10-30 13:45:22,655] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 54551
+[2026-10-30 13:45:25,098] INFO django.server "GET /tournaments/5/participants/add/ HTTP/1.1" 200 9833
+[2026-10-30 13:45:36,547] INFO django.server "POST /tournaments/5/participants/add/ HTTP/1.1" 302 0
+[2026-10-30 13:45:36,559] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7911
+[2026-10-30 13:45:38,118] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 64473
+[2026-10-30 13:45:43,973] INFO django.server "POST /tournaments/registration/9/update/ HTTP/1.1" 302 0
+[2026-10-30 13:45:44,005] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 65232
+[2026-10-30 13:45:48,249] INFO django.server "GET /tournaments/5/participants/add/ HTTP/1.1" 200 9833
+[2026-10-30 13:46:02,954] INFO django.server "POST /tournaments/5/participants/add/ HTTP/1.1" 302 0
+[2026-10-30 13:46:02,964] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7915
+[2026-10-30 13:46:04,805] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 75183
+[2026-10-30 13:46:07,575] INFO django.server "GET /tournaments/5/participants/add/ HTTP/1.1" 200 9833
+[2026-10-30 13:46:48,114] INFO django.server "POST /tournaments/5/participants/add/ HTTP/1.1" 302 0
+[2026-10-30 13:46:48,123] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7912
+[2026-10-30 13:46:51,115] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 85901
+[2026-10-30 13:46:57,784] INFO django.server "POST /tournaments/registration/10/update/ HTTP/1.1" 302 0
+[2026-10-30 13:46:57,818] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 86664
+[2026-10-30 13:47:02,027] INFO django.server "POST /tournaments/registration/11/update/ HTTP/1.1" 302 0
+[2026-10-30 13:47:02,062] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 86655
+[2026-10-30 13:47:10,243] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20365
+[2026-10-30 13:47:24,450] INFO django.server "POST /tournaments/5/categories/ HTTP/1.1" 302 0
+[2026-10-30 13:47:24,464] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20365
+[2026-10-30 13:47:26,484] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17246
+[2026-10-30 13:47:27,705] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11385
+[2026-10-30 13:47:29,325] ERROR django.request Internal Server Error: /tournaments/5/brackets/generate/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 34, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\brackets.py", line 119, in generate_brackets
+    success, msg = BracketService.generate_single_elimination(bracket, cat_regs)
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\services\bracket_service.py", line 86, in generate_single_elimination
+    fight.fighter1 = participants[fighter1_index]
+    ^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 284, in __set__
+    raise ValueError(
+    ...<7 lines>...
+    )
+ValueError: Cannot assign "<TournamentRegistration: zx xzc - пиавывпкаывпкафываып>": "Fight.fighter1" must be a "Fighter" instance.
+[2026-10-30 13:47:29,335] ERROR django.server "GET /tournaments/5/brackets/generate/ HTTP/1.1" 500 95052
+[2026-10-30 13:50:45,176] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 13:50:46,731] INFO django.server "GET / HTTP/1.1" 200 13621
+[2026-10-30 13:50:48,426] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17248
+[2026-10-30 13:50:49,898] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11858
+[2026-10-30 13:50:52,924] ERROR django.request Internal Server Error: /tournaments/5/brackets/generate/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 329, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.IntegrityError: UNIQUE constraint failed: tournaments_fight.tournament_id, tournaments_fight.bracket_id, tournaments_fight.round_number, tournaments_fight.match_number
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 34, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\brackets.py", line 120, in generate_brackets
+    success, msg = BracketService.generate_single_elimination(bracket, participants)
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\services\bracket_service.py", line 64, in generate_single_elimination
+    Fight.objects.create(
+    ~~~~~~~~~~~~~~~~~~~~^
+        tournament=bracket.tournament,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        # fighter1 и fighter2 пока пустые (None)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 679, in create
+    obj.save(force_insert=True, using=self.db)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\base.py", line 822, in save
+    self.save_base(
+    ~~~~~~~~~~~~~~^
+        using=using,
+        ^^^^^^^^^^^^
+    ...<2 lines>...
+        update_fields=update_fields,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\base.py", line 909, in save_base
+    updated = self._save_table(
+        raw,
+    ...<4 lines>...
+        update_fields,
+    )
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\base.py", line 1071, in _save_table
+    results = self._do_insert(
+        cls._base_manager, using, fields, returning_fields, raw
+    )
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\base.py", line 1112, in _do_insert
+    return manager._insert(
+           ~~~~~~~~~~~~~~~^
+        [self],
+        ^^^^^^^
+    ...<3 lines>...
+        raw=raw,
+        ^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 1847, in _insert
+    return query.get_compiler(using=using).execute_sql(returning_fields)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1823, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 329, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.IntegrityError: UNIQUE constraint failed: tournaments_fight.tournament_id, tournaments_fight.bracket_id, tournaments_fight.round_number, tournaments_fight.match_number
+[2026-10-30 13:50:52,946] ERROR django.server "GET /tournaments/5/brackets/generate/ HTTP/1.1" 500 205614
+[2026-10-30 13:50:56,503] INFO django.server "GET /tournaments/5/bracket/8/ HTTP/1.1" 200 28787
+[2026-10-30 13:50:57,798] INFO django.server "GET /tournaments/5/bracket/8/delete/ HTTP/1.1" 302 0
+[2026-10-30 13:50:57,813] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11735
+[2026-10-30 13:51:00,885] WARNING django.request Not Found: /tournaments/5/bracket/8/delete/
+[2026-10-30 13:51:00,885] WARNING django.server "GET /tournaments/5/bracket/8/delete/ HTTP/1.1" 404 6123
+[2026-10-30 13:51:03,917] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11388
+[2026-10-30 13:51:05,051] ERROR django.request Internal Server Error: /tournaments/5/brackets/generate/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 34, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\brackets.py", line 120, in generate_brackets
+    success, msg = BracketService.generate_single_elimination(bracket, participants)
+    ^^^^^^^^^^^^
+TypeError: cannot unpack non-iterable Bracket object
+[2026-10-30 13:51:05,053] ERROR django.server "GET /tournaments/5/brackets/generate/ HTTP/1.1" 500 83770
+[2026-10-30 13:52:07,920] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\services\bracket_service.py changed, reloading.
+[2026-10-30 13:52:11,281] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 13:52:12,594] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 13:52:14,129] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 13:52:14,686] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 13:52:15,448] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 13:52:16,069] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11862
+[2026-10-30 13:52:17,357] INFO django.server "GET /tournaments/5/bracket/9/ HTTP/1.1" 200 28945
+[2026-10-30 13:52:18,142] INFO django.server "GET /tournaments/5/bracket/9/delete/ HTTP/1.1" 302 0
+[2026-10-30 13:52:18,158] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11739
+[2026-10-30 13:52:19,728] INFO django.server "GET /tournaments/5/brackets/generate/ HTTP/1.1" 302 0
+[2026-10-30 13:52:19,760] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 12603
+[2026-10-30 13:52:21,425] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 28947
+[2026-10-30 13:52:35,512] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 60042
+[2026-10-30 13:52:41,647] INFO django.server "GET /tournaments/5/fight/21/assign-judge/ HTTP/1.1" 200 7926
+[2026-10-30 13:52:44,414] INFO django.server "POST /tournaments/5/fight/21/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 13:52:44,436] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 60129
+[2026-10-30 13:52:48,722] INFO django.server "GET /tournaments/5/fight/28/assign-judge/ HTTP/1.1" 200 7919
+[2026-10-30 13:52:51,544] INFO django.server "POST /tournaments/5/fight/28/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 13:52:51,564] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 59855
+[2026-10-30 13:52:57,245] INFO django.server "GET /tournaments/5/fight/29/assign-judge/ HTTP/1.1" 200 7931
+[2026-10-30 13:52:58,990] INFO django.server "POST /tournaments/5/fight/29/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 13:52:59,011] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 59581
+[2026-10-30 13:53:03,065] INFO django.server "GET /tournaments/5/fight/22/assign-judge/ HTTP/1.1" 200 7918
+[2026-10-30 13:53:04,846] INFO django.server "POST /tournaments/5/fight/22/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 13:53:04,867] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 59307
+[2026-10-30 13:53:06,767] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 13:53:06,781] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 13:53:07,622] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 13:53:11,407] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 13:53:11,428] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-10-30 13:53:13,254] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 12934
+[2026-10-30 13:53:22,629] INFO django.server "GET /tournaments/judge/fight/21/panel/ HTTP/1.1" 200 21359
+[2026-10-30 13:53:27,446] INFO django.server "POST /tournaments/judge/fight/21/panel/ HTTP/1.1" 302 0
+[2026-10-30 13:53:27,464] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 13346
+[2026-10-30 13:53:31,001] INFO django.server "GET /tournaments/judge/fight/22/panel/ HTTP/1.1" 200 21343
+[2026-10-30 13:53:33,782] INFO django.server "POST /tournaments/judge/fight/22/panel/ HTTP/1.1" 302 0
+[2026-10-30 13:53:33,799] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 13406
+[2026-10-30 13:53:35,088] INFO django.server "GET /tournaments/judge/fight/28/panel/ HTTP/1.1" 200 21345
+[2026-10-30 13:53:38,202] INFO django.server "POST /tournaments/judge/fight/28/panel/ HTTP/1.1" 302 0
+[2026-10-30 13:53:38,220] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 13464
+[2026-10-30 13:53:40,284] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 13:53:40,293] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 13:53:41,007] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 13:53:43,722] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 13:53:43,733] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 13:53:44,756] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 13:53:46,182] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 13:53:47,885] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11863
+[2026-10-30 13:53:48,986] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 29383
+[2026-10-30 13:53:58,218] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 13:53:59,483] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11863
+[2026-10-30 13:54:00,770] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 59287
+[2026-10-30 13:54:08,250] INFO django.server "GET /tournaments/5/fight/23/assign-judge/ HTTP/1.1" 200 7922
+[2026-10-30 13:54:10,137] INFO django.server "POST /tournaments/5/fight/23/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 13:54:10,159] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 59374
+[2026-10-30 13:54:12,314] INFO django.server "GET /tournaments/5/fight/30/assign-judge/ HTTP/1.1" 200 7929
+[2026-10-30 13:54:13,831] INFO django.server "POST /tournaments/5/fight/30/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 13:54:13,852] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 59100
+[2026-10-30 13:54:24,801] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 13:54:28,863] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 13:54:28,874] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 13:54:30,146] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 13:54:32,992] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 13:54:33,003] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-10-30 13:54:35,173] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 14720
+[2026-10-30 13:54:37,978] INFO django.server "GET /tournaments/judge/fight/29/panel/ HTTP/1.1" 200 21369
+[2026-10-30 13:54:41,693] INFO django.server "POST /tournaments/judge/fight/29/panel/ HTTP/1.1" 302 0
+[2026-10-30 13:54:41,710] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 15122
+[2026-10-30 13:54:43,629] INFO django.server "GET /tournaments/judge/fight/23/panel/ HTTP/1.1" 200 21351
+[2026-10-30 13:54:48,566] INFO django.server "POST /tournaments/judge/fight/23/panel/ HTTP/1.1" 302 0
+[2026-10-30 13:54:48,586] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 15182
+[2026-10-30 13:54:50,642] INFO django.server "GET /tournaments/judge/fight/30/panel/ HTTP/1.1" 200 21365
+[2026-10-30 13:54:54,476] INFO django.server "POST /tournaments/judge/fight/30/panel/ HTTP/1.1" 302 0
+[2026-10-30 13:54:54,495] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 15243
+[2026-10-30 13:54:55,789] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 13:54:55,799] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 13:54:56,536] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 13:54:58,718] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 13:54:58,729] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 13:55:03,022] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 13:55:04,086] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11863
+[2026-10-30 13:55:05,265] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 30057
+[2026-10-30 13:55:13,014] INFO tournaments === advance_winners: сетка #10, раунд 1 ===
+[2026-10-30 13:55:13,016] INFO tournaments Раунд 1: всего 4, завершено 4, BYE 1
+[2026-10-30 13:55:13,042] INFO django.server "GET /tournaments/5/brackets/advance/?bracket_id=10 HTTP/1.1" 302 0
+[2026-10-30 13:55:13,073] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 30393
+[2026-10-30 13:55:56,643] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 13:55:57,544] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 13:55:59,263] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11863
+[2026-10-30 13:56:00,176] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 59095
+[2026-10-30 13:56:04,669] INFO django.server "GET /tournaments/5/fight/35/assign-judge/ HTTP/1.1" 200 7916
+[2026-10-30 13:56:06,442] INFO django.server "POST /tournaments/5/fight/35/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 13:56:06,462] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 59182
+[2026-10-30 13:56:08,661] INFO django.server "GET /tournaments/5/fight/36/assign-judge/ HTTP/1.1" 200 7922
+[2026-10-30 13:56:10,524] INFO django.server "POST /tournaments/5/fight/36/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 13:56:10,544] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 58908
+[2026-10-30 13:56:13,485] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 13:56:13,508] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 13:56:14,644] INFO django.server "GET /tournaments/ HTTP/1.1" 200 14973
+[2026-10-30 13:56:15,594] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 7749
+[2026-10-30 13:56:17,878] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 13:56:19,211] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 13:56:19,223] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 13:56:20,678] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 16725
+[2026-10-30 13:56:22,381] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 13:56:22,392] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 13:56:23,470] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 13:56:26,933] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 13:56:26,944] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-10-30 13:56:28,287] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 16508
+[2026-10-30 13:56:31,030] INFO django.server "GET /tournaments/judge/fight/35/panel/ HTTP/1.1" 200 21367
+[2026-10-30 13:57:02,352] INFO django.server "POST /tournaments/5/fight/35/timer/control/ HTTP/1.1" 200 264
+[2026-10-30 13:57:32,954] INFO django.server "POST /tournaments/judge/fight/35/panel/ HTTP/1.1" 302 0
+[2026-10-30 13:57:32,979] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 16900
+[2026-10-30 13:57:35,768] INFO django.server "GET /tournaments/judge/fight/36/panel/ HTTP/1.1" 200 21379
+[2026-10-30 13:57:37,996] INFO django.server "POST /tournaments/judge/fight/36/panel/ HTTP/1.1" 302 0
+[2026-10-30 13:57:38,018] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 16949
+[2026-10-30 13:57:39,563] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 13:57:39,580] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 13:57:40,199] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 13:57:42,909] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 13:57:42,923] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 13:57:44,234] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 16725
+[2026-10-30 13:57:46,021] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 13:57:47,013] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11863
+[2026-10-30 13:57:48,038] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 30753
+[2026-10-30 13:57:52,877] INFO tournaments === advance_winners: сетка #10, раунд 2 ===
+[2026-10-30 13:57:52,879] INFO tournaments Раунд 2: всего 2, завершено 2, BYE 0
+[2026-10-30 13:57:52,893] INFO django.server "GET /tournaments/5/brackets/advance/?bracket_id=10 HTTP/1.1" 302 0
+[2026-10-30 13:57:52,917] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 31112
+[2026-10-30 13:58:14,384] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11864
+[2026-10-30 13:58:15,314] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 58770
+[2026-10-30 13:58:25,762] INFO django.server "GET /tournaments/5/fights/?page=2 HTTP/1.1" 200 15367
+[2026-10-30 13:58:27,351] INFO django.server "GET /tournaments/5/fight/37/assign-judge/ HTTP/1.1" 200 7919
+[2026-10-30 13:58:29,183] INFO django.server "POST /tournaments/5/fight/37/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 13:58:29,205] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 59131
+[2026-10-30 13:58:37,621] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 13:58:37,632] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 13:58:39,048] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 13:58:42,565] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 13:58:42,576] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-10-30 13:58:43,599] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 17409
+[2026-10-30 13:58:45,595] INFO django.server "GET /tournaments/judge/fight/37/panel/ HTTP/1.1" 200 21373
+[2026-10-30 13:58:52,381] ERROR tournaments Fight completion error
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\judges.py", line 118, in judge_fight_panel
+    success, msg = FightService.complete_fight(
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        fight,
+        ^^^^^^
+    ...<6 lines>...
+        }
+        ^
+    )
+    ^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\services\fight_service.py", line 82, in complete_fight
+    fight.bracket.winner = winner.full_name if winner else None
+    ^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 284, in __set__
+    raise ValueError(
+    ...<7 lines>...
+    )
+ValueError: Cannot assign "'zx xzc'": "Bracket.winner" must be a "Fighter" instance.
+[2026-10-30 13:58:52,395] INFO django.server "POST /tournaments/judge/fight/37/panel/ HTTP/1.1" 200 14503
+[2026-10-30 13:59:04,449] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 13:59:04,460] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 13:59:05,014] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 13:59:08,424] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 13:59:08,437] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 13:59:10,163] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 16725
+[2026-10-30 13:59:11,475] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 13:59:12,379] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11864
+[2026-10-30 13:59:13,695] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 39839
+[2026-10-30 13:59:51,999] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 13:59:52,011] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 13:59:53,745] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 13:59:57,148] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 13:59:57,159] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-10-30 14:01:20,174] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\services\fight_service.py changed, reloading.
+[2026-10-30 14:01:20,897] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:01:39,841] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:01:41,430] INFO django.server "GET / HTTP/1.1" 200 10988
+[2026-10-30 14:01:43,309] INFO django.server "GET /tournaments/ HTTP/1.1" 200 16395
+[2026-10-30 14:01:44,962] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 26061
+[2026-10-30 14:01:45,496] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 17456
+[2026-10-30 14:01:57,315] INFO django.server "GET /tournaments/judge/fight/23/panel/ HTTP/1.1" 200 13983
+[2026-10-30 14:02:01,268] INFO django.server "GET /tournaments/judge/fight/12/panel/ HTTP/1.1" 200 21379
+[2026-10-30 14:04:56,563] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:04:57,988] INFO django.server "GET / HTTP/1.1" 200 10988
+[2026-10-30 14:05:01,169] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 17456
+[2026-10-30 14:05:02,275] INFO django.server "GET /tournaments/judge/fight/12/panel/ HTTP/1.1" 200 23075
+[2026-10-30 14:05:09,755] INFO django.server "POST /tournaments/judge/fight/12/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:05:09,775] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 17167
+[2026-10-30 14:07:55,456] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:07:56,852] INFO django.server "GET / HTTP/1.1" 200 10988
+[2026-10-30 14:07:58,153] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 18898
+[2026-10-30 14:08:02,382] INFO django.server "GET /tournaments/judge/dashboard/?tournament=1&category=1 HTTP/1.1" 200 10309
+[2026-10-30 14:08:07,013] INFO django.server "GET /tournaments/judge/dashboard/?tournament=1&category=3 HTTP/1.1" 200 8744
+[2026-10-30 14:08:10,414] INFO django.server "GET /tournaments/judge/dashboard/?tournament=5&category=3 HTTP/1.1" 200 12897
+[2026-10-30 14:08:16,981] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 18898
+[2026-10-30 14:08:23,256] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 14:08:23,273] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 14:08:43,356] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 14:08:45,967] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 14:08:45,979] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 14:08:49,842] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:08:51,186] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11853
+[2026-10-30 14:08:52,144] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 39416
+[2026-10-30 14:14:13,029] ERROR django.request Internal Server Error: /tournaments/judge/fight/21/panel/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 52, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\judges.py", line 104, in judge_fight_panel
+    is_head = fight.head_judge == request.user.judge
+                                  ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\utils\functional.py", line 253, in inner
+    return func(_wrapped, *args)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 525, in __get__
+    raise self.RelatedObjectDoesNotExist(
+    ...<2 lines>...
+    )
+django.contrib.auth.models.User.judge.RelatedObjectDoesNotExist: User has no judge.
+[2026-10-30 14:14:13,053] ERROR django.server "GET /tournaments/judge/fight/21/panel/ HTTP/1.1" 500 89720
+[2026-10-30 14:14:15,633] ERROR django.request Internal Server Error: /tournaments/judge/fight/12/panel/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 52, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\judges.py", line 104, in judge_fight_panel
+    is_head = fight.head_judge == request.user.judge
+                                  ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\utils\functional.py", line 253, in inner
+    return func(_wrapped, *args)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 525, in __get__
+    raise self.RelatedObjectDoesNotExist(
+    ...<2 lines>...
+    )
+django.contrib.auth.models.User.judge.RelatedObjectDoesNotExist: User has no judge.
+[2026-10-30 14:14:15,636] ERROR django.server "GET /tournaments/judge/fight/12/panel/ HTTP/1.1" 500 89731
+[2026-10-30 14:14:24,507] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 14:14:24,523] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 14:14:27,213] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 14:14:30,326] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 14:14:30,337] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 14:14:31,492] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:14:41,620] INFO django.server "GET /tournaments/2/ HTTP/1.1" 200 11782
+[2026-10-30 14:14:46,522] INFO django.server "GET /tournaments/2/fights/ HTTP/1.1" 200 12988
+[2026-10-30 14:14:49,278] INFO django.server "GET /tournaments/2/fight/3/assign-boxing-judges/ HTTP/1.1" 200 10060
+[2026-10-30 14:15:01,018] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 16725
+[2026-10-30 14:15:02,220] INFO django.server "GET /tournaments/judges/6/toggle/ HTTP/1.1" 302 0
+[2026-10-30 14:15:02,233] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17075
+[2026-10-30 14:15:03,220] INFO django.server "GET /tournaments/judges/8/toggle/ HTTP/1.1" 302 0
+[2026-10-30 14:15:03,231] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17040
+[2026-10-30 14:15:04,461] INFO django.server "GET /tournaments/judges/5/toggle/ HTTP/1.1" 302 0
+[2026-10-30 14:15:04,475] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17001
+[2026-10-30 14:15:05,183] INFO django.server "GET /tournaments/judges/4/toggle/ HTTP/1.1" 302 0
+[2026-10-30 14:15:05,195] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 16962
+[2026-10-30 14:15:21,571] INFO django.server "GET /tournaments/judges/8/toggle/ HTTP/1.1" 302 0
+[2026-10-30 14:15:21,580] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17009
+[2026-10-30 14:15:31,300] INFO django.server "GET /tournaments/judges/8/toggle/ HTTP/1.1" 302 0
+[2026-10-30 14:15:31,310] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 16970
+[2026-10-30 14:15:33,573] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:15:36,149] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:15:37,116] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11853
+[2026-10-30 14:15:39,756] INFO django.server "GET /tournaments/2/ HTTP/1.1" 200 11782
+[2026-10-30 14:15:40,735] INFO django.server "GET /tournaments/2/fights/ HTTP/1.1" 200 12988
+[2026-10-30 14:15:42,213] INFO django.server "GET /tournaments/2/fight/3/assign-boxing-judges/ HTTP/1.1" 200 13244
+[2026-10-30 14:15:59,503] INFO django.server "GET /tournaments/2/fights/ HTTP/1.1" 200 12988
+[2026-10-30 14:16:02,576] ERROR django.request Internal Server Error: /tournaments/judge/fight/3/panel/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 52, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\judges.py", line 104, in judge_fight_panel
+    is_head = fight.head_judge == request.user.judge
+                                  ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\utils\functional.py", line 253, in inner
+    return func(_wrapped, *args)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 525, in __get__
+    raise self.RelatedObjectDoesNotExist(
+    ...<2 lines>...
+    )
+django.contrib.auth.models.User.judge.RelatedObjectDoesNotExist: User has no judge.
+[2026-10-30 14:16:02,579] ERROR django.server "GET /tournaments/judge/fight/3/panel/ HTTP/1.1" 500 89707
+[2026-10-30 14:16:08,930] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:16:13,673] INFO django.server "GET /tournaments/2/ HTTP/1.1" 200 11782
+[2026-10-30 14:16:20,667] INFO django.server "GET /tournaments/2/fights/ HTTP/1.1" 200 12988
+[2026-10-30 14:16:31,407] INFO django.server "GET /tournaments/2/bracket/3/ HTTP/1.1" 200 22904
+[2026-10-30 14:16:32,238] INFO django.server "GET /tournaments/2/bracket/3/delete/ HTTP/1.1" 302 0
+[2026-10-30 14:16:32,255] INFO django.server "GET /tournaments/2/ HTTP/1.1" 200 11668
+[2026-10-30 14:16:34,978] INFO django.server "GET /tournaments/2/brackets/generate/ HTTP/1.1" 302 0
+[2026-10-30 14:16:34,995] INFO django.server "GET /tournaments/2/ HTTP/1.1" 200 12514
+[2026-10-30 14:16:36,130] INFO django.server "GET /tournaments/2/fights/ HTTP/1.1" 200 15517
+[2026-10-30 14:16:37,694] INFO django.server "GET /tournaments/2/fight/38/assign-boxing-judges/ HTTP/1.1" 200 13974
+[2026-10-30 14:16:47,899] INFO django.server "GET /tournaments/2/fights/ HTTP/1.1" 200 15517
+[2026-10-30 14:16:49,853] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:16:51,548] INFO django.server "GET /tournaments/2/ HTTP/1.1" 200 11783
+[2026-10-30 14:16:53,283] INFO django.server "GET /tournaments/2/categories/ HTTP/1.1" 200 20593
+[2026-10-30 14:16:58,238] INFO django.server "GET /tournaments/2/categories/ HTTP/1.1" 200 20593
+[2026-10-30 14:17:11,627] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:17:15,316] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:17:16,739] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 26916
+[2026-10-30 14:17:18,992] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 16585
+[2026-10-30 14:17:22,341] INFO django.server "GET /tournaments/create/ HTTP/1.1" 200 12391
+[2026-10-30 14:17:23,416] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:17:54,897] INFO django.server "GET /admin/ HTTP/1.1" 200 15472
+[2026-10-30 14:17:54,930] INFO django.server "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2682
+[2026-10-30 14:17:54,930] INFO django.server "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+[2026-10-30 14:17:54,931] INFO django.server "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+[2026-10-30 14:17:54,931] INFO django.server "GET /static/admin/css/base.css HTTP/1.1" 200 21544
+[2026-10-30 14:17:54,932] INFO django.server "GET /static/admin/css/responsive.css HTTP/1.1" 200 17905
+[2026-10-30 14:17:54,955] INFO django.server "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+[2026-10-30 14:17:54,955] INFO django.server "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+[2026-10-30 14:17:54,965] INFO django.server "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+[2026-10-30 14:17:54,965] INFO django.server "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+[2026-10-30 14:17:58,973] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 26916
+[2026-10-30 14:18:08,779] INFO django.server "GET /tournaments/fighters/17/ HTTP/1.1" 200 9388
+[2026-10-30 14:31:54,768] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:31:56,074] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:31:57,618] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:31:58,604] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11853
+[2026-10-30 14:31:59,749] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 42827
+[2026-10-30 14:32:05,072] INFO django.server "POST /tournaments/5/bracket/10/ HTTP/1.1" 302 0
+[2026-10-30 14:32:05,106] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 40837
+[2026-10-30 14:32:11,471] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:32:12,614] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11853
+[2026-10-30 14:32:13,834] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 58770
+[2026-10-30 14:32:16,627] INFO django.server "GET /tournaments/5/fights/?page=2 HTTP/1.1" 200 17719
+[2026-10-30 14:32:19,025] INFO django.server "GET /tournaments/5/fight/39/assign-judge/ HTTP/1.1" 200 8234
+[2026-10-30 14:32:20,752] INFO django.server "POST /tournaments/5/fight/39/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 14:32:20,773] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 59131
+[2026-10-30 14:32:22,203] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 14:32:22,218] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 14:32:22,963] INFO django.server "GET /tournaments/ HTTP/1.1" 200 14973
+[2026-10-30 14:32:24,079] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 14:32:27,250] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 14:32:27,263] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-10-30 14:32:28,321] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 20402
+[2026-10-30 14:32:29,690] INFO django.server "GET /tournaments/judge/fight/39/panel/ HTTP/1.1" 200 23071
+[2026-10-30 14:32:34,766] INFO django.server "POST /tournaments/judge/fight/39/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:32:34,791] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 20095
+[2026-10-30 14:32:36,461] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 14:32:36,472] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 14:32:37,781] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 14:32:40,211] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 14:32:40,222] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 14:32:42,091] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:32:43,651] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11853
+[2026-10-30 14:32:44,592] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 44135
+[2026-10-30 14:32:55,274] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:32:58,268] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:33:00,506] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11853
+[2026-10-30 14:33:01,361] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 58770
+[2026-10-30 14:33:02,562] INFO django.server "GET /tournaments/fight/13/results/ HTTP/1.1" 200 9659
+[2026-10-30 14:35:56,686] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:35:57,886] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:35:59,057] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:35:59,535] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 26916
+[2026-10-30 14:36:00,996] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7506
+[2026-10-30 14:36:03,894] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:36:05,532] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11853
+[2026-10-30 14:36:06,774] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 42567
+[2026-10-30 14:36:24,531] INFO django.server "GET /tournaments/5/fights/?tournament=2&category=3&status=scheduled HTTP/1.1" 200 11420
+[2026-10-30 14:36:28,760] INFO django.server "GET /tournaments/5/fights/?tournament=2&category=2&status=in_progress HTTP/1.1" 200 11428
+[2026-10-30 14:36:30,254] INFO django.server "GET /tournaments/5/fights/?tournament=2&category=2&status= HTTP/1.1" 200 11428
+[2026-10-30 14:36:31,713] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:36:36,323] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:36:37,414] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7506
+[2026-10-30 14:36:38,841] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 14:36:38,857] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 14:36:40,196] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 14:36:43,049] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 14:36:43,061] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-10-30 14:36:44,094] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 19750
+[2026-10-30 14:36:45,316] INFO django.server "GET /tournaments/judge/fight/12/panel/ HTTP/1.1" 200 15612
+[2026-10-30 14:36:49,043] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 19750
+[2026-10-30 14:36:50,592] INFO django.server "GET /tournaments/ HTTP/1.1" 200 16395
+[2026-10-30 14:36:52,137] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 14:36:52,146] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 14:42:58,960] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:43:02,035] INFO django.server "GET / HTTP/1.1" 200 8459
+[2026-10-30 14:43:11,987] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 14:43:14,526] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 14:43:14,597] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 14:43:15,896] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:43:19,301] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11853
+[2026-10-30 14:43:21,327] INFO django.server "GET /tournaments/5/bracket/10/ HTTP/1.1" 200 44135
+[2026-10-30 14:43:23,103] INFO django.server "GET /tournaments/5/bracket/10/delete/ HTTP/1.1" 302 0
+[2026-10-30 14:43:23,200] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11739
+[2026-10-30 14:43:25,402] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20365
+[2026-10-30 14:43:34,350] INFO django.server "POST /tournaments/5/categories/ HTTP/1.1" 302 0
+[2026-10-30 14:43:34,375] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20365
+[2026-10-30 14:43:36,968] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20365
+[2026-10-30 14:43:39,995] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20365
+[2026-10-30 14:43:47,369] INFO django.server "POST /tournaments/5/categories/ HTTP/1.1" 302 0
+[2026-10-30 14:43:47,417] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20365
+[2026-10-30 14:43:55,471] INFO django.server "POST /tournaments/5/categories/ HTTP/1.1" 302 0
+[2026-10-30 14:43:55,538] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20365
+[2026-10-30 14:44:00,528] INFO django.server "POST /tournaments/5/categories/ HTTP/1.1" 302 0
+[2026-10-30 14:44:00,603] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 14997
+[2026-10-30 14:44:12,450] INFO django.server "POST /tournaments/5/categories/ HTTP/1.1" 302 0
+[2026-10-30 14:44:12,512] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20711
+[2026-10-30 14:44:14,726] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20337
+[2026-10-30 14:44:16,071] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:44:18,001] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11385
+[2026-10-30 14:44:21,724] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20337
+[2026-10-30 14:44:23,522] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11385
+[2026-10-30 14:44:24,466] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:44:25,290] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11385
+[2026-10-30 14:44:27,064] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7506
+[2026-10-30 14:44:28,300] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 85882
+[2026-10-30 14:44:29,984] INFO django.server "GET /tournaments/5/auto-assign/ HTTP/1.1" 302 0
+[2026-10-30 14:44:30,018] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 86508
+[2026-10-30 14:44:32,337] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:44:33,752] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11385
+[2026-10-30 14:44:35,145] ERROR django.request Internal Server Error: /tournaments/5/brackets/generate/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 34, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\brackets.py", line 202, in generate_brackets
+    success, msg = BracketService.generate_round_robin(bracket, cat_regs)
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\pythonchik\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\services\bracket_service.py", line 153, in generate_round_robin
+    Fight.objects.create(
+    ~~~~~~~~~~~~~~~~~~~~^
+        tournament=bracket.tournament,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        **fight_defaults
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 677, in create
+    obj = self.model(**kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\base.py", line 543, in __init__
+    _setattr(self, field.name, rel_obj)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 284, in __set__
+    raise ValueError(
+    ...<7 lines>...
+    )
+ValueError: Cannot assign "<TournamentRegistration: fg fg - пиавывпкаывпкафываып>": "Fight.fighter1" must be a "Fighter" instance.
+[2026-10-30 14:44:35,150] ERROR django.server "GET /tournaments/5/brackets/generate/ HTTP/1.1" 500 116621
+[2026-10-30 14:44:40,778] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20337
+[2026-10-30 14:44:44,622] ERROR django.request Internal Server Error: /tournaments/5/brackets/generate/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 34, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\brackets.py", line 202, in generate_brackets
+    success, msg = BracketService.generate_round_robin(bracket, cat_regs)
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "D:\pythonchik\Lib\contextlib.py", line 85, in inner
+    return func(*args, **kwds)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\services\bracket_service.py", line 153, in generate_round_robin
+    Fight.objects.create(
+    ~~~~~~~~~~~~~~~~~~~~^
+        tournament=bracket.tournament,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<8 lines>...
+        **fight_defaults
+        ^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 677, in create
+    obj = self.model(**kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\base.py", line 543, in __init__
+    _setattr(self, field.name, rel_obj)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 284, in __set__
+    raise ValueError(
+    ...<7 lines>...
+    )
+ValueError: Cannot assign "<TournamentRegistration: Иван Иванов - пиавывпкаывпкафываып>": "Fight.fighter1" must be a "Fighter" instance.
+[2026-10-30 14:44:44,624] ERROR django.server "GET /tournaments/5/brackets/generate/ HTTP/1.1" 500 116814
+[2026-10-30 14:45:48,212] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:45:49,570] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:45:50,691] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:45:52,035] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11842
+[2026-10-30 14:45:53,026] INFO django.server "GET /tournaments/5/brackets/generate/ HTTP/1.1" 302 0
+[2026-10-30 14:45:53,040] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 12577
+[2026-10-30 14:45:55,710] ERROR django.request Internal Server Error: /tournaments/5/bracket/12/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\brackets.py", line 126, in bracket_view
+    'note': f"{s['wins']} побед",
+               ~^^^^^^^^
+KeyError: 'wins'
+[2026-10-30 14:45:55,724] ERROR django.server "GET /tournaments/5/bracket/12/ HTTP/1.1" 500 81714
+[2026-10-30 14:45:58,796] ERROR django.request Internal Server Error: /tournaments/5/bracket/12/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\brackets.py", line 126, in bracket_view
+    'note': f"{s['wins']} побед",
+               ~^^^^^^^^
+KeyError: 'wins'
+[2026-10-30 14:45:58,797] ERROR django.server "GET /tournaments/5/bracket/12/ HTTP/1.1" 500 81714
+[2026-10-30 14:46:56,142] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\brackets.py changed, reloading.
+[2026-10-30 14:46:56,931] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:47:53,470] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\services\fight_service.py changed, reloading.
+[2026-10-30 14:47:54,124] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:47:59,978] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-10-30 14:48:01,287] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:48:02,829] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:48:04,542] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11843
+[2026-10-30 14:48:05,400] INFO django.server "GET /tournaments/5/bracket/12/ HTTP/1.1" 200 136990
+[2026-10-30 14:48:14,813] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 111702
+[2026-10-30 14:48:19,163] INFO django.server "GET /tournaments/5/fight/41/assign-judge/ HTTP/1.1" 200 8249
+[2026-10-30 14:48:21,776] INFO django.server "POST /tournaments/5/fight/41/assign-judge/ HTTP/1.1" 302 0
+[2026-10-30 14:48:21,811] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 106643
+[2026-10-30 14:48:35,301] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 14:48:35,315] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 14:48:36,730] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 14:48:40,163] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 14:48:40,175] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-10-30 14:48:41,516] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 43304
+[2026-10-30 14:48:45,692] INFO django.server "GET /tournaments/judge/fight/41/panel/ HTTP/1.1" 200 23091
+[2026-10-30 14:48:49,974] INFO django.server "POST /tournaments/judge/fight/41/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:48:50,004] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 43719
+[2026-10-30 14:48:50,815] INFO django.server "GET /tournaments/judge/fight/43/panel/ HTTP/1.1" 200 23061
+[2026-10-30 14:48:53,791] INFO django.server "POST /tournaments/judge/fight/43/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:48:53,822] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 43777
+[2026-10-30 14:48:54,511] INFO django.server "GET /tournaments/judge/fight/44/panel/ HTTP/1.1" 200 23061
+[2026-10-30 14:48:57,629] INFO django.server "POST /tournaments/judge/fight/44/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:48:57,662] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 43834
+[2026-10-30 14:48:58,410] INFO django.server "GET /tournaments/judge/fight/46/panel/ HTTP/1.1" 200 23093
+[2026-10-30 14:49:04,524] INFO django.server "POST /tournaments/judge/fight/46/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:49:04,555] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 43904
+[2026-10-30 14:49:05,485] INFO django.server "GET /tournaments/judge/fight/42/panel/ HTTP/1.1" 200 23079
+[2026-10-30 14:49:14,727] INFO django.server "POST /tournaments/judge/fight/42/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:49:14,758] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 43968
+[2026-10-30 14:49:15,765] INFO django.server "GET /tournaments/judge/fight/49/panel/ HTTP/1.1" 200 23067
+[2026-10-30 14:49:21,623] INFO django.server "POST /tournaments/judge/fight/49/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:49:21,659] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44025
+[2026-10-30 14:49:22,315] INFO django.server "GET /tournaments/judge/fight/47/panel/ HTTP/1.1" 200 23073
+[2026-10-30 14:49:25,197] INFO django.server "POST /tournaments/judge/fight/47/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:49:25,229] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44089
+[2026-10-30 14:49:25,923] INFO django.server "GET /tournaments/judge/fight/48/panel/ HTTP/1.1" 200 23061
+[2026-10-30 14:49:28,785] INFO django.server "POST /tournaments/judge/fight/48/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:49:28,819] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44146
+[2026-10-30 14:49:30,116] INFO django.server "GET /tournaments/judge/fight/53/panel/ HTTP/1.1" 200 23059
+[2026-10-30 14:49:35,860] INFO django.server "POST /tournaments/judge/fight/53/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:49:35,893] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44200
+[2026-10-30 14:49:36,715] INFO django.server "GET /tournaments/judge/fight/51/panel/ HTTP/1.1" 200 23105
+[2026-10-30 14:49:40,980] INFO django.server "POST /tournaments/judge/fight/51/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:49:41,015] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44270
+[2026-10-30 14:49:41,714] INFO django.server "GET /tournaments/judge/fight/52/panel/ HTTP/1.1" 200 23063
+[2026-10-30 14:49:47,485] INFO django.server "POST /tournaments/judge/fight/52/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:49:47,518] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44325
+[2026-10-30 14:49:48,369] INFO django.server "GET /tournaments/judge/fight/56/panel/ HTTP/1.1" 200 23055
+[2026-10-30 14:49:52,246] INFO django.server "POST /tournaments/judge/fight/56/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:49:52,279] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44380
+[2026-10-30 14:49:53,233] INFO django.server "GET /tournaments/judge/fight/54/panel/ HTTP/1.1" 200 23079
+[2026-10-30 14:49:59,197] INFO django.server "POST /tournaments/judge/fight/54/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:49:59,232] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44437
+[2026-10-30 14:49:59,872] INFO django.server "GET /tournaments/judge/fight/57/panel/ HTTP/1.1" 200 23081
+[2026-10-30 14:50:05,184] INFO django.server "POST /tournaments/judge/fight/57/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:50:05,219] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44501
+[2026-10-30 14:50:05,879] INFO django.server "GET /tournaments/judge/fight/58/panel/ HTTP/1.1" 200 23091
+[2026-10-30 14:50:12,308] INFO django.server "POST /tournaments/judge/fight/58/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:50:12,344] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44558
+[2026-10-30 14:50:13,375] INFO django.server "GET /tournaments/judge/fight/60/panel/ HTTP/1.1" 200 23075
+[2026-10-30 14:50:19,096] INFO django.server "POST /tournaments/judge/fight/60/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:50:19,131] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44622
+[2026-10-30 14:50:19,998] INFO django.server "GET /tournaments/judge/fight/63/panel/ HTTP/1.1" 200 23065
+[2026-10-30 14:50:25,044] INFO django.server "POST /tournaments/judge/fight/63/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:50:25,078] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44679
+[2026-10-30 14:50:25,997] INFO django.server "GET /tournaments/judge/fight/61/panel/ HTTP/1.1" 200 23085
+[2026-10-30 14:50:32,235] INFO django.server "POST /tournaments/judge/fight/61/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:50:32,276] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44733
+[2026-10-30 14:50:33,198] INFO django.server "GET /tournaments/judge/fight/64/panel/ HTTP/1.1" 200 23087
+[2026-10-30 14:50:37,701] INFO django.server "POST /tournaments/judge/fight/64/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:50:37,737] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44803
+[2026-10-30 14:50:38,876] INFO django.server "GET /tournaments/judge/fight/66/panel/ HTTP/1.1" 200 23059
+[2026-10-30 14:50:43,682] INFO django.server "POST /tournaments/judge/fight/66/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:50:43,721] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44860
+[2026-10-30 14:50:44,547] INFO django.server "GET /tournaments/judge/fight/67/panel/ HTTP/1.1" 200 23067
+[2026-10-30 14:50:48,077] INFO django.server "POST /tournaments/judge/fight/67/panel/ HTTP/1.1" 302 0
+[2026-10-30 14:50:48,114] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 44219
+[2026-10-30 14:50:51,226] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-10-30 14:50:51,236] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-10-30 14:50:51,867] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-10-30 14:50:54,478] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-10-30 14:50:54,489] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 14:50:55,730] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:50:56,977] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11843
+[2026-10-30 14:50:58,173] INFO django.server "GET /tournaments/5/bracket/12/ HTTP/1.1" 200 164881
+[2026-10-30 14:51:55,043] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:52:27,722] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7506
+[2026-10-30 14:52:29,209] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 85784
+[2026-10-30 14:52:30,337] INFO django.server "GET /tournaments/5/participants/add/ HTTP/1.1" 200 9833
+[2026-10-30 14:52:32,383] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 85784
+[2026-10-30 14:52:33,367] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:52:33,886] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 26916
+[2026-10-30 14:52:37,207] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-10-30 14:52:38,868] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-10-30 14:52:44,023] INFO django.server "GET /users/login/ HTTP/1.1" 302 0
+[2026-10-30 14:52:44,041] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-10-30 14:52:46,860] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 16585
+[2026-10-30 14:52:48,898] INFO django.server "GET /admin/ HTTP/1.1" 200 15472
+[2026-11-01 16:52:42,838] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-01 16:52:46,937] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-11-01 16:52:47,404] WARNING django.request Not Found: /favicon.ico
+[2026-11-01 16:52:47,405] WARNING django.server "GET /favicon.ico HTTP/1.1" 404 3038
+[2026-11-01 16:54:13,583] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 26916
+[2026-11-01 16:54:15,296] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-11-01 16:54:16,718] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7506
+[2026-11-01 16:54:20,836] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-11-01 16:54:21,666] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11833
+[2026-11-01 16:54:23,391] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 108663
+[2026-11-01 16:54:26,350] INFO django.server "GET /tournaments/fight/36/results/ HTTP/1.1" 200 9094
+[2026-11-01 16:54:27,905] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 108663
+[2026-11-01 16:54:38,524] INFO django.server "GET /tournaments/5/fights/?tournament=5&category=&status= HTTP/1.1" 200 108663
+[2026-11-01 16:54:42,860] INFO django.server "GET /tournaments/fight/13/results/ HTTP/1.1" 200 9631
+[2026-11-01 16:54:43,941] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 108663
+[2026-11-01 16:54:45,148] INFO django.server "GET /tournaments/fight/21/results/ HTTP/1.1" 200 9098
+[2026-11-01 16:54:46,220] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 108663
+[2026-11-01 16:57:59,718] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 16585
+[2026-11-01 17:03:30,847] INFO django.server "GET /tournaments/judges/6/toggle/ HTTP/1.1" 302 0
+[2026-11-01 17:03:30,858] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17009
+[2026-11-01 17:03:31,751] INFO django.server "GET /tournaments/judges/8/toggle/ HTTP/1.1" 302 0
+[2026-11-01 17:03:31,761] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17044
+[2026-11-01 17:03:32,196] INFO django.server "GET /tournaments/judges/5/toggle/ HTTP/1.1" 302 0
+[2026-11-01 17:03:32,210] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17075
+[2026-11-01 17:03:32,653] INFO django.server "GET /tournaments/judges/4/toggle/ HTTP/1.1" 302 0
+[2026-11-01 17:03:32,687] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17106
+[2026-11-01 17:03:36,705] INFO django.server "GET /tournaments/judges/add/ HTTP/1.1" 200 9814
+[2026-11-01 17:04:02,247] INFO django.server "POST /tournaments/judges/add/ HTTP/1.1" 302 0
+[2026-11-01 17:04:02,258] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 18211
+[2026-11-01 17:04:22,028] INFO django.server "GET /tournaments/judges/10/edit/ HTTP/1.1" 200 9920
+[2026-11-01 17:04:25,507] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17795
+[2026-11-01 17:04:34,066] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 26916
+[2026-11-01 17:04:34,566] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-11-01 17:04:36,019] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11833
+[2026-11-01 17:04:37,156] INFO django.server "GET /tournaments/5/bracket/12/ HTTP/1.1" 200 164466
+[2026-11-01 17:05:01,227] INFO django.server "GET /tournaments/5/bracket/12/ HTTP/1.1" 200 164466
+[2026-11-01 17:05:02,120] INFO django.server "GET /tournaments/5/bracket/12/delete/ HTTP/1.1" 302 0
+[2026-11-01 17:05:02,136] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11733
+[2026-11-01 17:05:05,069] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20337
+[2026-11-01 17:05:12,796] INFO django.server "POST /tournaments/5/categories/ HTTP/1.1" 302 0
+[2026-11-01 17:05:12,811] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20337
+[2026-11-01 17:05:14,702] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20337
+[2026-11-01 17:05:18,167] INFO django.server "POST /tournaments/5/categories/ HTTP/1.1" 302 0
+[2026-11-01 17:05:18,180] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 14989
+[2026-11-01 17:05:32,184] INFO django.server "POST /tournaments/5/categories/ HTTP/1.1" 302 0
+[2026-11-01 17:05:32,198] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20733
+[2026-11-01 17:05:35,045] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 26916
+[2026-11-01 17:05:36,627] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 7506
+[2026-11-01 17:05:37,905] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 85910
+[2026-11-01 17:05:40,423] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20355
+[2026-11-01 17:05:44,930] INFO django.server "GET /tournaments/5/auto-assign/ HTTP/1.1" 302 0
+[2026-11-01 17:05:44,969] INFO django.server "GET /tournaments/participants/?tournament=5 HTTP/1.1" 200 86564
+[2026-11-01 17:05:54,013] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-11-01 17:05:55,611] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11390
+[2026-11-01 17:05:57,389] INFO django.server "GET /tournaments/5/brackets/generate/ HTTP/1.1" 302 0
+[2026-11-01 17:05:57,422] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 12593
+[2026-11-01 17:06:01,929] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 30856
+[2026-11-01 17:06:09,716] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 118542
+[2026-11-01 17:06:16,318] INFO django.server "GET /tournaments/5/fights/?tournament=5&category=5&status= HTTP/1.1" 200 11433
+[2026-11-01 17:06:21,257] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11857
+[2026-11-01 17:06:24,295] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 118542
+[2026-11-01 17:06:26,656] INFO django.server "GET /tournaments/5/fights/?tournament=5&category=5&status= HTTP/1.1" 200 11433
+[2026-11-01 17:06:30,070] INFO django.server "GET /tournaments/5/fights/?tournament=5&category=5&status= HTTP/1.1" 200 11433
+[2026-11-01 17:06:32,417] INFO django.server "GET /tournaments/5/fights/?tournament=&category=5&status= HTTP/1.1" 200 11433
+[2026-11-01 17:06:33,205] INFO django.server "GET /tournaments/5/fights/?tournament=5&category=5&status= HTTP/1.1" 200 11433
+[2026-11-01 17:06:33,391] INFO django.server "GET /tournaments/5/fights/?tournament=5&category=5&status= HTTP/1.1" 200 11433
+[2026-11-01 17:06:36,725] INFO django.server "GET /tournaments/5/fights/?tournament=5&category=5&status= HTTP/1.1" 200 11433
+[2026-11-01 17:06:38,837] INFO django.server "GET /tournaments/5/fights/?tournament=5&category=&status= HTTP/1.1" 200 118542
+[2026-11-01 17:06:48,368] INFO django.server "GET /tournaments/5/fight/68/assign-judge/ HTTP/1.1" 200 8014
+[2026-11-01 17:06:51,568] INFO django.server "POST /tournaments/5/fight/68/assign-judge/ HTTP/1.1" 302 0
+[2026-11-01 17:06:51,611] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 118629
+[2026-11-01 17:06:54,012] INFO django.server "GET /tournaments/5/fight/69/assign-judge/ HTTP/1.1" 200 8023
+[2026-11-01 17:06:57,717] INFO django.server "POST /tournaments/5/fight/69/assign-judge/ HTTP/1.1" 302 0
+[2026-11-01 17:06:57,761] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 118355
+[2026-11-01 17:07:00,613] INFO django.server "GET /tournaments/5/fight/70/assign-judge/ HTTP/1.1" 200 8018
+[2026-11-01 17:07:03,434] INFO django.server "POST /tournaments/5/fight/70/assign-judge/ HTTP/1.1" 302 0
+[2026-11-01 17:07:03,478] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 118081
+[2026-11-01 17:07:11,243] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:07:11,260] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-11-01 17:07:11,934] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:07:16,267] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:07:16,286] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-11-01 17:07:18,438] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 46842
+[2026-11-01 17:07:19,920] INFO django.server "GET /tournaments/judge/fight/68/panel/ HTTP/1.1" 200 23047
+[2026-11-01 17:07:30,384] INFO django.server "POST /tournaments/5/fight/68/timer/control/ HTTP/1.1" 200 264
+[2026-11-01 17:07:48,484] INFO django.server "POST /tournaments/5/fight/68/timer/control/ HTTP/1.1" 200 264
+[2026-11-01 17:08:01,983] INFO django.server "POST /tournaments/5/fight/68/timer/control/ HTTP/1.1" 200 264
+[2026-11-01 17:09:06,893] INFO django.server "POST /tournaments/judge/fight/68/panel/ HTTP/1.1" 302 0
+[2026-11-01 17:09:06,935] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 47247
+[2026-11-01 17:09:13,366] INFO django.server "GET /tournaments/judge/dashboard/?tournament=5&category=1 HTTP/1.1" 200 8602
+[2026-11-01 17:09:16,563] INFO django.server "GET /tournaments/judge/dashboard/?tournament=5&category= HTTP/1.1" 200 46051
+[2026-11-01 17:09:22,799] INFO django.server "GET /tournaments/judge/fight/69/panel/ HTTP/1.1" 200 23065
+[2026-11-01 17:09:34,311] INFO django.server "POST /tournaments/judge/fight/69/panel/ HTTP/1.1" 302 0
+[2026-11-01 17:09:34,352] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 47320
+[2026-11-01 17:09:35,798] INFO django.server "GET /tournaments/judge/fight/70/panel/ HTTP/1.1" 200 23055
+[2026-11-01 17:09:42,724] INFO django.server "POST /tournaments/judge/fight/70/panel/ HTTP/1.1" 302 0
+[2026-11-01 17:09:42,762] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 46680
+[2026-11-01 17:09:48,698] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:09:48,716] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-11-01 17:09:50,431] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:09:52,895] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:09:52,907] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-11-01 17:09:54,299] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-11-01 17:09:55,538] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11857
+[2026-11-01 17:09:56,711] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 31966
+[2026-11-01 17:10:05,358] INFO tournaments === advance_winners: сетка #13, раунд 1 ===
+[2026-11-01 17:10:05,361] INFO tournaments Раунд 1: всего 4, завершено 4, BYE 1
+[2026-11-01 17:10:05,377] INFO django.server "GET /tournaments/5/brackets/advance/?bracket_id=13 HTTP/1.1" 302 0
+[2026-11-01 17:10:05,408] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 32313
+[2026-11-01 17:10:24,278] INFO tournaments === advance_winners: сетка #13, раунд 2 ===
+[2026-11-01 17:10:24,281] INFO tournaments Раунд 2: всего 2, завершено 0, BYE 0
+[2026-11-01 17:10:24,281] INFO django.server "GET /tournaments/5/brackets/advance/?bracket_id=13 HTTP/1.1" 302 0
+[2026-11-01 17:10:24,306] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 32368
+[2026-11-01 17:10:26,363] INFO tournaments === advance_winners: сетка #13, раунд 2 ===
+[2026-11-01 17:10:26,365] INFO tournaments Раунд 2: всего 2, завершено 0, BYE 0
+[2026-11-01 17:10:26,366] INFO django.server "GET /tournaments/5/brackets/advance/?bracket_id=13 HTTP/1.1" 302 0
+[2026-11-01 17:10:26,390] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 32368
+[2026-11-01 17:10:26,827] INFO tournaments === advance_winners: сетка #13, раунд 2 ===
+[2026-11-01 17:10:26,829] INFO tournaments Раунд 2: всего 2, завершено 0, BYE 0
+[2026-11-01 17:10:26,829] INFO django.server "GET /tournaments/5/brackets/advance/?bracket_id=13 HTTP/1.1" 302 0
+[2026-11-01 17:10:26,854] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 32368
+[2026-11-01 17:10:27,274] INFO tournaments === advance_winners: сетка #13, раунд 2 ===
+[2026-11-01 17:10:27,276] INFO tournaments Раунд 2: всего 2, завершено 0, BYE 0
+[2026-11-01 17:10:27,277] INFO django.server "GET /tournaments/5/brackets/advance/?bracket_id=13 HTTP/1.1" 302 0
+[2026-11-01 17:10:27,301] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 32368
+[2026-11-01 17:11:12,456] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-11-01 17:11:13,469] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11857
+[2026-11-01 17:11:14,469] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 123112
+[2026-11-01 17:11:17,490] INFO django.server "GET /tournaments/5/fight/75/assign-judge/ HTTP/1.1" 200 8026
+[2026-11-01 17:11:19,944] INFO django.server "POST /tournaments/5/fight/75/assign-judge/ HTTP/1.1" 302 0
+[2026-11-01 17:11:19,997] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 122965
+[2026-11-01 17:11:30,088] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:11:30,106] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-11-01 17:11:30,810] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:11:33,958] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:11:33,968] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-11-01 17:11:35,293] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 48788
+[2026-11-01 17:11:36,524] INFO django.server "GET /tournaments/judge/fight/75/panel/ HTTP/1.1" 200 23095
+[2026-11-01 17:11:39,322] INFO django.server "GET /tournaments/judge/fight/75/panel/ HTTP/1.1" 200 23095
+[2026-11-01 17:11:43,208] INFO django.server "GET / HTTP/1.1" 200 10988
+[2026-11-01 17:11:46,321] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 48788
+[2026-11-01 17:11:47,906] INFO django.server "GET /tournaments/judge/fight/75/panel/ HTTP/1.1" 200 23095
+[2026-11-01 17:11:53,874] INFO django.server "POST /tournaments/judge/fight/75/panel/ HTTP/1.1" 302 0
+[2026-11-01 17:11:53,913] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 49186
+[2026-11-01 17:11:55,168] INFO django.server "GET /tournaments/judge/fight/76/panel/ HTTP/1.1" 200 23065
+[2026-11-01 17:11:59,738] INFO django.server "POST /tournaments/judge/fight/76/panel/ HTTP/1.1" 302 0
+[2026-11-01 17:11:59,777] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 48539
+[2026-11-01 17:12:01,501] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:12:01,511] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-11-01 17:12:03,648] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:12:06,981] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:12:06,991] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-11-01 17:12:09,029] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-11-01 17:12:10,533] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11857
+[2026-11-01 17:12:11,438] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 32677
+[2026-11-01 17:12:18,080] INFO tournaments === advance_winners: сетка #13, раунд 2 ===
+[2026-11-01 17:12:18,083] INFO tournaments Раунд 2: всего 2, завершено 2, BYE 0
+[2026-11-01 17:12:18,102] INFO django.server "GET /tournaments/5/brackets/advance/?bracket_id=13 HTTP/1.1" 302 0
+[2026-11-01 17:12:18,151] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 33032
+[2026-11-01 17:12:24,293] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 32656
+[2026-11-01 17:12:26,587] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11858
+[2026-11-01 17:12:27,709] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 125301
+[2026-11-01 17:12:30,139] INFO django.server "GET /tournaments/5/fight/77/assign-judge/ HTTP/1.1" 200 8011
+[2026-11-01 17:12:32,229] INFO django.server "POST /tournaments/5/fight/77/assign-judge/ HTTP/1.1" 302 0
+[2026-11-01 17:12:32,276] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 125388
+[2026-11-01 17:12:33,593] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:12:33,604] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-11-01 17:12:34,429] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:12:37,807] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:12:37,818] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-11-01 17:12:38,637] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 49693
+[2026-11-01 17:12:39,932] INFO django.server "GET /tournaments/judge/fight/77/panel/ HTTP/1.1" 200 23065
+[2026-11-01 17:12:52,446] INFO django.server "POST /tournaments/judge/fight/77/panel/ HTTP/1.1" 302 0
+[2026-11-01 17:12:52,485] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 49393
+[2026-11-01 17:12:59,601] INFO django.server "GET /tournaments/ HTTP/1.1" 200 16395
+[2026-11-01 17:13:01,102] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:13:01,112] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-11-01 17:13:02,026] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:13:04,754] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:13:04,765] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-11-01 17:13:10,248] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-11-01 17:13:11,286] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11847
+[2026-11-01 17:13:12,358] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 42992
+[2026-11-01 17:14:27,353] INFO django.server "POST /tournaments/5/bracket/13/ HTTP/1.1" 302 0
+[2026-11-01 17:14:27,393] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 40921
+[2026-11-01 17:14:35,017] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11847
+[2026-11-01 17:14:35,954] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 127670
+[2026-11-01 17:14:38,317] INFO django.server "GET /tournaments/5/fight/78/assign-judge/ HTTP/1.1" 200 8026
+[2026-11-01 17:14:40,139] INFO django.server "POST /tournaments/5/fight/78/assign-judge/ HTTP/1.1" 302 0
+[2026-11-01 17:14:40,187] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 127757
+[2026-11-01 17:14:42,633] ERROR django.request Internal Server Error: /tournaments/judge/fight/78/panel/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 52, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\judges.py", line 104, in judge_fight_panel
+    is_head = fight.head_judge == request.user.judge
+                                  ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\utils\functional.py", line 253, in inner
+    return func(_wrapped, *args)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 525, in __get__
+    raise self.RelatedObjectDoesNotExist(
+    ...<2 lines>...
+    )
+django.contrib.auth.models.User.judge.RelatedObjectDoesNotExist: User has no judge.
+[2026-11-01 17:14:42,637] ERROR django.server "GET /tournaments/judge/fight/78/panel/ HTTP/1.1" 500 89721
+[2026-11-01 17:14:47,055] ERROR django.request Internal Server Error: /tournaments/judge/fight/78/panel/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 52, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\judges.py", line 104, in judge_fight_panel
+    is_head = fight.head_judge == request.user.judge
+                                  ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\utils\functional.py", line 253, in inner
+    return func(_wrapped, *args)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 525, in __get__
+    raise self.RelatedObjectDoesNotExist(
+    ...<2 lines>...
+    )
+django.contrib.auth.models.User.judge.RelatedObjectDoesNotExist: User has no judge.
+[2026-11-01 17:14:47,057] ERROR django.server "GET /tournaments/judge/fight/78/panel/ HTTP/1.1" 500 89721
+[2026-11-01 17:14:50,801] INFO django.server "GET /tournaments/fight/67/results/ HTTP/1.1" 200 9196
+[2026-11-01 17:14:52,630] ERROR django.request Internal Server Error: /tournaments/judge/fight/78/panel/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py", line 52, in _wrapped
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\judges.py", line 104, in judge_fight_panel
+    is_head = fight.head_judge == request.user.judge
+                                  ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\utils\functional.py", line 253, in inner
+    return func(_wrapped, *args)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 525, in __get__
+    raise self.RelatedObjectDoesNotExist(
+    ...<2 lines>...
+    )
+django.contrib.auth.models.User.judge.RelatedObjectDoesNotExist: User has no judge.
+[2026-11-01 17:14:52,632] ERROR django.server "GET /tournaments/judge/fight/78/panel/ HTTP/1.1" 500 89721
+[2026-11-01 17:15:04,106] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:15:04,124] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-11-01 17:15:04,997] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:15:09,574] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:15:09,585] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-11-01 17:15:10,980] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 50563
+[2026-11-01 17:15:15,725] INFO django.server "GET /tournaments/judge/fight/78/panel/ HTTP/1.1" 200 23097
+[2026-11-01 17:15:46,451] INFO django.server "POST /tournaments/judge/fight/78/panel/ HTTP/1.1" 302 0
+[2026-11-01 17:15:46,497] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 50276
+[2026-11-01 17:15:48,183] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:15:48,199] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-11-01 17:15:49,142] INFO django.server "GET / HTTP/1.1" 200 8459
+[2026-11-01 17:15:50,129] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:15:52,926] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:15:52,937] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-11-01 17:15:54,223] INFO django.server "GET /tournaments/ HTTP/1.1" 200 17250
+[2026-11-01 17:15:55,280] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11847
+[2026-11-01 17:15:56,241] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 44315
+[2026-11-01 17:16:09,460] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-11-01 17:17:29,643] INFO django.server "GET /admin/ HTTP/1.1" 200 15472
+[2026-11-01 17:17:38,245] INFO django.server "GET /admin/tournaments/bracketnode/ HTTP/1.1" 200 13221
+[2026-11-01 17:17:38,287] INFO django.server "GET /static/admin/css/changelists.css HTTP/1.1" 200 6811
+[2026-11-01 17:17:38,302] INFO django.server "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+[2026-11-01 17:17:38,307] INFO django.server "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+[2026-11-01 17:17:38,307] INFO django.server "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9042
+[2026-11-01 17:17:38,313] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:17:38,317] INFO django.server "GET /static/admin/js/actions.js HTTP/1.1" 200 8067
+[2026-11-01 17:17:38,332] INFO django.server "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+[2026-11-01 17:17:38,332] INFO django.server "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+[2026-11-01 17:17:38,343] INFO django.server "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+[2026-11-01 17:17:38,365] INFO django.server "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+[2026-11-01 17:17:38,395] INFO django.server "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+[2026-11-01 17:17:38,420] INFO django.server "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+[2026-11-01 17:17:40,555] INFO django.server "GET /admin/ HTTP/1.1" 200 15472
+[2026-11-01 17:17:54,374] INFO django.server "GET /admin/tournaments/match/ HTTP/1.1" 200 13158
+[2026-11-01 17:17:54,402] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:17:56,374] INFO django.server "GET /admin/tournaments/match/ HTTP/1.1" 200 13158
+[2026-11-01 17:17:56,397] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:00,947] INFO django.server "GET /admin/tournaments/agegroup/ HTTP/1.1" 200 13285
+[2026-11-01 17:18:00,981] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:02,104] INFO django.server "GET /admin/tournaments/ageweightcategory/ HTTP/1.1" 200 15809
+[2026-11-01 17:18:02,153] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:03,851] INFO django.server "GET /admin/tournaments/weightcategory/ HTTP/1.1" 200 13297
+[2026-11-01 17:18:03,886] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:04,516] INFO django.server "GET /admin/tournaments/fighter/ HTTP/1.1" 200 27808
+[2026-11-01 17:18:04,564] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:04,569] INFO django.server "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+[2026-11-01 17:18:04,588] INFO django.server "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+[2026-11-01 17:18:05,617] INFO django.server "GET /admin/tournaments/fight/ HTTP/1.1" 200 71697
+[2026-11-01 17:18:05,646] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:05,669] INFO django.server "GET /static/admin/img/sorting-icons.svg HTTP/1.1" 200 1097
+[2026-11-01 17:18:07,474] INFO django.server "GET /admin/tournaments/fighter/ HTTP/1.1" 200 27808
+[2026-11-01 17:18:07,500] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:08,016] INFO django.server "GET /admin/tournaments/weightcategory/ HTTP/1.1" 200 13297
+[2026-11-01 17:18:08,042] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:08,636] INFO django.server "GET /admin/tournaments/ageweightcategory/ HTTP/1.1" 200 15809
+[2026-11-01 17:18:08,673] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:09,371] INFO django.server "GET /admin/tournaments/agegroup/ HTTP/1.1" 200 13285
+[2026-11-01 17:18:09,398] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:11,329] INFO django.server "GET /admin/tournaments/bracket/ HTTP/1.1" 200 20888
+[2026-11-01 17:18:11,378] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:12,218] INFO django.server "GET /admin/tournaments/match/ HTTP/1.1" 200 13158
+[2026-11-01 17:18:12,247] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:14,790] INFO django.server "GET /admin/tournaments/match/add/ HTTP/1.1" 200 27913
+[2026-11-01 17:18:14,818] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:14,820] INFO django.server "GET /static/admin/css/forms.css HTTP/1.1" 200 9090
+[2026-11-01 17:18:14,830] INFO django.server "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+[2026-11-01 17:18:14,830] INFO django.server "GET /static/admin/css/widgets.css HTTP/1.1" 200 11800
+[2026-11-01 17:18:14,833] INFO django.server "GET /static/admin/js/calendar.js HTTP/1.1" 200 9141
+[2026-11-01 17:18:14,833] INFO django.server "GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+[2026-11-01 17:18:14,847] INFO django.server "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+[2026-11-01 17:18:14,851] INFO django.server "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+[2026-11-01 17:18:14,870] INFO django.server "GET /static/admin/img/icon-clock.svg HTTP/1.1" 200 677
+[2026-11-01 17:18:14,870] INFO django.server "GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+[2026-11-01 17:18:26,308] INFO django.server "GET /admin/tournaments/match/ HTTP/1.1" 200 13158
+[2026-11-01 17:18:26,337] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-01 17:18:28,509] INFO django.server "GET /admin/tournaments/match/add/ HTTP/1.1" 200 27913
+[2026-11-01 17:18:30,693] INFO django.server "GET / HTTP/1.1" 200 13622
+[2026-11-01 17:20:43,479] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:20:43,489] INFO django.server "GET / HTTP/1.1" 200 8816
+[2026-11-01 17:20:44,519] INFO django.server "GET /tournaments/ HTTP/1.1" 200 14973
+[2026-11-01 17:20:46,957] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 7733
+[2026-11-01 17:20:49,943] INFO django.server "GET /tournaments/ HTTP/1.1" 200 14973
+[2026-11-01 17:20:51,617] INFO django.server "GET /tournaments/ HTTP/1.1" 200 14973
+[2026-11-01 17:20:53,007] INFO django.server "GET /tournaments/ HTTP/1.1" 200 14973
+[2026-11-01 17:20:55,044] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 24639
+[2026-11-01 17:20:56,121] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:20:57,577] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:20:57,588] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10020
+[2026-11-01 17:20:59,042] INFO django.server "GET /tournaments/create/ HTTP/1.1" 200 12391
+[2026-11-01 17:22:09,471] INFO tournaments Турнир #6 создан пользователем admin
+[2026-11-01 17:22:09,471] INFO django.server "POST /tournaments/create/ HTTP/1.1" 302 0
+[2026-11-01 17:22:09,484] INFO django.server "GET /tournaments/6/ HTTP/1.1" 200 11317
+[2026-11-01 17:22:12,196] INFO django.server "GET /tournaments/6/fights/ HTTP/1.1" 200 11353
+[2026-11-01 17:22:13,648] INFO django.server "GET /tournaments/ HTTP/1.1" 200 19178
+[2026-11-01 17:22:14,926] INFO django.server "GET /tournaments/6/ HTTP/1.1" 200 10951
+[2026-11-01 17:22:16,247] INFO django.server "GET / HTTP/1.1" 200 15655
+[2026-11-01 17:22:21,281] INFO django.server "GET /tournaments/ HTTP/1.1" 200 19178
+[2026-11-01 17:22:22,741] INFO django.server "GET /tournaments/6/ HTTP/1.1" 200 10951
+[2026-11-01 17:22:26,424] INFO django.server "GET /tournaments/participants/?tournament=6 HTTP/1.1" 200 11085
+[2026-11-01 17:22:29,385] INFO django.server "GET /tournaments/6/timer-settings/ HTTP/1.1" 200 7911
+[2026-11-01 17:22:45,751] INFO django.server "GET /tournaments/6/edit/ HTTP/1.1" 200 9670
+[2026-11-01 17:22:47,292] INFO django.server "GET /tournaments/6/ HTTP/1.1" 200 10951
+[2026-11-01 17:22:50,207] INFO django.server "GET /tournaments/ HTTP/1.1" 200 19178
+[2026-11-01 17:22:51,861] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11847
+[2026-11-01 17:22:55,044] INFO django.server "GET /tournaments/5/edit/ HTTP/1.1" 200 9710
+[2026-11-01 17:23:05,952] INFO django.server "POST /tournaments/5/edit/ HTTP/1.1" 302 0
+[2026-11-01 17:23:05,965] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 12198
+[2026-11-01 17:23:08,740] INFO django.server "GET /tournaments/5/bracket/13/ HTTP/1.1" 200 44315
+[2026-11-01 17:23:09,771] INFO django.server "GET /tournaments/5/bracket/13/delete/ HTTP/1.1" 302 0
+[2026-11-01 17:23:09,791] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11737
+[2026-11-01 17:23:17,724] INFO django.server "GET /tournaments/5/brackets/generate/ HTTP/1.1" 302 0
+[2026-11-01 17:23:17,765] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 12593
+[2026-11-01 17:23:20,664] INFO django.server "GET /tournaments/5/bracket/14/ HTTP/1.1" 200 30856
+[2026-11-01 17:23:23,462] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 138993
+[2026-11-01 17:23:30,610] INFO django.server "GET /tournaments/ HTTP/1.1" 200 19180
+[2026-11-01 17:23:32,414] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17795
+[2026-11-01 17:23:34,172] INFO django.server "GET /tournaments/judges/6/toggle/ HTTP/1.1" 302 0
+[2026-11-01 17:23:34,183] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 18145
+[2026-11-01 17:23:35,019] INFO django.server "GET /tournaments/judges/8/toggle/ HTTP/1.1" 302 0
+[2026-11-01 17:23:35,030] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 18110
+[2026-11-01 17:23:35,549] INFO django.server "GET /tournaments/judges/5/toggle/ HTTP/1.1" 302 0
+[2026-11-01 17:23:35,562] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 18071
+[2026-11-01 17:23:39,859] INFO django.server "GET /tournaments/judges/4/toggle/ HTTP/1.1" 302 0
+[2026-11-01 17:23:39,870] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 18032
+[2026-11-01 17:23:40,268] INFO django.server "GET /tournaments/judges/7/toggle/ HTTP/1.1" 302 0
+[2026-11-01 17:23:40,283] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 18003
+[2026-11-01 17:23:41,329] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 200 17620
+[2026-11-01 17:23:47,553] INFO django.server "GET /tournaments/ HTTP/1.1" 200 19180
+[2026-11-01 17:23:49,438] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11857
+[2026-11-01 17:23:50,747] INFO django.server "GET /tournaments/5/bracket/14/ HTTP/1.1" 200 30856
+[2026-11-01 17:23:56,584] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 20680
+[2026-11-01 17:24:09,619] INFO django.server "POST /tournaments/5/categories/ HTTP/1.1" 302 0
+[2026-11-01 17:24:09,633] INFO django.server "GET /tournaments/5/categories/ HTTP/1.1" 200 21039
+[2026-11-01 17:24:12,725] INFO django.server "GET /tournaments/ HTTP/1.1" 200 19180
+[2026-11-01 17:24:14,003] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 11857
+[2026-11-01 17:24:14,904] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 138993
+[2026-11-01 17:24:17,190] INFO django.server "GET /tournaments/5/fight/79/assign-boxing-judges/ HTTP/1.1" 200 15982
+[2026-11-01 17:24:36,206] INFO django.server "POST /tournaments/5/fight/79/assign-boxing-judges/ HTTP/1.1" 302 0
+[2026-11-01 17:24:36,219] INFO django.server "GET /tournaments/5/fight/79/assign-boxing-judges/ HTTP/1.1" 200 16382
+[2026-11-01 17:25:03,338] INFO django.server "POST /tournaments/5/fight/79/assign-boxing-judges/ HTTP/1.1" 302 0
+[2026-11-01 17:25:03,437] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 139948
+[2026-11-01 17:25:13,558] INFO django.server "GET /tournaments/5/fight/80/assign-boxing-judges/ HTTP/1.1" 200 15982
+[2026-11-01 17:25:19,349] INFO django.server "POST /tournaments/5/fight/80/assign-boxing-judges/ HTTP/1.1" 302 0
+[2026-11-01 17:25:19,446] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 140476
+[2026-11-01 17:25:21,614] INFO django.server "GET /tournaments/5/fight/81/assign-boxing-judges/ HTTP/1.1" 200 15997
+[2026-11-01 17:25:26,911] INFO django.server "POST /tournaments/5/fight/81/assign-boxing-judges/ HTTP/1.1" 302 0
+[2026-11-01 17:25:27,009] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 140994
+[2026-11-01 17:25:32,983] INFO django.server "GET /tournaments/5/fights/ HTTP/1.1" 200 140557
+[2026-11-01 17:25:34,514] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:25:34,531] INFO django.server "GET / HTTP/1.1" 200 10849
+[2026-11-01 17:25:35,294] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:25:38,954] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:25:38,965] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-11-01 17:25:40,961] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:25:40,972] INFO django.server "GET / HTTP/1.1" 200 10849
+[2026-11-01 17:25:41,700] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:25:51,902] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:25:51,913] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7353
+[2026-11-01 17:26:13,621] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 11400
+[2026-11-01 17:26:17,812] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 11400
+[2026-11-01 17:26:22,941] INFO django.server "GET /tournaments/judge/fight/79/panel/ HTTP/1.1" 200 15519
+[2026-11-01 17:26:25,222] INFO django.server "GET /tournaments/judge/fight/79/panel/ HTTP/1.1" 200 15519
+[2026-11-01 17:26:36,630] INFO django.server "GET /tournaments/judge/fight/80/panel/ HTTP/1.1" 200 15519
+[2026-11-01 17:26:39,676] INFO django.server "GET /tournaments/judge/fight/81/panel/ HTTP/1.1" 200 15534
+[2026-11-01 17:26:43,498] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:26:43,509] INFO django.server "GET / HTTP/1.1" 200 10849
+[2026-11-01 17:26:44,175] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:26:48,148] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:26:48,158] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-11-01 17:26:49,583] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 53026
+[2026-11-01 17:26:50,717] INFO django.server "GET /tournaments/judge/fight/79/panel/ HTTP/1.1" 200 23064
+[2026-11-01 17:27:13,254] INFO django.server "GET /tournaments/judge/fight/79/panel/ HTTP/1.1" 200 23064
+[2026-11-01 17:27:23,351] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-01 17:27:23,363] INFO django.server "GET / HTTP/1.1" 200 10849
+[2026-11-01 17:27:24,021] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-01 17:27:27,281] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-01 17:27:27,291] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7353
+[2026-11-01 17:27:30,822] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 11400
+[2026-11-01 17:27:32,159] INFO django.server "GET /tournaments/judge/fight/79/panel/ HTTP/1.1" 200 15519
+[2026-11-01 17:28:27,059] INFO django.server "GET / HTTP/1.1" 200 13022
+[2026-11-01 17:28:29,841] INFO django.server "GET / HTTP/1.1" 200 13022
+[2026-11-01 17:28:30,552] INFO django.server "GET / HTTP/1.1" 200 13022
+[2026-11-01 17:28:31,193] INFO django.server "GET /tournaments/ HTTP/1.1" 200 18326
+[2026-11-01 17:28:31,759] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 26062
+[2026-11-01 17:28:32,397] INFO django.server "GET /tournaments/judge/dashboard/ HTTP/1.1" 200 11400
+[2026-11-01 17:28:33,024] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 26062
+[2026-11-01 17:28:36,658] INFO django.server "GET /tournaments/fighters/16/ HTTP/1.1" 200 8538

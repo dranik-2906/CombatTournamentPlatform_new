@@ -19,18 +19,56 @@ class FightService:
 
     @staticmethod
     def get_standings(bracket):
-        """Определение призёров (1-2-3 место) для любого типа сетки"""
-        if not bracket.fights.filter(status='completed').exists():
-            return []
+        """Подсчёт очков и мест для круговой системы"""
+        fights = Fight.objects.filter(bracket=bracket, status='completed')
+        stats = {}
 
-        if bracket.bracket_type == 'round_robin':
-            return FightService._round_robin_standings(bracket)
-        elif bracket.bracket_type == 'single_elimination':
-            return FightService._single_elimination_standings(bracket)
-        elif bracket.bracket_type == 'mixed':
-            return FightService._mixed_standings(bracket)
-        return []
+        def init_stat(fighter):
+            if fighter.id not in stats:
+                stats[fighter.id] = {
+                    'fighter': fighter,
+                    'wins': 0,
+                    'draws': 0,
+                    'losses': 0,
+                    'points': 0,
+                    'score_diff': 0,
+                    'place': None
+                }
+            return stats[fighter.id]
 
+        for f in fights:
+            if not f.fighter1 or not f.fighter2:
+                continue
+
+            s1 = init_stat(f.fighter1)
+            s2 = init_stat(f.fighter2)
+
+            # Разница очков (для тай-брейка)
+            s1['score_diff'] += (f.score_fighter1 - f.score_fighter2)
+            s2['score_diff'] += (f.score_fighter2 - f.score_fighter1)
+
+            if f.is_draw:
+                s1['draws'] += 1;
+                s1['points'] += 1
+                s2['draws'] += 1;
+                s2['points'] += 1
+            elif f.winner == f.fighter1:
+                s1['wins'] += 1;
+                s1['points'] += 3
+                s2['losses'] += 1
+            elif f.winner == f.fighter2:
+                s2['wins'] += 1;
+                s2['points'] += 3
+                s1['losses'] += 1
+
+        # Сортировка: по очкам (убывание), затем по разнице очков (убывание)
+        sorted_stats = sorted(stats.values(), key=lambda x: (x['points'], x['score_diff']), reverse=True)
+
+        # Присвоение мест
+        for idx, s in enumerate(sorted_stats):
+            s['place'] = idx + 1
+
+        return sorted_stats
     # ==================== УПРАВЛЕНИЕ БОЯМИ ====================
 
     @staticmethod
@@ -79,7 +117,7 @@ class FightService:
 
         if fight.is_final and fight.bracket:
             fight.bracket.status = 'completed'
-            fight.bracket.winner = winner.full_name if winner else None
+            fight.bracket.winner = winner if winner else None
             fight.bracket.save()
 
         if fight.next_fight and winner:

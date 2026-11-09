@@ -17,24 +17,63 @@ logger = logging.getLogger('tournaments')
 @login_required
 @judge_required
 def judge_dashboard(request):
-    """Главная панель судьи"""
+    """Главная панель судьи с фильтрацией"""
     from django.db.models import Q
-    fights = Fight.objects.filter(
+    from ..models import Tournament, AgeWeightCategory # Импортируем модели для фильтров
+
+    # 1. Базовый queryset (все бои судьи)
+    fights_queryset = Fight.objects.filter(
         Q(judge=request.user.judge) |
         Q(head_judge=request.user.judge) |
         Q(side_judges=request.user.judge)
-    ).distinct().select_related('tournament', 'bracket', 'fighter1', 'fighter2').order_by('start_time')
+    ).distinct()
 
-    scheduled = fights.filter(status='scheduled')
-    in_progress = fights.filter(status='in_progress')
-    completed = fights.filter(status='completed')
+    # 2. Получаем параметры фильтров из GET-запроса
+    tournament_id = request.GET.get('tournament')
+    category_id = request.GET.get('category')
 
-    return render(request, 'tournaments/judge_dashboard.html', {
+    # 3. Применяем фильтры (одновременно)
+    if tournament_id:
+        fights_queryset = fights_queryset.filter(tournament_id=tournament_id)
+    if category_id:
+        fights_queryset = fights_queryset.filter(age_weight_category_id=category_id)
+
+    # 4. Сортируем и оптимизируем запросы к БД
+    fights_queryset = fights_queryset.select_related(
+        'tournament', 'age_weight_category', 'fighter1', 'fighter2'
+    ).order_by('start_time')
+
+    # 5. Разделяем по статусам
+    scheduled = fights_queryset.filter(status='scheduled')
+    in_progress = fights_queryset.filter(status='in_progress')
+    completed = fights_queryset.filter(status='completed')
+
+    # 6. Формируем списки для выпадающих меню (только те турниры/категории, где у судьи есть бои)
+    all_judge_fights = Fight.objects.filter(
+        Q(judge=request.user.judge) |
+        Q(head_judge=request.user.judge) |
+        Q(side_judges=request.user.judge)
+    ).distinct()
+
+    # Берем уникальные ID турниров и категорий из боёв судьи
+    tournament_ids = all_judge_fights.values_list('tournament_id', flat=True).distinct()
+    category_ids = all_judge_fights.values_list('age_weight_category_id', flat=True).distinct()
+
+    tournaments = Tournament.objects.filter(id__in=tournament_ids).order_by('name')
+    # Исключаем None, если есть бои без категорий
+    categories = AgeWeightCategory.objects.filter(id__in=category_ids, id__isnull=False).order_by('name')
+
+    context = {
         'scheduled': scheduled,
         'in_progress': in_progress,
         'completed': completed,
-    })
+        'tournaments': tournaments,
+        'categories': categories,
+        'selected_tournament': str(tournament_id) if tournament_id else '',
+        'selected_category': str(category_id) if category_id else '',
+    }
 
+    return render(request, 'tournaments/judge_dashboard.html', context)
 
 @login_required
 @judge_required

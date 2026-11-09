@@ -20,60 +20,68 @@ logger = logging.getLogger('tournaments')
 # ==================== ADMIN / MANAGEMENT ====================
 
 @login_required
-@tournament_admin_or_judge_required
-def fights_management(request, tournament_id):
-    """Управление боями турнира (админ) / просмотр своих боёв (судья)"""
-    tournament = get_object_or_404(Tournament, pk=tournament_id)
-    fights = Fight.objects.filter(tournament=tournament).select_related(
-        'fighter1', 'fighter2', 'winner', 'judge', 'age_weight_category', 'head_judge'
-    ).order_by('round_number', 'match_number')
+def fights_management(request, tournament_id=None):
+    """Управление боями с фильтрацией"""
+    from django.db.models import Q
+    from ..models import Tournament, AgeWeightCategory
 
-    is_judge = hasattr(request.user, 'judge') and request.user.judge.is_active
-    is_admin = (
-        request.user.is_superuser or
-        (hasattr(request.user, 'profile') and request.user.profile.role in ('system_admin', 'tournament_admin'))
-    )
+    # Базовый список
+    if tournament_id:
+        tournament = get_object_or_404(Tournament, pk=tournament_id)
+        fights_queryset = Fight.objects.filter(tournament=tournament)
+    else:
+        tournament = None
+        fights_queryset = Fight.objects.all()
 
-    if is_judge and not is_admin:
-        # Бокс: показываем бои, где пользователь — любой из судей
-        if tournament.is_boxing:
-            from django.db.models import Q
-            fights = fights.filter(
-                Q(head_judge=request.user.judge) |
-                Q(side_judges=request.user.judge)
-            ).distinct()
-        else:
-            fights = fights.filter(judge=request.user.judge)
+    # СКРЫВАЕМ ПУСТЫЕ БОИ (где оба бойца пустые)
+    fights_queryset = fights_queryset.exclude(fighter1__isnull=True, fighter2__isnull=True)
 
-    status_filter = request.GET.get('status')
-    category_filter = request.GET.get('category')
-    judge_filter = request.GET.get('judge')
+    # Применяем фильтры из GET-запроса
+    filter_tournament = request.GET.get('tournament')
+    filter_category = request.GET.get('category')
 
-    if status_filter:
-        fights = fights.filter(status=status_filter)
-    if category_filter:
-        fights = fights.filter(age_weight_category_id=category_filter)
-    if judge_filter and is_admin:
-        fights = fights.filter(judge_id=judge_filter)
+    if filter_tournament:
+        fights_queryset = fights_queryset.filter(tournament_id=filter_tournament)
+    if filter_category:
+        fights_queryset = fights_queryset.filter(age_weight_category_id=filter_category)
 
-    paginator = Paginator(fights, 20)
-    page = request.GET.get('page')
-    fights_page = paginator.get_page(page)
+    # Сортируем (сначала запланированные)
+    fights = fights_queryset.select_related(
+        'tournament', 'age_weight_category', 'fighter1', 'fighter2', 'judge'
+    ).order_by('status', 'round_number', 'match_number')
+
+    # Данные для выпадающих списков фильтров
+    tournaments = Tournament.objects.all().order_by('name')
+    categories = AgeWeightCategory.objects.all().order_by('name')
+
+    # Если открыт конкретный турнир, показываем только его категории
+    if tournament_id or filter_tournament:
+        t_id = filter_tournament or tournament_id
+        categories = categories.filter(tournament_id=t_id)
+
+    # Статистика для карточек сверху
+    total = fights.count()
+    scheduled = fights.filter(status='scheduled').count()
+    in_progress = fights.filter(status='in_progress').count()
+    completed = fights.filter(status='completed').count()
+    no_judge = fights.filter(judge__isnull=True).count()
 
     context = {
         'tournament': tournament,
-        'fights': fights_page,
-        'total': fights.count(),
-        'scheduled': fights.filter(status='scheduled').count(),
-        'in_progress': fights.filter(status='in_progress').count(),
-        'completed': fights.filter(status='completed').count(),
-        'no_judge': fights.filter(judge__isnull=True, head_judge__isnull=True).count() if is_admin else 0,
-        'judges': Judge.objects.filter(is_active=True) if is_admin else Judge.objects.none(),
-        'categories': AgeWeightCategory.objects.filter(tournament=tournament),
-        'status_filter': status_filter or '',
-        'is_admin': is_admin,
-        'is_judge_view': is_judge and not is_admin,
+        'fights': fights,
+        'tournaments': tournaments,
+        'categories': categories,
+        'selected_tournament': str(filter_tournament) if filter_tournament else (
+            str(tournament_id) if tournament_id else ''),
+        'selected_category': str(filter_category) if filter_category else '',
+        # Статистика
+        'total': total, 'scheduled': scheduled, 'in_progress': in_progress,
+        'completed': completed, 'no_judge': no_judge,
+        'is_admin': request.user.is_superuser or getattr(request.user, 'profile',
+                                                         None) and request.user.profile.role in ['system_admin',
+                                                                                                 'tournament_admin'],
     }
+
     return render(request, 'tournaments/fights_management.html', context)
 
 

@@ -166,6 +166,10 @@ class Fight(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    is_bronze_match = models.BooleanField(
+        default=False,
+        verbose_name="Бой за 3-е место"
+    )
     class Meta:
         verbose_name = 'Бой'
         verbose_name_plural = 'Бои'

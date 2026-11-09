@@ -50,6 +50,10 @@ class Bracket(models.Model):
     is_generated = models.BooleanField(default=False, verbose_name='Сгенерирована')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     completed_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата завершения')
+    has_bronze_match = models.BooleanField(
+        default=False,
+        verbose_name="Проводить бой за 3-е место"
+    )
 
     class Meta:
         verbose_name = 'Сетка'

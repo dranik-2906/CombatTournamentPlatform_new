@@ -65,6 +65,14 @@
   .match-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); border-color: #6c757d; }
   .match-card.completed { border-color: #198754; }
   .match-card.in-progress { border-color: #ffc107; }
+
+  /* Выделение боя за 3-е место */
+  .match-card.bronze-match {
+      border-color: #fd7e14;
+      background: #fff8f0;
+  }
+  .match-card.bronze-match .match-meta { background: #ffe5d0; }
+
   .fighter-row {
     padding: 6px 10px;
     display: flex;
@@ -231,6 +239,7 @@
   .place-mini.place-1 { border-color: #ffc107; background: #fff3cd; }
   .place-mini.place-2 { border-color: #6c757d; background: #e2e3e5; }
   .place-mini.place-3 { border-color: #dc3545; background: #f8d7da; }
+  .place-mini.place-4 { border-color: #ced4da; background: #f8f9fa; }
   .place-mini .place-icon { font-size: 1.3rem; margin-bottom: 2px; }
   .place-mini .place-name { font-weight: 700; font-size: 0.9rem; }
 
@@ -350,8 +359,8 @@
         {% if is_admin %}
             <div class="btn-group">
                 <a href="{% url 'tournaments:advance_winners' tournament.id %}?bracket_id={{ bracket.id }}" class="btn btn-warning">
-    Продвинуть победителей
-</a>
+                    Продвинуть победителей
+                </a>
                 <a href="{% url 'tournaments:delete_bracket' tournament.id bracket.id %}" class="btn btn-outline-danger">Удалить</a>
             </div>
         {% endif %}
@@ -363,8 +372,28 @@
     </div>
 </div>
 
-<!-- ==================== ПРИЗЁРЫ ==================== -->
-{% if standings %}
+<!-- ==================== НАСТРОЙКА БОЯ ЗА 3-Е МЕСТО ==================== -->
+{% if is_admin or user.is_superuser %}
+<div class="card mb-4 border-info shadow-sm d-print-none">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-check form-switch d-flex align-items-center">
+                <input class="form-check-input me-3 fs-4" type="checkbox" role="switch" name="has_bronze_match" id="has_bronze_match" {% if bracket.has_bronze_match %}checked{% endif %}>
+                <label class="form-check-label fw-bold" for="has_bronze_match" style="cursor: pointer;">
+                    Проводить бой за 3-е место (определить одного бронзового призера)
+                </label>
+                <button type="submit" class="btn btn-sm btn-primary ms-auto">
+                    <i class="fas fa-save"></i> Применить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- ==================== ПРИЗЁРЫ (Таблица) ==================== -->
+{% if prizes %}
 <div class="card shadow-sm mb-4 border-2 border-warning d-print-none" id="winners-block">
     <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Призёры — {{ bracket.name }}</h5>
@@ -383,26 +412,41 @@
                 </tr>
             </thead>
             <tbody>
-                {% for s in standings %}
-                    {% if s.place %}
-                        <tr class="{% if s.place == 1 %}table-warning fw-bold{% elif s.place == 2 %}table-secondary{% elif s.place == 3 %}table-danger{% endif %}">
-                            <td class="text-center fs-5">
-                                {% if s.place == 1 %}👑 1
-                                {% elif s.place == 2 %}🥈 2
-                                {% elif s.place == 3 %}🥉 3
-                                {% else %}{{ s.place }}{% endif %}
-                            </td>
-                            <td class="fs-5">{{ s.fighter }}</td>
-                            <td>{{ s.club|default:"—" }}</td>
-                            <td>{{ s.method|default:"—" }}</td>
-                        </tr>
-                    {% endif %}
+                {% for prize in prizes %}
+                    <tr class="{% if prize.place == 1 %}table-warning fw-bold{% elif prize.place == 2 %}table-secondary{% elif prize.place == 3 %}table-danger{% endif %}">
+                        <td class="text-center fs-5">
+                            {% if prize.place == 1 %}👑 1
+                            {% elif prize.place == 2 %}🥈 2
+                            {% elif prize.place == 3 %}🥉 3
+                            {% elif prize.place == 4 %}4
+                            {% endif %}
+                        </td>
+                        <td class="fs-5">
+                            {% if prize.fighter %}
+                                {{ prize.fighter.full_name|default:prize.fighter }}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if prize.fighter %}
+                                {{ prize.fighter.club|default:"—" }}
+                            {% else %}—{% endif %}
+                        </td>
+                        <td>
+                            {% if prize.is_bronze_winner %}
+                                <span class="badge bg-danger">Победитель боя за 3-е место</span>
+                            {% else %}
+                                {{ prize.note|default:"—" }}
+                            {% endif %}
+                        </td>
+                    </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
     <textarea id="winners-clipboard" class="position-absolute" style="left:-9999px; top:0; opacity:0; pointer-events:none;">
-{% for s in standings %}{% if s.place %}{{ s.place }} место: {{ s.fighter }} ({{ s.club|default:"без клуба" }})
+{% for prize in prizes %}{% if prize.fighter %}{{ prize.place }} место: {{ prize.fighter.full_name|default:prize.fighter }} ({{ prize.fighter.club|default:"без клуба" }})
 {% endif %}{% endfor %}
     </textarea>
 </div>
@@ -453,7 +497,7 @@
                         {% for p in participants %}
                             <th class="col-num">{{ forloop.counter }}</th>
                         {% endfor %}
-                        <th class="col-total">Победы</th>
+                        <th class="col-total">Очки</th>
                         <th class="col-place">Место</th>
                     </tr>
                 </thead>
@@ -466,10 +510,10 @@
                                 {% if p_row == p_col %}
                                     <td class="diagonal"></td>
                                 {% else %}
-                                    {% for f in fights_by_round.1 %}
+                                    {% for f in all_fights %}
                                         {% if f.fighter1 == p_row and f.fighter2 == p_col or f.fighter1 == p_col and f.fighter2 == p_row %}
                                             {% if f.status == 'completed' %}
-                                                <td class="{% if f.winner == p_row %}win-cell{% elif f.is_draw %}draw-cell{% else %}loss-cell{% endif %}">
+                                                <td class="{% if f.winner == p_row %}win-cell{% elif f.is_draw %}draw-cell{% else %}loss-cell{% endif %}" title="Раунд {{ f.round_number }}">
                                                     {% if f.fighter1 == p_row %}
                                                         <span class="score-big">{{ f.score_fighter1 }}</span>
                                                         <span class="score-small">{{ f.score_fighter2 }}</span>
@@ -479,27 +523,30 @@
                                                     {% endif %}
                                                 </td>
                                             {% else %}
-                                                <td class="pending-cell">—</td>
+                                                <td class="pending-cell" title="Раунд {{ f.round_number }}">—</td>
                                             {% endif %}
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
                             {% endfor %}
-                            <td class="col-total">{{ wins|get_item:p_row.id|default:0 }}</td>
+
+                            <!-- Вывод ОЧКОВ из новой системы подсчета -->
+                            <td class="col-total">
+                                {% for s in standings %}
+                                    {% if s.fighter.id == p_row.id %}{{ s.points }}{% endif %}
+                                {% endfor %}
+                            </td>
+                            <!-- Вывод МЕСТА -->
                             <td class="col-place">
-                                {% with p=place_map|get_item:p_row.id %}
-                                    {% if p %}{{ p }}{% else %}—{% endif %}
-                                {% endwith %}
+                                {% for s in standings %}
+                                    {% if s.fighter.id == p_row.id %}{{ s.place }}{% endif %}
+                                {% endfor %}
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        <p class="text-muted small mt-2 d-print-none">
-            <i class="fas fa-info-circle me-1"></i>
-            Зелёная ячейка — победа, красная — поражение, жёлтая — ничья. Диагональ — не играет с собой.
-        </p>
     {% else %}
         <div class="alert alert-info">Нет данных об участниках.</div>
     {% endif %}
@@ -589,7 +636,7 @@
                                 {% else %}Раунд {{ round_num }}{% endif %}
                             </div>
                             {% for fight in fights %}
-                                <div class="match-card {% if fight.status == 'completed' %}completed{% elif fight.status == 'in_progress' %}in-progress{% endif %}"
+                                <div class="match-card {% if fight.status == 'completed' %}completed{% elif fight.status == 'in_progress' %}in-progress{% endif %} {% if fight.is_bronze_match %}bronze-match{% endif %}"
                                      id="match-r{{ round_num }}-m{{ forloop.counter }}"
                                      data-round="{{ round_num }}" data-match-idx="{{ forloop.counter0 }}">
                                     <div class="fighter-row {% if fight.winner == fight.fighter1 %}winner{% elif fight.status == 'completed' and fight.winner != fight.fighter1 %}loser{% endif %}">
@@ -605,7 +652,9 @@
                                         {% endif %}
                                     </div>
                                     <div class="match-meta">
-                                        <span class="match-number">#{{ fight.match_number }}</span>
+                                        <span class="match-number">
+                                            {% if fight.is_bronze_match %}🥉 За 3-е место{% else %}#{{ fight.match_number }}{% endif %}
+                                        </span>
                                         <span>
                                             {% if fight.judge %}<i class="fas fa-gavel me-1"></i>{{ fight.judge.full_name }}{% endif %}
                                             {% if is_judge and fight.judge == request.user.judge and fight.status != 'completed' %}
@@ -619,18 +668,21 @@
                         </div>
                     {% endif %}
                 {% endfor %}
+
+                <!-- ПРИЗЁРЫ ДЛЯ ПЕЧАТИ -->
                 <div class="print-standings-column d-print-flex">
                     <div class="round-title text-center">🏆 Призёры</div>
-                    {% for s in standings %}
-                        {% if s.place %}
-                            <div class="place-mini place-{{ s.place }}">
-                                <div class="place-icon">{% if s.place == 1 %}👑{% elif s.place == 2 %}🥈{% else %}🥉{% endif %}</div>
-                                <div class="text-muted small">{{ s.place }} место</div>
-                                <div class="place-name">{{ s.fighter }}</div>
+                    {% for prize in prizes %}
+                        {% if prize.place and prize.fighter %}
+                            <div class="place-mini place-{{ prize.place }}">
+                                <div class="place-icon">{% if prize.place == 1 %}👑{% elif prize.place == 2 %}🥈{% elif prize.place == 3 %}🥉{% else %}4{% endif %}</div>
+                                <div class="text-muted small">{{ prize.place }} место</div>
+                                <div class="place-name">{{ prize.fighter.full_name|default:prize.fighter }}</div>
                             </div>
                         {% endif %}
                     {% endfor %}
                 </div>
+
             </div>
         </div>
     {% elif not fights_by_round.1 %}
@@ -651,7 +703,7 @@
                     {% else %}Раунд {{ round_num }}{% endif %}
                 </div>
                 {% for fight in fights %}
-                    <div class="match-card {% if fight.status == 'completed' %}completed{% elif fight.status == 'in_progress' %}in-progress{% endif %}"
+                    <div class="match-card {% if fight.status == 'completed' %}completed{% elif fight.status == 'in_progress' %}in-progress{% endif %} {% if fight.is_bronze_match %}bronze-match{% endif %}"
                          id="match-r{{ round_num }}-m{{ forloop.counter }}"
                          data-round="{{ round_num }}" data-match-idx="{{ forloop.counter0 }}">
                         <div class="fighter-row {% if fight.winner == fight.fighter1 %}winner{% elif fight.status == 'completed' and fight.winner != fight.fighter1 %}loser{% endif %}">
@@ -667,7 +719,9 @@
                             {% endif %}
                         </div>
                         <div class="match-meta">
-                            <span class="match-number">#{{ fight.match_number }}</span>
+                            <span class="match-number">
+                                {% if fight.is_bronze_match %}🥉 За 3-е место{% else %}#{{ fight.match_number }}{% endif %}
+                            </span>
                             <span>
                                 {% if fight.judge %}<i class="fas fa-gavel me-1"></i>{{ fight.judge.full_name }}{% endif %}
                                 {% if is_judge and fight.judge == request.user.judge and fight.status != 'completed' %}
@@ -680,46 +734,53 @@
                 {% endfor %}
             </div>
         {% endfor %}
+
+        <!-- ПРИЗЁРЫ ДЛЯ ПЕЧАТИ -->
         <div class="print-standings-column d-print-flex">
             <div class="round-title text-center">🏆 Призёры</div>
-            {% for s in standings %}
-                {% if s.place %}
-                    <div class="place-mini place-{{ s.place }}">
-                        <div class="place-icon">{% if s.place == 1 %}👑{% elif s.place == 2 %}🥈{% else %}🥉{% endif %}</div>
-                        <div class="text-muted small">{{ s.place }} место</div>
-                        <div class="place-name">{{ s.fighter }}</div>
+            {% for prize in prizes %}
+                {% if prize.place and prize.fighter %}
+                    <div class="place-mini place-{{ prize.place }}">
+                        <div class="place-icon">{% if prize.place == 1 %}👑{% elif prize.place == 2 %}🥈{% elif prize.place == 3 %}🥉{% else %}4{% endif %}</div>
+                        <div class="text-muted small">{{ prize.place }} место</div>
+                        <div class="place-name">{{ prize.fighter.full_name|default:prize.fighter }}</div>
                     </div>
                 {% endif %}
             {% endfor %}
         </div>
+
     </div>
 </div>
 {% endif %}
 
-<!-- Результаты на экране -->
-{% if standings %}
+<!-- Результаты на экране (Дублирующая карточки) -->
+{% if prizes %}
     <div class="card shadow-sm mt-4 standings-card d-print-none">
         <div class="card-header bg-warning text-dark">
             <h5 class="mb-0"><i class="fas fa-trophy me-2"></i>Результаты</h5>
         </div>
         <div class="card-body">
             <div class="row justify-content-center g-3">
-                {% for s in standings %}
-                    {% if s.place %}
+                {% for prize in prizes %}
+                    {% if prize.place and prize.fighter %}
                         <div class="col-md-3">
                             <div class="card h-100 border-2
-                                {% if s.place == 1 %}border-warning bg-warning bg-opacity-10
-                                {% elif s.place == 2 %}border-secondary bg-secondary bg-opacity-10
-                                {% else %}border-danger bg-danger bg-opacity-10{% endif %}">
+                                {% if prize.place == 1 %}border-warning bg-warning bg-opacity-10
+                                {% elif prize.place == 2 %}border-secondary bg-secondary bg-opacity-10
+                                {% elif prize.place == 3 %}border-danger bg-danger bg-opacity-10
+                                {% else %}border-light bg-light{% endif %}">
                                 <div class="card-body text-center">
                                     <h1 class="mb-2">
-                                        {% if s.place == 1 %}<i class="fas fa-crown text-warning"></i>
-                                        {% elif s.place == 2 %}<i class="fas fa-medal text-secondary"></i>
-                                        {% else %}<i class="fas fa-medal text-danger"></i>{% endif %}
+                                        {% if prize.place == 1 %}<i class="fas fa-crown text-warning"></i>
+                                        {% elif prize.place == 2 %}<i class="fas fa-medal text-secondary"></i>
+                                        {% elif prize.place == 3 %}<i class="fas fa-medal text-danger"></i>
+                                        {% else %}<i class="fas fa-certificate text-muted"></i>{% endif %}
                                     </h1>
-                                    <h3 class="fw-bold">{{ s.place }} место</h3>
-                                    <p class="fw-bold mb-1 fs-5">{{ s.fighter }}</p>
-                                    {% if s.method %}<small class="text-muted">{{ s.method }}</small>{% endif %}
+                                    <h3 class="fw-bold">{{ prize.place }} место</h3>
+                                    <p class="fw-bold mb-1 fs-5">{{ prize.fighter.full_name|default:prize.fighter }}</p>
+                                    {% if prize.note %}
+                                        <small class="text-muted">{{ prize.note }}</small>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>

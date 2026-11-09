@@ -93,7 +93,25 @@ class FightResultForm(forms.ModelForm):
                 (fight.fighter1.id, f"{fight.fighter1.full_name} (Боец 1)"),
                 (fight.fighter2.id, f"{fight.fighter2.full_name} (Боец 2)"),
             ]
-            self.fields['winner'].required = False
+
+        # По умолчанию делаем поля обязательными
+        self.fields['winner'].required = True
+        self.fields['win_method'].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        is_draw = cleaned_data.get('is_draw')
+        winner = cleaned_data.get('winner')
+        win_method = cleaned_data.get('win_method')
+
+        # Если это НЕ ничья, то победитель и метод победы строго обязательны
+        if not is_draw:
+            if not winner:
+                self.add_error('winner', 'Вы должны выбрать победителя!')
+            if not win_method:
+                self.add_error('win_method', 'Вы должны выбрать метод победы!')
+
+        return cleaned_data
 
 
 class JudgeForm(forms.ModelForm):

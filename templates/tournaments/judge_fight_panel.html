@@ -338,5 +338,32 @@
     document.addEventListener('DOMContentLoaded', () => {
         resetTimer(); // Устанавливаем 03:00 при загрузке
     });
+        // === Проверка перед отправкой формы завершения боя ===
+    document.addEventListener('DOMContentLoaded', () => {
+        const finishForm = document.getElementById('finish-form');
+        if (finishForm) {
+            finishForm.addEventListener('submit', function(e) {
+                const winnerSelect = document.getElementById('id_winner');
+                const methodSelect = document.getElementById('id_win_method');
+                const isDrawCheckbox = document.getElementById('id_is_draw');
+
+                // Если чекбокс "Ничья" не нажат
+                if (isDrawCheckbox && !isDrawCheckbox.checked) {
+                    if (!winnerSelect.value || !methodSelect.value) {
+                        e.preventDefault(); // Блокируем отправку
+                        alert('⚠️ Ошибка: Выберите победителя и метод победы, либо отметьте "Ничья".');
+                        return false;
+                    }
+                } else {
+                    // Если ничья, то метод победы все равно желательно указать
+                    if (!methodSelect.value) {
+                        e.preventDefault();
+                        alert('⚠️ Ошибка: Даже при ничьей укажите метод (например, "Решение судей").');
+                        return false;
+                    }
+                }
+            });
+        }
+    });
 </script>
 {% endblock %}

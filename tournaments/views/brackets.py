@@ -18,57 +18,146 @@ def bracket_view(request, tournament_id, bracket_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     bracket = get_object_or_404(Bracket, pk=bracket_id, tournament=tournament)
 
+    # === ОБРАБОТКА ГАЛОЧКИ "БОЙ ЗА 3-Е МЕСТО" ===
+    if request.method == 'POST' and (_is_admin(request) or request.user.is_superuser):
+        has_bronze = request.POST.get('has_bronze_match') == 'on'
+        bracket.has_bronze_match = has_bronze
+        bracket.save()
+
+        if has_bronze:
+            bronze_exists = Fight.objects.filter(bracket=bracket, is_bronze_match=True).exists()
+            if not bronze_exists:
+                semi_round = bracket.total_rounds - 1
+                semi_finals = Fight.objects.filter(bracket=bracket, round_number=semi_round, status='completed',
+                                                   is_bronze_match=False)
+                losers = []
+                for sf in semi_finals:
+                    if sf.fighter1 and sf.fighter2:
+                        loser = sf.fighter2 if sf.winner == sf.fighter1 else sf.fighter1
+                        losers.append(loser)
+
+                if len(losers) == 2:
+                    from ..services import BracketService
+                    fight_defaults = BracketService._get_fight_defaults(bracket) if hasattr(BracketService,
+                                                                                            '_get_fight_defaults') else {}
+                    Fight.objects.create(
+                        tournament=bracket.tournament,
+                        bracket=bracket,
+                        age_weight_category=bracket.age_weight_category,
+                        round_number=bracket.total_rounds,
+                        match_number=99,
+                        status='scheduled',
+                        is_bronze_match=True,
+                        fighter1=losers[0],
+                        fighter2=losers[1],
+                        **fight_defaults
+                    )
+        else:
+            Fight.objects.filter(bracket=bracket, is_bronze_match=True, status='scheduled').delete()
+
+        messages.success(request, 'Настройки боя за 3-е место обновлены')
+        return redirect('tournaments:bracket_view', tournament_id=tournament.id, bracket_id=bracket.id)
+
+    # === ОСНОВНАЯ ЛОГИКА ===
     fights_by_round = FightService.get_fights_by_round(bracket)
+    all_fights = bracket.fights.all().select_related('fighter1', 'fighter2', 'winner').order_by('round_number',
+                                                                                                'match_number')
 
     # Авто-завершение сетки если все бои завершены
-    all_fights = bracket.fights.all()
     if all_fights.exists() and not all_fights.exclude(status='completed').exists():
         if bracket.status != 'completed':
             bracket.status = 'completed'
             bracket.save()
             messages.success(request, f'Сетка "{bracket.name}" автоматически завершена!')
 
-    standings = FightService.get_standings(bracket) if bracket.status == 'completed' else []
+    # Получаем стендинги (таблицу лидеров) для круговой системы
+    # Вызываем всегда, чтобы видеть очки в реальном времени
+    standings = FightService.get_standings(bracket) if all_fights.exists() else []
     place_map = {s['fighter'].id: s['place'] for s in standings if s.get('place')} if standings else {}
+
+    # --- ЛОГИКА ОПРЕДЕЛЕНИЯ ПРИЗЁРОВ (1, 2, 3, 4 места) ---
+    prizes = []
+
+    # 1. Для Олимпийской и Смешанной (плей-офф)
+    if bracket.bracket_type in ('single_elimination', 'mixed'):
+        final_fight = Fight.objects.filter(bracket=bracket, round_number=bracket.total_rounds,
+                                           is_bronze_match=False).first()
+
+        if final_fight and final_fight.status == 'completed' and final_fight.winner:
+            # 1-е место
+            prizes.append(
+                {'place': 1, 'fighter': final_fight.winner, 'note': final_fight.get_win_method_display() or 'Финал',
+                 'is_bronze_winner': False})
+
+            # 2-е место
+            loser_final = final_fight.fighter2 if final_fight.winner == final_fight.fighter1 else final_fight.fighter1
+            if loser_final:
+                prizes.append({'place': 2, 'fighter': loser_final, 'note': 'Финал', 'is_bronze_winner': False})
+
+            # 3 и 4 места
+            if getattr(bracket, 'has_bronze_match', False):
+                bronze_fight = Fight.objects.filter(bracket=bracket, is_bronze_match=True).first()
+                if bronze_fight and bronze_fight.status == 'completed' and bronze_fight.winner:
+                    prizes.append({'place': 3, 'fighter': bronze_fight.winner, 'note': 'Бой за 3-е место',
+                                   'is_bronze_winner': True})
+                    loser_bronze = bronze_fight.fighter2 if bronze_fight.winner == bronze_fight.fighter1 else bronze_fight.fighter1
+                    if loser_bronze:
+                        prizes.append({'place': 4, 'fighter': loser_bronze, 'note': 'Бой за 3-е место',
+                                       'is_bronze_winner': False})
+                else:
+                    prizes.append(
+                        {'place': 3, 'fighter': None, 'note': 'Ожидает боя за 3-е место', 'is_bronze_winner': False})
+            else:
+                semi_round = bracket.total_rounds - 1
+                semi_finals = Fight.objects.filter(bracket=bracket, round_number=semi_round, status='completed',
+                                                   is_bronze_match=False)
+                for sf in semi_finals:
+                    if sf.fighter1 and sf.fighter2:
+                        loser = sf.fighter2 if sf.winner == sf.fighter1 else sf.fighter1
+                        prizes.append({'place': 3, 'fighter': loser, 'note': 'Полуфиналист', 'is_bronze_winner': False})
+
+    # 2. Для Круговой системы (призеры берутся из общей таблицы)
+    elif bracket.bracket_type == 'round_robin' and standings:
+        for s in standings[:3]: # Берем топ-3
+            if s.get('place') and s['place'] <= 3:
+                # Безопасно достаем количество побед (если ключа нет, будет 0)
+                wins_count = s.get('wins', 0)
+                prizes.append({
+                    'place': s['place'],
+                    'fighter': s['fighter'],
+                    'note': f"{wins_count} побед",
+                    'is_bronze_winner': False
+                })
+
+    # --- СБОР УЧАСТНИКОВ ДЛЯ КРУГОВОЙ ТАБЛИЦЫ ---
+    participants = []
+    if bracket.bracket_type in ('round_robin', 'mixed'):
+        seen = set()
+        # Ищем участников во ВСЕХ боях, а не только в первом раунде
+        for fight in all_fights:
+            for f in (fight.fighter1, fight.fighter2):
+                if f and f.id not in seen:
+                    seen.add(f.id)
+                    participants.append(f)
 
     context = {
         'tournament': tournament,
         'bracket': bracket,
         'fights_by_round': fights_by_round,
+        'all_fights': all_fights,  # Передаем все бои для таблицы
         'standings': standings,
         'place_map': place_map,
+        'prizes': prizes,
+        'participants': participants,  # Передаем участников
         'max_round': max(fights_by_round.keys()) if fights_by_round else 0,
         'is_admin': _is_admin(request),
         'is_judge': _is_judge(request),
     }
 
-    # --- Для круговой сетки: собираем участников и считаем победы ---
-    if bracket.bracket_type in ('round_robin', 'mixed') and fights_by_round:
-        round1 = fights_by_round.get(1, [])
-        participants = []
-        seen = set()
-        wins = {}
-        for fight in round1:
-            for f in (fight.fighter1, fight.fighter2):
-                if f and f.id not in seen:
-                    seen.add(f.id)
-                    participants.append(f)
-                    wins[f.id] = 0
-
-        for fight in round1:
-            if fight.status == 'completed' and fight.winner:
-                wins[fight.winner.id] = wins.get(fight.winner.id, 0) + 1
-
-        context['participants'] = participants
-        context['wins'] = wins
-
     if _is_judge(request):
-        context['judge_fight'] = Fight.objects.filter(
-            bracket=bracket, judge=request.user.judge
-        ).first()
+        context['judge_fight'] = Fight.objects.filter(bracket=bracket, judge=request.user.judge).first()
 
     return render(request, 'tournaments/bracket_view.html', context)
-
 
 @login_required
 @tournament_admin_required
@@ -112,11 +201,14 @@ def generate_brackets(request, tournament_id):
         )
 
         if category.bracket_system == 'round_robin':
-            success, msg = BracketService.generate_round_robin(bracket, cat_regs)
+            # Извлекаем самих бойцов из регистраций
+            participants = [reg.fighter for reg in cat_regs]
+            success, msg = BracketService.generate_round_robin(bracket, participants)
         elif category.bracket_system == 'mixed':
             success, msg = BracketService.generate_mixed(bracket, cat_regs)
         else:
-            success, msg = BracketService.generate_single_elimination(bracket, cat_regs)
+            participants = [reg.fighter for reg in cat_regs]
+            success, msg = BracketService.generate_single_elimination(bracket, participants)
 
         if success:
             created += 1
