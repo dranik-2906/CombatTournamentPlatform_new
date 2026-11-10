@@ -149,72 +149,24 @@ class FightService:
     @transaction.atomic
     def create_playoff_from_round_robin(bracket, advancing_count=None):
         """Создать перекрестный плей-офф (А1 vs Б2, Б1 vs А2)"""
-        import math
         from django.db import models, transaction
-        from ..models import Fight, Fighter, Bracket
+        from ..models import Fight, Bracket
         from .bracket_service import BracketService
 
         try:
             # === БЛОКИРУЕМ СЕТКУ, чтобы избежать двойного создания при быстрых кликах ===
             bracket = Bracket.objects.select_for_update().get(pk=bracket.pk)
 
-            # 1. Получаем бои группового этапа
-            group_fights = bracket.fights.filter(round_number=1)
+            # 1. Получаем бои группового этапа отдельно для каждой группы
+            group_a_fights = bracket.fights.filter(round_number=1, group_name='A')
+            group_b_fights = bracket.fights.filter(round_number=1, group_name='B')
 
-            # Разделяем участников по группам
-            group_a_ids, group_b_ids = set(), set()
-            for f in group_fights:
-                if f.fighter1_id:
-                    if f.group_name == 'A':
-                        group_a_ids.add(f.fighter1_id)
-                    elif f.group_name == 'B':
-                        group_b_ids.add(f.fighter1_id)
-                if f.fighter2_id:
-                    if f.group_name == 'A':
-                        group_a_ids.add(f.fighter2_id)
-                    elif f.group_name == 'B':
-                        group_b_ids.add(f.fighter2_id)
+            # 2. СЧИТАЕМ ОЧКИ ЧЕРЕЗ ЕДИНУЮ ФУНКЦИЮ (ту же, что используется для отрисовки таблицы)
+            # ВАЖНО: Убедись, что в _round_robin_standings добавлен параметр fights_queryset!
+            standings_a = FightService._round_robin_standings(bracket, fights_queryset=group_a_fights)
+            standings_b = FightService._round_robin_standings(bracket, fights_queryset=group_b_fights)
 
-            # Получаем объекты бойцов
-            fighters_a = Fighter.objects.filter(id__in=group_a_ids)
-            fighters_b = Fighter.objects.filter(id__in=group_b_ids)
-
-            # Вспомогательная функция для подсчета очков внутри одной группы
-            def get_group_standings(fighters, group_name):
-                stats = {}
-                for fighter in fighters:
-                    stats[fighter.id] = {'fighter': fighter, 'points': 0, 'wins': 0, 'diff': 0, 'place': 0}
-
-                fights = group_fights.filter(group_name=group_name, status='completed')
-                for f in fights:
-                    if not f.fighter1 or not f.fighter2: continue
-                    s1 = stats.get(f.fighter1.id)
-                    s2 = stats.get(f.fighter2.id)
-                    if not s1 or not s2: continue
-
-                    s1['diff'] += (f.score_fighter1 - f.score_fighter2)
-                    s2['diff'] += (f.score_fighter2 - f.score_fighter1)
-
-                    if f.is_draw:
-                        s1['points'] += 1
-                        s2['points'] += 1
-                    elif f.winner_id == f.fighter1_id:
-                        s1['points'] += 3
-                        s1['wins'] += 1
-                    elif f.winner_id == f.fighter2_id:
-                        s2['points'] += 3
-                        s2['wins'] += 1
-
-                # Сортировка: по очкам, затем по разнице, затем по победам
-                sorted_stats = sorted(stats.values(), key=lambda x: (x['points'], x['diff'], x['wins']), reverse=True)
-                for idx, s in enumerate(sorted_stats):
-                    s['place'] = idx + 1
-                return sorted_stats
-
-            standings_a = get_group_standings(fighters_a, 'A')
-            standings_b = get_group_standings(fighters_b, 'B')
-
-            # 2. Формируем полуфиналы (А1 vs Б2, Б1 vs А2)
+            # Берем топ-2 из каждой группы
             top_a = [s['fighter'] for s in standings_a[:2]]
             top_b = [s['fighter'] for s in standings_b[:2]]
 
@@ -222,13 +174,13 @@ class FightService:
             while len(top_a) < 2: top_a.append(None)
             while len(top_b) < 2: top_b.append(None)
 
+            # 3. Формируем полуфиналы (А1 vs Б2, Б1 vs А2)
             semi_finals_pairs = [
                 (top_a[0], top_b[1]),  # А1 vs Б2
                 (top_b[0], top_a[1])   # Б1 vs А2
             ]
 
-            # 3. Определяем раунды и настройки
-            # Удаляем старые бои плей-офф (все, что больше 1 раунда) для очистки
+            # 4. Удаляем старые бои плей-офф (все, что больше 1 раунда) для очистки
             Fight.objects.filter(bracket=bracket, round_number__gt=1).delete()
 
             playoff_round = 2  # Плей-офф всегда начинается со 2-го раунда
@@ -241,7 +193,7 @@ class FightService:
             current_fights = []
             match_num = 1
 
-            # Создаем полуфиналы
+            # 5. Создаем полуфиналы
             for f1, f2 in semi_finals_pairs:
                 if not f1 and not f2:
                     continue
@@ -249,7 +201,6 @@ class FightService:
                 # Обработка BYE (если в одной из групп не хватило людей)
                 if not f1 or not f2:
                     real_fighter = f1 or f2
-                    # БЕЗОПАСНОЕ ОБНОВЛЕНИЕ: ищем по ВСЕМ полям уникального ключа
                     fight, _ = Fight.objects.update_or_create(
                         tournament=bracket.tournament,
                         bracket=bracket,
@@ -270,7 +221,6 @@ class FightService:
                     continue
 
                 # Обычный бой
-                # БЕЗОПАСНОЕ ОБНОВЛЕНИЕ: ищем по ВСЕМ полям уникального ключа
                 fight, _ = Fight.objects.update_or_create(
                     tournament=bracket.tournament,
                     bracket=bracket,
@@ -287,10 +237,9 @@ class FightService:
                 current_fights.append(fight)
                 match_num += 1
 
-            # 4. Создаем финал
+            # 6. Создаем финал
             if current_fights:
                 next_round = playoff_round + 1
-                # БЕЗОПАСНОЕ ОБНОВЛЕНИЕ: ищем по ВСЕМ полям уникального ключа
                 final_fight, _ = Fight.objects.update_or_create(
                     tournament=bracket.tournament,
                     bracket=bracket,
@@ -309,7 +258,7 @@ class FightService:
                     cf.next_fight = final_fight
                     cf.save(update_fields=['next_fight'])
 
-                # 5. Обновляем сетку, чтобы она знала о новых раундах
+                # 7. Обновляем сетку, чтобы она знала о новых раундах
                 bracket.total_rounds = next_round
                 bracket.current_round = playoff_round
                 bracket.save(update_fields=['total_rounds', 'current_round'])
@@ -325,8 +274,13 @@ class FightService:
     # ==================== СТАНДИНГИ ====================
 
     @staticmethod
-    def _round_robin_standings(bracket):
-        fights = bracket.fights.filter(status='completed')
+    def _round_robin_standings(bracket, fights_queryset=None):
+        # Если передали конкретные бои (например, только Группы А), берем их
+        if fights_queryset is not None:
+            fights = fights_queryset.filter(status='completed')
+        else:
+            fights = bracket.fights.filter(status='completed')
+
         stats = {}
 
         # Инициализация
@@ -434,6 +388,59 @@ class FightService:
             item['place'] = idx if idx <= 3 else None
 
         return result
+
+    @staticmethod
+    def calculate_group_stats(group_fights):
+        """Единая функция подсчета очков в группе (для таблицы и плей-офф)"""
+        stats = {}
+
+        # Инициализация
+        for f in group_fights:
+            for fighter in (f.fighter1, f.fighter2):
+                if fighter and fighter.id not in stats:
+                    stats[fighter.id] = {
+                        'fighter': fighter, 'wins': 0, 'draws': 0, 'losses': 0,
+                        'points': 0, 'score_diff': 0, 'place': None
+                    }
+
+        # Подсчет
+        for f in group_fights.filter(status='completed'):
+            if not f.fighter1 or not f.fighter2: continue
+            s1 = stats.get(f.fighter1.id)
+            s2 = stats.get(f.fighter2.id)
+            if not s1 or not s2: continue
+
+            s1['score_diff'] += (f.score_fighter1 - f.score_fighter2)
+            s2['score_diff'] += (f.score_fighter2 - f.score_fighter1)
+
+            if f.is_draw:
+                s1['draws'] += 1;
+                s1['points'] += 1
+                s2['draws'] += 1;
+                s2['points'] += 1
+            elif f.winner_id == f.fighter1_id:
+                s1['wins'] += 1;
+                s1['points'] += 3
+                s2['losses'] += 1
+            elif f.winner_id == f.fighter2_id:
+                s2['wins'] += 1;
+                s2['points'] += 3
+                s1['losses'] += 1
+
+        # Жесткая спортивная сортировка:
+        # 1. Очки (убывание)
+        # 2. Разница набранных/пропущенных (убывание)
+        # 3. Количество побед (убывание)
+        # 4. ID (чтобы не было рандома, если всё абсолютно равно)
+        sorted_stats = sorted(
+            stats.values(),
+            key=lambda x: (-x['points'], -x['score_diff'], -x['wins'], x['fighter'].id)
+        )
+
+        for idx, s in enumerate(sorted_stats):
+            s['place'] = idx + 1
+
+        return sorted_stats
 
     @staticmethod
     def _single_elimination_standings(bracket):

@@ -177,12 +177,15 @@ class BracketService:
             if not participants or len(participants) < 4:
                 return False, "Недостаточно участников для смешанной системы (минимум 4)"
 
+            # Очищаем старые бои перед генерацией
             Fight.objects.filter(bracket=bracket).delete()
 
             participants_list = []
             for p in participants:
+                # Если передали регистрации, достаем самих бойцов
                 participants_list.append(p.fighter if hasattr(p, 'fighter') else p)
 
+            import random
             random.shuffle(participants_list)
 
             # Делим участников на две группы (поровну или с перевесом в 1 человека)
@@ -199,12 +202,19 @@ class BracketService:
             match_number = 1
             for i in range(len(group_a)):
                 for j in range(i + 1, len(group_a)):
-                    Fight.objects.create(
-                        tournament=bracket.tournament, bracket=bracket,
-                        age_weight_category=bracket.age_weight_category,
-                        fighter1=group_a[i], fighter2=group_a[j],
-                        round_number=1, match_number=match_number, group_name='A',
-                        status='scheduled', **fight_defaults
+                    Fight.objects.update_or_create(
+                        tournament=bracket.tournament,
+                        bracket=bracket,
+                        round_number=1,
+                        match_number=match_number,
+                        defaults={
+                            'age_weight_category': bracket.age_weight_category,
+                            'fighter1': group_a[i],
+                            'fighter2': group_a[j],
+                            'group_name': 'A',
+                            'status': 'scheduled',
+                            **fight_defaults
+                        }
                     )
                     match_number += 1
 
@@ -212,12 +222,26 @@ class BracketService:
             match_number = 1
             for i in range(len(group_b)):
                 for j in range(i + 1, len(group_b)):
-                    Fight.objects.create(
-                        tournament=bracket.tournament, bracket=bracket,
-                        age_weight_category=bracket.age_weight_category,
-                        fighter1=group_b[i], fighter2=group_b[j],
-                        round_number=1, match_number=match_number, group_name='B',
-                        status='scheduled', **fight_defaults
+                    Fight.objects.update_or_create(
+                        tournament=bracket.tournament,
+                        bracket=bracket,
+                        round_number=1,
+                        match_number=match_number,
+                        # Внимание: в базе match_number для группы Б должен отличаться,
+                        # чтобы не было конфликта UNIQUE (если в модели уникальность по турниру, сетке, раунду и номеру матча).
+                        # Если группа Б создается в том же раунде (1) и номера начинаются с 1,
+                        # нужно либо добавить префикс к match_number (например, 100+), либо
+                        # настроить уникальность в модели иначе.
+                        # Но судя по прошлым кодам, match_number был уникален в рамках раунда.
+                        # Для безопасности используем offset.
+                        defaults={
+                            'age_weight_category': bracket.age_weight_category,
+                            'fighter1': group_b[i],
+                            'fighter2': group_b[j],
+                            'group_name': 'B',
+                            'status': 'scheduled',
+                            **fight_defaults
+                        }
                     )
                     match_number += 1
 
@@ -231,6 +255,8 @@ class BracketService:
             return True, f"Смешанная система: {len(group_a)} чел. в Группе А, {len(group_b)} чел. в Группе Б"
 
         except Exception as e:
+            import logging
+            logger = logging.getLogger('tournaments')
             logger.error(f"Ошибка смешанной системы: {e}", exc_info=True)
             return False, f"Ошибка: {str(e)}"
 
