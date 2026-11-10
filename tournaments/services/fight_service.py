@@ -3,6 +3,7 @@ import math
 from django.db import models
 from django.utils import timezone
 from ..models import Fight, RoundScore
+from django.db import models, transaction
 
 logger = logging.getLogger('tournaments')
 
@@ -48,16 +49,16 @@ class FightService:
             s2['score_diff'] += (f.score_fighter2 - f.score_fighter1)
 
             if f.is_draw:
-                s1['draws'] += 1;
+                s1['draws'] += 1
                 s1['points'] += 1
-                s2['draws'] += 1;
+                s2['draws'] += 1
                 s2['points'] += 1
             elif f.winner == f.fighter1:
-                s1['wins'] += 1;
+                s1['wins'] += 1
                 s1['points'] += 3
                 s2['losses'] += 1
             elif f.winner == f.fighter2:
-                s2['wins'] += 1;
+                s2['wins'] += 1
                 s2['points'] += 3
                 s1['losses'] += 1
 
@@ -69,6 +70,7 @@ class FightService:
             s['place'] = idx + 1
 
         return sorted_stats
+
     # ==================== УПРАВЛЕНИЕ БОЯМИ ====================
 
     @staticmethod
@@ -144,105 +146,181 @@ class FightService:
         return True, f"Оценка за раунд {round_number} сохранена"
 
     @staticmethod
+    @transaction.atomic
     def create_playoff_from_round_robin(bracket, advancing_count=None):
-        """Создать плей-офф из round-robin standings"""
-        from ..models import Fight
+        """Создать перекрестный плей-офф (А1 vs Б2, Б1 vs А2)"""
+        import math
+        from django.db import models, transaction
+        from ..models import Fight, Fighter, Bracket
+        from .bracket_service import BracketService
 
-        standings = FightService.get_standings(bracket)
-        # Берём только тех, у кого определено место (place не None)
-        advancing = [s['fighter'] for s in standings if s['place'] and s['place'] <= (advancing_count or 4)]
+        try:
+            # === БЛОКИРУЕМ СЕТКУ, чтобы избежать двойного создания при быстрых кликах ===
+            bracket = Bracket.objects.select_for_update().get(pk=bracket.pk)
 
-        if not advancing_count:
-            fighter_ids = set()
-            for f in bracket.fights.all():
+            # 1. Получаем бои группового этапа
+            group_fights = bracket.fights.filter(round_number=1)
+
+            # Разделяем участников по группам
+            group_a_ids, group_b_ids = set(), set()
+            for f in group_fights:
                 if f.fighter1_id:
-                    fighter_ids.add(f.fighter1_id)
+                    if f.group_name == 'A':
+                        group_a_ids.add(f.fighter1_id)
+                    elif f.group_name == 'B':
+                        group_b_ids.add(f.fighter1_id)
                 if f.fighter2_id:
-                    fighter_ids.add(f.fighter2_id)
-            advancing_count = 8 if len(fighter_ids) >= 16 else 4
-            advancing = [s['fighter'] for s in standings if s['place'] and s['place'] <= advancing_count]
+                    if f.group_name == 'A':
+                        group_a_ids.add(f.fighter2_id)
+                    elif f.group_name == 'B':
+                        group_b_ids.add(f.fighter2_id)
 
-        if len(advancing) < 2:
-            return False, "Недостаточно участников для плей-офф"
+            # Получаем объекты бойцов
+            fighters_a = Fighter.objects.filter(id__in=group_a_ids)
+            fighters_b = Fighter.objects.filter(id__in=group_b_ids)
 
-        num = len(advancing)
-        rounds_needed = math.ceil(math.log2(num))
-        total_slots = 2 ** rounds_needed
+            # Вспомогательная функция для подсчета очков внутри одной группы
+            def get_group_standings(fighters, group_name):
+                stats = {}
+                for fighter in fighters:
+                    stats[fighter.id] = {'fighter': fighter, 'points': 0, 'wins': 0, 'diff': 0, 'place': 0}
 
-        while len(advancing) < total_slots:
-            advancing.append(None)
+                fights = group_fights.filter(group_name=group_name, status='completed')
+                for f in fights:
+                    if not f.fighter1 or not f.fighter2: continue
+                    s1 = stats.get(f.fighter1.id)
+                    s2 = stats.get(f.fighter2.id)
+                    if not s1 or not s2: continue
 
-        max_round = bracket.fights.aggregate(models.Max('round_number'))['round_number__max'] or 1
-        playoff_round = max_round + 1
+                    s1['diff'] += (f.score_fighter1 - f.score_fighter2)
+                    s2['diff'] += (f.score_fighter2 - f.score_fighter1)
 
-        current_fights = []
-        match_num = 1
-        for i in range(0, len(advancing), 2):
-            f1 = advancing[i]
-            f2 = advancing[i + 1]
+                    if f.is_draw:
+                        s1['points'] += 1
+                        s2['points'] += 1
+                    elif f.winner_id == f.fighter1_id:
+                        s1['points'] += 3
+                        s1['wins'] += 1
+                    elif f.winner_id == f.fighter2_id:
+                        s2['points'] += 3
+                        s2['wins'] += 1
 
-            if not f1 and not f2:
-                continue
+                # Сортировка: по очкам, затем по разнице, затем по победам
+                sorted_stats = sorted(stats.values(), key=lambda x: (x['points'], x['diff'], x['wins']), reverse=True)
+                for idx, s in enumerate(sorted_stats):
+                    s['place'] = idx + 1
+                return sorted_stats
 
-            if not f1 or not f2:
-                real_fighter = f1 or f2
-                fight = Fight.objects.create(
+            standings_a = get_group_standings(fighters_a, 'A')
+            standings_b = get_group_standings(fighters_b, 'B')
+
+            # 2. Формируем полуфиналы (А1 vs Б2, Б1 vs А2)
+            top_a = [s['fighter'] for s in standings_a[:2]]
+            top_b = [s['fighter'] for s in standings_b[:2]]
+
+            # Заполняем пустоты, если в группе меньше 2 человек
+            while len(top_a) < 2: top_a.append(None)
+            while len(top_b) < 2: top_b.append(None)
+
+            semi_finals_pairs = [
+                (top_a[0], top_b[1]),  # А1 vs Б2
+                (top_b[0], top_a[1])   # Б1 vs А2
+            ]
+
+            # 3. Определяем раунды и настройки
+            # Удаляем старые бои плей-офф (все, что больше 1 раунда) для очистки
+            Fight.objects.filter(bracket=bracket, round_number__gt=1).delete()
+
+            playoff_round = 2  # Плей-офф всегда начинается со 2-го раунда
+
+            try:
+                fight_defaults = BracketService._get_fight_defaults(bracket)
+            except Exception:
+                fight_defaults = {}
+
+            current_fights = []
+            match_num = 1
+
+            # Создаем полуфиналы
+            for f1, f2 in semi_finals_pairs:
+                if not f1 and not f2:
+                    continue
+
+                # Обработка BYE (если в одной из групп не хватило людей)
+                if not f1 or not f2:
+                    real_fighter = f1 or f2
+                    # БЕЗОПАСНОЕ ОБНОВЛЕНИЕ: ищем по ВСЕМ полям уникального ключа
+                    fight, _ = Fight.objects.update_or_create(
+                        tournament=bracket.tournament,
+                        bracket=bracket,
+                        round_number=playoff_round,
+                        match_number=match_num,
+                        defaults={
+                            'age_weight_category': bracket.age_weight_category,
+                            'fighter1': real_fighter,
+                            'fighter2': None,
+                            'status': 'completed',
+                            'winner': real_fighter,
+                            'win_method': 'walkover',
+                            **fight_defaults
+                        }
+                    )
+                    current_fights.append(fight)
+                    match_num += 1
+                    continue
+
+                # Обычный бой
+                # БЕЗОПАСНОЕ ОБНОВЛЕНИЕ: ищем по ВСЕМ полям уникального ключа
+                fight, _ = Fight.objects.update_or_create(
                     tournament=bracket.tournament,
                     bracket=bracket,
-                    age_weight_category=bracket.age_weight_category,
                     round_number=playoff_round,
                     match_number=match_num,
-                    fighter1=real_fighter,
-                    fighter2=None,
-                    status='completed',
-                    winner=real_fighter,
-                    win_method='walkover',
+                    defaults={
+                        'age_weight_category': bracket.age_weight_category,
+                        'fighter1': f1,
+                        'fighter2': f2,
+                        'status': 'scheduled',
+                        **fight_defaults
+                    }
                 )
                 current_fights.append(fight)
                 match_num += 1
-                continue
 
-            fight = Fight.objects.create(
-                tournament=bracket.tournament,
-                bracket=bracket,
-                age_weight_category=bracket.age_weight_category,
-                round_number=playoff_round,
-                match_number=match_num,
-                fighter1=f1,
-                fighter2=f2,
-                status='scheduled',
-            )
-            current_fights.append(fight)
-            match_num += 1
-
-        while len(current_fights) > 1:
-            next_fights = []
-            next_round = playoff_round + 1
-            match_num = 1
-            for i in range(0, len(current_fights), 2):
-                next_fight = Fight.objects.create(
+            # 4. Создаем финал
+            if current_fights:
+                next_round = playoff_round + 1
+                # БЕЗОПАСНОЕ ОБНОВЛЕНИЕ: ищем по ВСЕМ полям уникального ключа
+                final_fight, _ = Fight.objects.update_or_create(
                     tournament=bracket.tournament,
                     bracket=bracket,
-                    age_weight_category=bracket.age_weight_category,
                     round_number=next_round,
-                    match_number=match_num,
-                    status='scheduled',
+                    match_number=1,
+                    defaults={
+                        'age_weight_category': bracket.age_weight_category,
+                        'status': 'scheduled',
+                        'is_final': True,
+                        **fight_defaults
+                    }
                 )
-                current_fights[i].next_fight = next_fight
-                current_fights[i].save(update_fields=['next_fight'])
-                if i + 1 < len(current_fights):
-                    current_fights[i + 1].next_fight = next_fight
-                    current_fights[i + 1].save(update_fields=['next_fight'])
-                next_fights.append(next_fight)
-                match_num += 1
-            current_fights = next_fights
-            playoff_round = next_round
 
-        if current_fights:
-            current_fights[0].is_final = True
-            current_fights[0].save(update_fields=['is_final'])
+                # Связываем победителей полуфиналов с финалом
+                for cf in current_fights:
+                    cf.next_fight = final_fight
+                    cf.save(update_fields=['next_fight'])
 
-        return True, f"Плей-офф создан: {num} участников, {math.ceil(math.log2(num))} раунд(ов)"
+                # 5. Обновляем сетку, чтобы она знала о новых раундах
+                bracket.total_rounds = next_round
+                bracket.current_round = playoff_round
+                bracket.save(update_fields=['total_rounds', 'current_round'])
+
+                return True, "Перекрестный плей-офф создан (А1 vs Б2, Б1 vs А2)"
+
+            return False, "Не удалось сформировать пары для плей-офф"
+
+        except Exception as e:
+            logger.error(f"Ошибка при создании плей-офф: {e}", exc_info=True)
+            return False, f"Ошибка: {str(e)}"
 
     # ==================== СТАНДИНГИ ====================
 

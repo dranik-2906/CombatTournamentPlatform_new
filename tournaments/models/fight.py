@@ -68,8 +68,10 @@ class Fight(models.Model):
     """Бой - реальное событие с результатами и таймером"""
     tournament = models.ForeignKey(
         Tournament, on_delete=models.CASCADE,
-        related_name='fights', verbose_name='Турнир'
-    )
+        related_name='fights', verbose_name='Турнир')
+
+    group_name = models.CharField(max_length=10, null=True, blank=True, verbose_name="Подгруппа (А/Б)")
+
     bracket = models.ForeignKey(
         Bracket, on_delete=models.SET_NULL,
         null=True, blank=True, related_name='fights',

@@ -172,43 +172,63 @@ class BracketService:
     @staticmethod
     @transaction.atomic
     def generate_mixed(bracket, participants):
-        """Смешанная система: групповой этап (round 1) + плей-офф (round >= 2)"""
+        """Смешанная система: разделение на подгруппы А и Б (круговая) + плей-офф"""
         try:
-            if not participants or len(participants) < 3:
-                return False, "Недостаточно участников для смешанной системы (минимум 3)"
+            if not participants or len(participants) < 4:
+                return False, "Недостаточно участников для смешанной системы (минимум 4)"
 
             Fight.objects.filter(bracket=bracket).delete()
-            Match.objects.filter(bracket=bracket).delete()
 
-            participants_list = list(participants)
+            participants_list = []
+            for p in participants:
+                participants_list.append(p.fighter if hasattr(p, 'fighter') else p)
+
             random.shuffle(participants_list)
+
+            # Делим участников на две группы (поровну или с перевесом в 1 человека)
+            mid = len(participants_list) // 2
+            if len(participants_list) % 2 != 0:
+                mid += 1  # Первая группа получает на 1 больше
+
+            group_a = participants_list[:mid]
+            group_b = participants_list[mid:]
 
             fight_defaults = BracketService._get_fight_defaults(bracket)
 
+            # Генерируем бои для Группы А
             match_number = 1
-            for i in range(len(participants_list)):
-                for j in range(i + 1, len(participants_list)):
+            for i in range(len(group_a)):
+                for j in range(i + 1, len(group_a)):
                     Fight.objects.create(
-                        tournament=bracket.tournament,
-                        bracket=bracket,
+                        tournament=bracket.tournament, bracket=bracket,
                         age_weight_category=bracket.age_weight_category,
-                        fighter1=participants_list[i].fighter,
-                        fighter2=participants_list[j].fighter,
-                        round_number=1,  # Групповой этап
-                        match_number=match_number,
-                        status='scheduled',
-                        **fight_defaults
+                        fighter1=group_a[i], fighter2=group_a[j],
+                        round_number=1, match_number=match_number, group_name='A',
+                        status='scheduled', **fight_defaults
+                    )
+                    match_number += 1
+
+            # Генерируем бои для Группы Б
+            match_number = 1
+            for i in range(len(group_b)):
+                for j in range(i + 1, len(group_b)):
+                    Fight.objects.create(
+                        tournament=bracket.tournament, bracket=bracket,
+                        age_weight_category=bracket.age_weight_category,
+                        fighter1=group_b[i], fighter2=group_b[j],
+                        round_number=1, match_number=match_number, group_name='B',
+                        status='scheduled', **fight_defaults
                     )
                     match_number += 1
 
             bracket.size = len(participants_list)
-            bracket.total_rounds = 2  # Группа + плей-офф
+            bracket.total_rounds = 1
             bracket.current_round = 1
             bracket.is_generated = True
             bracket.status = 'generated'
             bracket.save()
 
-            return True, f"Смешанная система: {len(participants_list)} участников, групповой этап создан"
+            return True, f"Смешанная система: {len(group_a)} чел. в Группе А, {len(group_b)} чел. в Группе Б"
 
         except Exception as e:
             logger.error(f"Ошибка смешанной системы: {e}", exc_info=True)
@@ -254,7 +274,12 @@ class BracketService:
                 from ..services import FightService
                 success, msg = FightService.create_playoff_from_round_robin(bracket)
                 if success:
-                    bracket.current_round = 2
+                    # Обновляем раунды после создания плей-офф
+                    max_round = Fight.objects.filter(bracket=bracket).aggregate(
+                        max_r=models.Max('round_number')
+                    )['max_r'] or 1
+                    bracket.current_round = max_round   # Переходим к последнему созданному раунду
+                    bracket.total_rounds = max_round
                     bracket.save()
                     return True, f"Плей-офф создан: {msg}"
                 return False, msg

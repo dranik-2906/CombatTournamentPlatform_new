@@ -100,18 +100,33 @@ def judge_fight_panel(request, fight_id):
         pk=fight_id
     )
 
-    # Проверка доступа
-    is_head = fight.head_judge == request.user.judge
-    is_side = request.user.judge in fight.side_judges.all()
-    is_general = fight.judge == request.user.judge
+    # Безопасно получаем объект судьи (чтобы админ без профиля судьи не ломал страницу)
+    user_judge = getattr(request.user, 'judge', None)
+    is_admin = request.user.is_superuser or (
+                getattr(request.user, 'profile', None) and request.user.profile.role in ['system_admin',
+                                                                                         'tournament_admin'])
 
-    if not (is_head or is_side or is_general):
+    # Проверка доступа (с защитой от None)
+    is_head = (fight.head_judge == user_judge) if user_judge else False
+    is_side = (user_judge in fight.side_judges.all()) if user_judge else False
+    is_general = (fight.judge == user_judge) if user_judge else False
+
+    # Администраторы тоже могут заходить и управлять
+    if not (is_head or is_side or is_general or is_admin):
         messages.error(request, 'У вас нет прав на ведение этого боя')
         return redirect('tournaments:judge_dashboard')
 
     # Определяем роль для шаблона
-    judge_role = 'head' if is_head else ('side' if is_side else 'general')
-    can_control_timer = is_head or is_general or request.user.is_superuser
+    if is_head or is_admin:
+        judge_role = 'head'
+    elif is_side:
+        judge_role = 'side'
+    elif is_general:
+        judge_role = 'general'
+    else:
+        judge_role = 'viewer'
+
+    can_control_timer = is_head or is_general or is_admin
 
     timer_settings, _ = TimerSettings.objects.get_or_create(
         tournament=fight.tournament,
@@ -120,14 +135,14 @@ def judge_fight_panel(request, fight_id):
 
     # Для бокса: подгружаем оценки
     my_scores = []
-    if fight.tournament.is_boxing and is_side:
+    if fight.tournament.is_boxing and is_side and user_judge:
         my_scores = list(
-            fight.round_scores.filter(judge=request.user.judge)
+            fight.round_scores.filter(judge=user_judge)
             .values('round_number', 'score_fighter1', 'score_fighter2')
         )
 
     all_scores = []
-    if fight.tournament.is_boxing and is_head:
+    if fight.tournament.is_boxing and (is_head or is_admin):
         all_scores = list(
             fight.round_scores.select_related('judge').values(
                 'round_number', 'judge__first_name', 'judge__last_name',
@@ -177,7 +192,6 @@ def judge_fight_panel(request, fight_id):
     else:
         form = FightResultForm(instance=fight, fight=fight)
 
-
     return render(request, 'tournaments/judge_fight_panel.html', {
         'fight': fight,
         'form': form,
@@ -185,12 +199,13 @@ def judge_fight_panel(request, fight_id):
         'judge_role': judge_role,
         'is_head_judge': is_head,
         'is_side_judge': is_side,
-        'can_control_timer': can_control_timer, # <-- ДОБАВИТЬ ЭТО
+        'can_control_timer': can_control_timer,
         'is_boxing': fight.tournament.is_boxing,
         'my_scores': my_scores,
         'all_scores': all_scores,
         'rounds_range': range(1, fight.total_rounds + 1),
     })
+
 
 @login_required
 @judge_required
@@ -199,12 +214,21 @@ def judge_update_result(request, tournament_id, fight_id):
     fight = get_object_or_404(
         Fight, pk=fight_id, tournament_id=tournament_id,
     )
-    # Доступ: любой назначенный судья
-    is_assigned = (
-        fight.judge == request.user.judge or
-        fight.head_judge == request.user.judge or
-        request.user.judge in fight.side_judges.all()
+
+    user_judge = getattr(request.user, 'judge', None)
+    is_admin = request.user.is_superuser or (
+                getattr(request.user, 'profile', None) and request.user.profile.role in ['system_admin',
+                                                                                         'tournament_admin'])
+
+    # Доступ: любой назначенный судья или админ
+    is_assigned = is_admin or (
+            user_judge and (
+            fight.judge == user_judge or
+            fight.head_judge == user_judge or
+            user_judge in fight.side_judges.all()
     )
+    )
+
     if not is_assigned:
         messages.error(request, 'Нет прав')
         return redirect('tournaments:judge_dashboard')
@@ -245,11 +269,20 @@ def update_judge_notes(request, tournament_id, fight_id):
     fight = get_object_or_404(
         Fight, pk=fight_id, tournament_id=tournament_id,
     )
-    is_assigned = (
-        fight.judge == request.user.judge or
-        fight.head_judge == request.user.judge or
-        request.user.judge in fight.side_judges.all()
+
+    user_judge = getattr(request.user, 'judge', None)
+    is_admin = request.user.is_superuser or (
+                getattr(request.user, 'profile', None) and request.user.profile.role in ['system_admin',
+                                                                                         'tournament_admin'])
+
+    is_assigned = is_admin or (
+            user_judge and (
+            fight.judge == user_judge or
+            fight.head_judge == user_judge or
+            user_judge in fight.side_judges.all()
     )
+    )
+
     if not is_assigned:
         messages.error(request, 'Нет прав')
         return redirect('tournaments:judge_dashboard')
@@ -261,6 +294,7 @@ def update_judge_notes(request, tournament_id, fight_id):
         messages.success(request, 'Заметки сохранены')
 
     return redirect('tournaments:judge_fight_panel', fight_id=fight_id)
+
 
 
 # ==================== УПРАВЛЕНИЕ СУДЬЯМИ (АДМИН) ====================
