@@ -74,50 +74,12 @@ def bracket_view(request, tournament_id, bracket_id):
     standings_a, standings_b = [], []
 
     if bracket.bracket_type == 'mixed':
-        # Локальная функция для расчета очков внутри одной группы
-        def get_group_standings(group_name):
-            group_fights = bracket.fights.filter(group_name=group_name)
-            stats = {}
+        # ИЗМЕНЕНИЕ: Используем единую функцию из FightService, чтобы таблица и плей-офф совпадали
+        group_a_fights = bracket.fights.filter(round_number=1, group_name='A')
+        group_b_fights = bracket.fights.filter(round_number=1, group_name='B')
 
-            # Инициализируем всех участников группы
-            for f in group_fights:
-                if f.fighter1 and f.fighter1.id not in stats:
-                    stats[f.fighter1.id] = {'fighter': f.fighter1, 'wins': 0, 'draws': 0, 'losses': 0, 'points': 0,
-                                            'score_diff': 0, 'place': None}
-                if f.fighter2 and f.fighter2.id not in stats:
-                    stats[f.fighter2.id] = {'fighter': f.fighter2, 'wins': 0, 'draws': 0, 'losses': 0, 'points': 0,
-                                            'score_diff': 0, 'place': None}
-
-            # Считаем очки по завершенным боям
-            for f in group_fights.filter(status='completed'):
-                if not f.fighter1 or not f.fighter2: continue
-                s1 = stats[f.fighter1.id]
-                s2 = stats[f.fighter2.id]
-
-                s1['score_diff'] += (f.score_fighter1 - f.score_fighter2)
-                s2['score_diff'] += (f.score_fighter2 - f.score_fighter1)
-
-                if f.is_draw:
-                    s1['draws'] += 1;
-                    s1['points'] += 1
-                    s2['draws'] += 1;
-                    s2['points'] += 1
-                elif f.winner_id == f.fighter1_id:
-                    s1['wins'] += 1;
-                    s1['points'] += 3
-                    s2['losses'] += 1
-                elif f.winner_id == f.fighter2_id:
-                    s2['wins'] += 1;
-                    s2['points'] += 3
-                    s1['losses'] += 1
-
-            sorted_stats = sorted(stats.values(), key=lambda x: (x['points'], x['score_diff'], x['wins']), reverse=True)
-            for idx, s in enumerate(sorted_stats):
-                s['place'] = idx + 1
-            return sorted_stats
-
-        standings_a = get_group_standings('A')
-        standings_b = get_group_standings('B')
+        standings_a = FightService._round_robin_standings(bracket, fights_queryset=group_a_fights)
+        standings_b = FightService._round_robin_standings(bracket, fights_queryset=group_b_fights)
         standings = standings_a + standings_b
     else:
         standings = FightService.get_standings(bracket) if all_fights.exists() else []
@@ -167,10 +129,15 @@ def bracket_view(request, tournament_id, bracket_id):
 
         # Если финала еще нет (идет групповой этап), показываем текущих лидеров
         elif bracket.bracket_type == 'mixed' and standings:
-            all_sorted = sorted(standings, key=lambda x: (x.get('points', 0), x.get('score_diff', 0)), reverse=True)
-            for idx, s in enumerate(all_sorted[:3]):
-                prizes.append(
-                    {'place': idx + 1, 'fighter': s['fighter'], 'note': 'Лидер группы', 'is_bronze_winner': False})
+            # ИЗМЕНЕНИЕ: Берем уже отсортированный список (топ-3)
+            for s in standings[:3]:
+                if s.get('place'):
+                    prizes.append({
+                        'place': s['place'],
+                        'fighter': s['fighter'],
+                        'note': 'Лидер группы',
+                        'is_bronze_winner': False
+                    })
 
     # 2. Для Круговой системы (призеры берутся из общей таблицы)
     elif bracket.bracket_type == 'round_robin' and standings:

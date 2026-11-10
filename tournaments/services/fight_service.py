@@ -20,7 +20,7 @@ class FightService:
 
     @staticmethod
     def get_standings(bracket):
-        """Подсчёт очков и мест для круговой системы"""
+        """Подсчёт очков и мест для круговой системы (упрощенная)"""
         fights = Fight.objects.filter(bracket=bracket, status='completed')
         stats = {}
 
@@ -154,15 +154,14 @@ class FightService:
         from .bracket_service import BracketService
 
         try:
-            # === БЛОКИРУЕМ СЕТКУ, чтобы избежать двойного создания при быстрых кликах ===
+            # === БЛОКИРУЕМ СЕТКУ ===
             bracket = Bracket.objects.select_for_update().get(pk=bracket.pk)
 
-            # 1. Получаем бои группового этапа отдельно для каждой группы
+            # 1. Получаем бои отдельно для каждой группы
             group_a_fights = bracket.fights.filter(round_number=1, group_name='A')
             group_b_fights = bracket.fights.filter(round_number=1, group_name='B')
 
-            # 2. СЧИТАЕМ ОЧКИ ЧЕРЕЗ ЕДИНУЮ ФУНКЦИЮ (ту же, что используется для отрисовки таблицы)
-            # ВАЖНО: Убедись, что в _round_robin_standings добавлен параметр fights_queryset!
+            # 2. СЧИТАЕМ ОЧКИ ЧЕРЕЗ ЕДИНУЮ ФУНКЦИЮ (с учетом личных встреч)
             standings_a = FightService._round_robin_standings(bracket, fights_queryset=group_a_fights)
             standings_b = FightService._round_robin_standings(bracket, fights_queryset=group_b_fights)
 
@@ -180,10 +179,9 @@ class FightService:
                 (top_b[0], top_a[1])   # Б1 vs А2
             ]
 
-            # 4. Удаляем старые бои плей-офф (все, что больше 1 раунда) для очистки
+            # 4. Удаляем старые бои плей-офф
             Fight.objects.filter(bracket=bracket, round_number__gt=1).delete()
-
-            playoff_round = 2  # Плей-офф всегда начинается со 2-го раунда
+            playoff_round = 2
 
             try:
                 fight_defaults = BracketService._get_fight_defaults(bracket)
@@ -198,7 +196,7 @@ class FightService:
                 if not f1 and not f2:
                     continue
 
-                # Обработка BYE (если в одной из групп не хватило людей)
+                # Обработка BYE
                 if not f1 or not f2:
                     real_fighter = f1 or f2
                     fight, _ = Fight.objects.update_or_create(
@@ -258,7 +256,7 @@ class FightService:
                     cf.next_fight = final_fight
                     cf.save(update_fields=['next_fight'])
 
-                # 7. Обновляем сетку, чтобы она знала о новых раундах
+                # 7. Обновляем сетку
                 bracket.total_rounds = next_round
                 bracket.current_round = playoff_round
                 bracket.save(update_fields=['total_rounds', 'current_round'])
@@ -275,7 +273,7 @@ class FightService:
 
     @staticmethod
     def _round_robin_standings(bracket, fights_queryset=None):
-        # Если передали конкретные бои (например, только Группы А), берем их
+        """Продвинутый подсчет очков с учетом личных встреч (head-to-head)"""
         if fights_queryset is not None:
             fights = fights_queryset.filter(status='completed')
         else:
@@ -292,9 +290,10 @@ class FightService:
                         'wins': 0,
                         'draws': 0,
                         'losses': 0,
+                        'points': 0,          # <-- ДОБАВЛЕНО: турнирные очки (3-1-0)
                         'points_for': 0,
                         'points_against': 0,
-                        'head_to_head': {},  # {opponent_id: 'win'/'loss'/'draw'}
+                        'head_to_head': {},
                     }
 
         # Заполнение статистики
@@ -307,6 +306,7 @@ class FightService:
                 loser_id = f2_id if winner_id == f1_id else f1_id
                 if winner_id in stats:
                     stats[winner_id]['wins'] += 1
+                    stats[winner_id]['points'] += 3    # <-- ДОБАВЛЕНО: 3 очка за победу
                 if loser_id and loser_id in stats:
                     stats[loser_id]['losses'] += 1
                     stats[loser_id]['head_to_head'][winner_id] = 'loss'
@@ -315,9 +315,11 @@ class FightService:
             elif f.is_draw:
                 if f1_id in stats:
                     stats[f1_id]['draws'] += 1
+                    stats[f1_id]['points'] += 1        # <-- ДОБАВЛЕНО: 1 очко за ничью
                     stats[f1_id]['head_to_head'][f2_id] = 'draw'
                 if f2_id in stats:
                     stats[f2_id]['draws'] += 1
+                    stats[f2_id]['points'] += 1        # <-- ДОБАВЛЕНО: 1 очко за ничью
                     stats[f2_id]['head_to_head'][f1_id] = 'draw'
 
             if f1_id in stats:
@@ -334,18 +336,14 @@ class FightService:
             draws = data['draws']
             diff = data['points_for'] - data['points_against']
             pts_for = data['points_for']
-            # Первичная сортировка: победы, ничьи, разница очков, очки за
             return (wins, draws, diff, pts_for)
 
-        # Сортируем
         sorted_items = sorted(stats.items(), key=sort_key, reverse=True)
 
-        # Применяем tie-breaker: если у двух соседей равны ключи, смотрим личную встречу
         result = []
         i = 0
         while i < len(sorted_items):
             fid, data = sorted_items[i]
-            # Ищем группу с одинаковым primary key
             group = [(fid, data)]
             j = i + 1
             while j < len(sorted_items):
@@ -356,20 +354,14 @@ class FightService:
                 else:
                     break
 
-            # Если в группе > 1, сортируем по личной встрече
             if len(group) > 1:
-                # Сортируем внутри группы: кто выиграл личную встречу — выше
                 def h2h_sort(a, b):
                     aid, adata = a
                     bid, bdata = b
-                    # Если a выиграл у b
-                    if bdata['head_to_head'].get(aid) == 'loss':
-                        return -1
-                    if adata['head_to_head'].get(bid) == 'loss':
-                        return 1
+                    if bdata['head_to_head'].get(aid) == 'loss': return -1
+                    if adata['head_to_head'].get(bid) == 'loss': return 1
                     return 0
 
-                # Простая сортировка пузырьком для маленьких групп
                 for x in range(len(group)):
                     for y in range(x + 1, len(group)):
                         if h2h_sort(group[x], group[y]) > 0:
@@ -377,13 +369,13 @@ class FightService:
 
             for fid, data in group:
                 result.append({
-                    'place': None,  # Поставим после
+                    'place': None,
                     'fighter': data['fighter'],
+                    'points': data['points'],              # <-- ДОБАВЛЕНО: передаем очки в шаблон
                     'method': f"Побед: {data['wins']}, Поражений: {data['losses']}, Очков: {data['points_for']}-{data['points_against']}"
                 })
             i = j
 
-        # Назначаем места
         for idx, item in enumerate(result, 1):
             item['place'] = idx if idx <= 3 else None
 

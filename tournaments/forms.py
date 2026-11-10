@@ -77,12 +77,16 @@ class AssignJudgeForm(forms.Form):
 class FightResultForm(forms.ModelForm):
     class Meta:
         model = Fight
-        fields = ['winner', 'win_method', 'judge_notes', 'is_draw']
+        # ДОБАВЛЕНО: score_fighter1 и score_fighter2
+        fields = ['winner', 'win_method', 'judge_notes', 'is_draw', 'score_fighter1', 'score_fighter2']
         widgets = {
             'winner': forms.Select(attrs={'class': 'form-select'}),
             'win_method': forms.Select(attrs={'class': 'form-select'}),
             'judge_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'is_draw': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            # ДОБАВЛЕНО: стили для полей ввода очков
+            'score_fighter1': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
+            'score_fighter2': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
         }
 
     def __init__(self, *args, fight=None, **kwargs):

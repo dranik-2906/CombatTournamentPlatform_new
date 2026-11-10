@@ -25,7 +25,7 @@
             <div class="card-body">
                 <p><strong>Турнир:</strong> {{ fight.tournament.name }}</p>
                 <p><strong>Категория:</strong> {{ fight.age_weight_category|default:"—" }}</p>
-                <p><strong>Раунд:</strong> <span id="info-current-round">{{ fight.current_round }}</span> / <span id="info-total-rounds">{{ fight.total_rounds }}</span></p>
+                <p><strong>Раунд:</strong> <span id="info-current-round">{{ fight.current_round|default:1 }}</span> / <span id="info-total-rounds">{{ fight.total_rounds|default:3 }}</span></p>
                 <p><strong>Роль:</strong>
                     {% if is_head_judge %}<span class="badge bg-warning text-dark">Главный судья</span>{% endif %}
                     {% if is_side_judge %}<span class="badge bg-info">Боковой судья</span>{% endif %}
@@ -46,9 +46,10 @@
                 <h5 class="card-title mb-0"><i class="fas fa-stopwatch"></i> Таймер</h5>
             </div>
             <div class="card-body text-center">
+                <!-- Начальное время задаст JavaScript -->
                 <h1 class="display-4 font-monospace text-dark" id="timer-display">00:00</h1>
                 <p class="mb-3">
-                    Раунд <strong id="current-round">1</strong> из <strong id="total-rounds-label">{{ fight.total_rounds }}</strong>
+                    Раунд <strong id="current-round">1</strong> из <strong id="total-rounds-label">{{ fight.total_rounds|default:3 }}</strong>
                 </p>
 
                 <!-- Если это не боковой судья, показываем кнопки -->
@@ -84,15 +85,15 @@
             <div class="card-body">
                 <div class="mb-2">
                     <label class="form-label small">Длительность раунда (сек)</label>
-                    <input type="number" id="fight-round-dur" class="form-control form-control-sm" value="{{ fight.round_duration }}" min="10" step="10">
+                    <input type="number" id="fight-round-dur" class="form-control form-control-sm" value="{{ fight.round_duration|default:180 }}" min="10" step="10">
                 </div>
                 <div class="mb-2">
                     <label class="form-label small">Длительность перерыва (сек)</label>
-                    <input type="number" id="fight-break-dur" class="form-control form-control-sm" value="{{ fight.break_duration }}" min="5" step="5">
+                    <input type="number" id="fight-break-dur" class="form-control form-control-sm" value="{{ fight.break_duration|default:60 }}" min="5" step="5">
                 </div>
                 <div class="mb-2">
                     <label class="form-label small">Всего раундов</label>
-                    <input type="number" id="fight-total-rounds" class="form-control form-control-sm" value="{{ fight.total_rounds }}" min="1" max="20">
+                    <input type="number" id="fight-total-rounds" class="form-control form-control-sm" value="{{ fight.total_rounds|default:3 }}" min="1" max="20">
                 </div>
                 <button type="button" class="btn btn-warning btn-sm w-100 mt-2" onclick="saveSettings()">
                     <i class="fas fa-save me-1"></i>Применить настройки
@@ -112,7 +113,7 @@
                         <h5 class="mb-0">{{ fight.fighter1.full_name|default:"—" }}</h5>
                     </div>
                     <div class="card-body text-center">
-                        <h1 class="display-1 text-primary" id="score1-display">{{ fight.score_fighter1 }}</h1>
+                        <h1 class="display-1 text-primary" id="score1-display">{{ fight.score_fighter1|default:0 }}</h1>
                         {% if fight.status != 'completed' and not is_side_judge %}
                         <div class="btn-group mt-3">
                             <button class="btn btn-outline-primary btn-lg" onclick="changeScore(1, 1)">+1</button>
@@ -128,7 +129,7 @@
                         <h5 class="mb-0">{{ fight.fighter2.full_name|default:"—" }}</h5>
                     </div>
                     <div class="card-body text-center">
-                        <h1 class="display-1 text-danger" id="score2-display">{{ fight.score_fighter2 }}</h1>
+                        <h1 class="display-1 text-danger" id="score2-display">{{ fight.score_fighter2|default:0 }}</h1>
                         {% if fight.status != 'completed' and not is_side_judge %}
                         <div class="btn-group mt-3">
                             <button class="btn btn-outline-danger btn-lg" onclick="changeScore(2, 1)">+1</button>
@@ -150,11 +151,11 @@
                 <div class="row text-center mb-4">
                     <div class="col-md-6">
                         <h3 class="text-primary">{{ fight.fighter1.full_name|default:"—" }}</h3>
-                        <h1 class="display-4">{{ fight.score_fighter1 }}</h1>
+                        <h1 class="display-4">{{ fight.score_fighter1|default:0 }}</h1>
                     </div>
                     <div class="col-md-6">
                         <h3 class="text-danger">{{ fight.fighter2.full_name|default:"—" }}</h3>
-                        <h1 class="display-4">{{ fight.score_fighter2 }}</h1>
+                        <h1 class="display-4">{{ fight.score_fighter2|default:0 }}</h1>
                     </div>
                 </div>
                 <hr>
@@ -188,11 +189,13 @@
                     <div class="row">
                         <div class="col-md-6">
                             <label class="form-label">Очки бойца 1</label>
-                            <input type="number" name="score_fighter1" id="score_fighter1" class="form-control" value="{{ fight.score_fighter1 }}" min="0">
+                            <!-- ИСПРАВЛЕНИЕ: добавлен |default:0 -->
+                            <input type="number" name="score_fighter1" id="score_fighter1" class="form-control" value="{{ fight.score_fighter1|default:0 }}" min="0">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Очки бойца 2</label>
-                            <input type="number" name="score_fighter2" id="score_fighter2" class="form-control" value="{{ fight.score_fighter2 }}" min="0">
+                            <!-- ИСПРАВЛЕНИЕ: добавлен |default:0 -->
+                            <input type="number" name="score_fighter2" id="score_fighter2" class="form-control" value="{{ fight.score_fighter2|default:0 }}" min="0">
                         </div>
                     </div>
                     {{ form.judge_notes|as_crispy_field }}
@@ -213,6 +216,7 @@
 <script>
     // === 1. ЛОКАЛЬНЫЙ ТАЙМЕР (работает независимо от сервера) ===
     let roundDuration = parseInt("{{ fight.round_duration|default:180 }}");
+    let breakDuration = parseInt("{{ fight.break_duration|default:60 }}"); // <-- ДОБАВЛЕНО
     let currentRound = parseInt("{{ fight.current_round|default:1 }}");
     let totalRounds = parseInt("{{ fight.total_rounds|default:3 }}");
 
@@ -289,9 +293,11 @@
     // === 2. СОХРАНЕНИЕ НАСТРОЕК ===
     window.saveSettings = function() {
         const rd = parseInt(document.getElementById('fight-round-dur').value);
+        const bd = parseInt(document.getElementById('fight-break-dur').value); // <-- ДОБАВЛЕНО
         const tr = parseInt(document.getElementById('fight-total-rounds').value);
 
         roundDuration = rd;
+        breakDuration = bd; // <-- ДОБАВЛЕНО
         totalRounds = tr;
 
         // Обновляем надписи на странице
@@ -306,19 +312,19 @@
         alert('Настройки применены локально!');
 
         // Попытка отправить на сервер (если URL есть)
-        // Если сервер не ответит, таймер всё равно продолжит работать
         try {
             fetch("{% url 'tournaments:timer_control' fight.tournament.id fight.id %}", {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
-                body: JSON.stringify({action: 'update_settings', total_rounds: tr, round_duration: rd})
+                // ИСПРАВЛЕНИЕ: отправляем и break_duration
+                body: JSON.stringify({action: 'update_settings', total_rounds: tr, round_duration: rd, break_duration: bd})
             }).catch(e => console.log('Сервер не принял настройки, но локально всё ок.'));
         } catch(e) {}
     };
 
     // === 3. ОЧКИ ===
-    let score1 = {{ fight.score_fighter1|default:0 }};
-    let score2 = {{ fight.score_fighter2|default:0 }};
+    let score1 = parseInt("{{ fight.score_fighter1|default:0 }}");
+    let score2 = parseInt("{{ fight.score_fighter2|default:0 }}");
 
     window.changeScore = function(fighter, delta) {
         if (fighter === 1) {
@@ -334,12 +340,12 @@
         }
     };
 
-    // Инициализация при загрузке
+    // === 4. ИНИЦИАЛИЗАЦИЯ И ВАЛИДАЦИЯ ===
     document.addEventListener('DOMContentLoaded', () => {
-        resetTimer(); // Устанавливаем 03:00 при загрузке
-    });
-        // === Проверка перед отправкой формы завершения боя ===
-    document.addEventListener('DOMContentLoaded', () => {
+        // Запускаем таймер сразу при загрузке
+        resetTimer();
+
+        // Проверка перед отправкой формы завершения боя
         const finishForm = document.getElementById('finish-form');
         if (finishForm) {
             finishForm.addEventListener('submit', function(e) {

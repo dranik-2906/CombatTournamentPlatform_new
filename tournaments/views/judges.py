@@ -175,8 +175,9 @@ def judge_fight_panel(request, fight_id):
                     method=form.cleaned_data.get('win_method', ''),
                     notes=form.cleaned_data.get('judge_notes', ''),
                     scores={
-                        'fighter1': form.cleaned_data.get('score_fighter1', 0),
-                        'fighter2': form.cleaned_data.get('score_fighter2', 0),
+                        # ИСПРАВЛЕНИЕ: Берем очки напрямую из POST-запроса, чтобы они точно сохранились
+                        'fighter1': int(request.POST.get('score_fighter1') or 0),
+                        'fighter2': int(request.POST.get('score_fighter2') or 0),
                     }
                 )
                 if success:
@@ -205,7 +206,6 @@ def judge_fight_panel(request, fight_id):
         'all_scores': all_scores,
         'rounds_range': range(1, fight.total_rounds + 1),
     })
-
 
 @login_required
 @judge_required
