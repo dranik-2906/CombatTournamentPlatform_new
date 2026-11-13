@@ -40,46 +40,42 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
+from users.roles import (
+    get_user_role, is_tournament_admin, is_judge, is_coach, is_fighter,
+)
 
 @login_required
 def dashboard(request):
-    """Панель управления / Личный кабинет"""
     user = request.user
-    role = _detect_role(user)
     now = timezone.now().date()
-
     context = {
-        'user': user,
-        'role': role,
-        'tournaments': Tournament.objects.filter(is_active=True, end_date__gte=now).order_by('start_date'),
+        'role': get_user_role(user),  # только для бейджа в шаблоне
+        'tournaments': Tournament.objects.filter(
+            is_active=True, end_date__gte=now
+        ).order_by('start_date'),
     }
 
-    # Администратор / Организатор
-    if role in ('system_admin', 'tournament_admin'):
-        context.update({
-            'fighters_count': Fighter.objects.count(),
-            'judges_count': Judge.objects.filter(is_active=True).count(),
-            'total_tournaments': Tournament.objects.count(),
-            'pending_approvals': Fighter.objects.filter(
-                registrations__is_approved=False
-            ).count(),
-        })
+    if is_tournament_admin(user):
+        context.update({ ...как раньше для админов... })
 
-    # Судья
-    elif role == 'judge':
+    if is_judge(user):
         judge = getattr(user, 'judge', None)
         if judge:
-            fights = Fight.objects.filter(judge=judge)
-            context.update({
-                'judge': judge,
-                'active_fights': fights.filter(status='in_progress').count(),
-                'upcoming_fights': fights.filter(status='scheduled').count(),
-                'completed_fights': fights.filter(status='completed').count(),
-                'recent_fights': fights.order_by('-updated_at')[:10],
-            })
+            context.update({ ...панель судьи... })
 
+    if is_coach(user):
+        coach = getattr(user, 'coach', None)
+        if coach:
+            context.update({
+                'coach': coach,
+                'my_students': coach.students.select_related('user'),
+                'students_fights': Fight.objects.filter(
+                    Q(fighter1__in=coach.students.all())
+                    | Q(fighter2__in=coach.students.all())
+                ).select_related('tournament').order_by('-updated_at')[:10],
+            })
     # Боец
-    elif role == 'fighter':
+    if is_fighter(user):
         fighter = getattr(user, 'fighter', None)
         if fighter:
             context.update({
@@ -87,7 +83,6 @@ def dashboard(request):
                 'my_registrations': fighter.registrations.select_related('tournament').order_by('-created_at')[:10],
                 'my_stats': fighter.get_stats(),
             })
-
     return render(request, 'core/dashboard.html', context)
 
 

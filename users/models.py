@@ -9,6 +9,7 @@ class Profile(models.Model):
         ('system_admin', 'Администратор системы'),
         ('tournament_admin', 'Администратор соревнований'),
         ('judge', 'Судья'),
+        ('coach', 'Тренер'),
         ('fighter', 'Участник'),
     )
 
