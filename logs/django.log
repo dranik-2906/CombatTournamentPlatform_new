@@ -10193,3 +10193,20 @@ NameError: name 'models' is not defined
 [2026-11-13 12:19:09,348] INFO django.utils.autoreload Watching for file changes with StatReloader
 [2026-11-13 12:19:30,094] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\core\views.py changed, reloading.
 [2026-11-13 12:19:30,761] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 12:22:10,932] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 12:22:18,372] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\core\views.py changed, reloading.
+[2026-11-13 12:22:19,214] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 12:23:15,789] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\core\views.py changed, reloading.
+[2026-11-13 12:23:16,398] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 12:23:19,922] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 12:25:23,305] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\decorators.py changed, reloading.
+[2026-11-13 12:25:23,927] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 12:25:26,915] INFO django.server "GET / HTTP/1.1" 200 13623
+[2026-11-13 12:25:27,014] INFO django.server "GET /static/css/style.css HTTP/1.1" 200 762
+[2026-11-13 12:25:27,801] WARNING django.request Not Found: /favicon.ico
+[2026-11-13 12:25:27,802] WARNING django.server "GET /favicon.ico HTTP/1.1" 404 3038
+[2026-11-13 12:25:34,978] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 12:25:35,001] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-13 12:25:36,047] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 12:25:42,506] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 12:25:42,529] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
