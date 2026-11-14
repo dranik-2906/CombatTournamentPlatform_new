@@ -10210,3 +10210,676 @@ NameError: name 'models' is not defined
 [2026-11-13 12:25:36,047] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
 [2026-11-13 12:25:42,506] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
 [2026-11-13 12:25:42,529] INFO django.server "GET /dashboard/ HTTP/1.1" 200 7351
+[2026-11-13 12:32:27,845] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 12:32:29,050] INFO django.server "GET / HTTP/1.1" 200 11094
+[2026-11-13 12:32:31,542] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 12:32:31,555] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-13 12:32:32,210] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 12:32:34,883] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 12:32:34,897] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11404
+[2026-11-13 12:32:37,630] INFO django.server "GET /admin/ HTTP/1.1" 200 15472
+[2026-11-13 12:32:37,702] INFO django.server "GET /static/admin/css/dark_mode.css HTTP/1.1" 200 2682
+[2026-11-13 12:32:37,703] INFO django.server "GET /static/admin/css/dashboard.css HTTP/1.1" 200 441
+[2026-11-13 12:32:37,703] INFO django.server "GET /static/admin/css/base.css HTTP/1.1" 200 21544
+[2026-11-13 12:32:37,703] INFO django.server "GET /static/admin/css/nav_sidebar.css HTTP/1.1" 200 2810
+[2026-11-13 12:32:37,706] INFO django.server "GET /static/admin/css/responsive.css HTTP/1.1" 200 17905
+[2026-11-13 12:32:37,718] INFO django.server "GET /static/admin/img/icon-addlink.svg HTTP/1.1" 200 331
+[2026-11-13 12:32:37,718] INFO django.server "GET /static/admin/img/icon-changelink.svg HTTP/1.1" 200 380
+[2026-11-13 12:32:37,724] INFO django.server "GET /static/admin/js/nav_sidebar.js HTTP/1.1" 200 3063
+[2026-11-13 12:32:37,724] INFO django.server "GET /static/admin/js/theme.js HTTP/1.1" 200 1943
+[2026-11-13 12:42:44,086] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 12:42:46,913] ERROR django.request Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 329, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: tournaments_tournament.federation_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\core\views.py", line 47, in home
+    return render(request, 'home.html', context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\defaulttags.py", line 325, in render
+    if match:
+       ^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 414, in __bool__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1562, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 329, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: tournaments_tournament.federation_id
+[2026-11-13 12:42:46,922] ERROR django.server "GET / HTTP/1.1" 500 219974
+[2026-11-13 12:43:59,153] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 12:44:01,772] INFO django.server "GET / HTTP/1.1" 200 14373
+[2026-11-13 12:44:07,922] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 12:44:07,945] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-13 12:44:08,936] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 12:44:11,387] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 12:44:11,401] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11404
+[2026-11-13 12:45:50,780] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\admin.py changed, reloading.
+[2026-11-13 12:45:51,480] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:44:37,123] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:46:03,623] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:46:05,504] INFO django.server "GET / HTTP/1.1" 200 14373
+[2026-11-13 18:46:05,941] WARNING django.request Not Found: /favicon.ico
+[2026-11-13 18:46:05,942] WARNING django.server "GET /favicon.ico HTTP/1.1" 404 3038
+[2026-11-13 18:46:10,788] ERROR django.request Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\core\views.py", line 119, in dashboard
+    return render(request, 'core/dashboard.html', context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\defaulttags.py", line 326, in render
+    return nodelist.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\urls\resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'federation_list' not found. 'federation_list' is not a valid view function or pattern name.
+[2026-11-13 18:46:10,794] ERROR django.server "GET /dashboard/ HTTP/1.1" 500 182460
+[2026-11-13 18:46:45,995] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\urls.py changed, reloading.
+[2026-11-13 18:46:46,659] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:46:53,906] INFO django.server "GET / HTTP/1.1" 200 14373
+[2026-11-13 18:46:57,088] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11871
+[2026-11-13 18:46:59,538] INFO django.server "GET /users/federations/ HTTP/1.1" 200 7855
+[2026-11-13 18:47:01,429] ERROR django.request Internal Server Error: /users/federations/create/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\views.py", line 59, in create_federation
+    return render(request, 'users/create_federation.html', {'form': form})
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader.py", line 19, in get_template
+    raise TemplateDoesNotExist(template_name, chain=chain)
+django.template.exceptions.TemplateDoesNotExist: users/create_federation.html
+[2026-11-13 18:47:01,432] ERROR django.server "GET /users/federations/create/ HTTP/1.1" 500 92856
+[2026-11-13 18:47:38,136] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\views.py changed, reloading.
+[2026-11-13 18:47:38,780] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:47:42,726] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:47:43,919] INFO django.server "GET / HTTP/1.1" 200 14373
+[2026-11-13 18:47:46,264] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11871
+[2026-11-13 18:47:47,326] INFO django.server "GET /users/federations/ HTTP/1.1" 200 7855
+[2026-11-13 18:47:48,695] INFO django.server "GET /users/federations/create/ HTTP/1.1" 200 12250
+[2026-11-13 18:48:52,984] INFO django.server "POST /users/federations/create/ HTTP/1.1" 302 0
+[2026-11-13 18:48:52,995] INFO django.server "GET /users/federations/ HTTP/1.1" 200 9155
+[2026-11-13 18:48:56,292] INFO django.server "GET /admin/users/federation/1/change/ HTTP/1.1" 200 16932
+[2026-11-13 18:48:56,325] INFO django.server "GET /static/admin/css/forms.css HTTP/1.1" 200 9090
+[2026-11-13 18:48:56,334] INFO django.server "GET /static/admin/js/jquery.init.js HTTP/1.1" 200 347
+[2026-11-13 18:48:56,337] INFO django.server "GET /static/admin/js/admin/DateTimeShortcuts.js HTTP/1.1" 200 19319
+[2026-11-13 18:48:56,338] INFO django.server "GET /static/admin/js/calendar.js HTTP/1.1" 200 9141
+[2026-11-13 18:48:56,345] INFO django.server "GET /static/admin/css/widgets.css HTTP/1.1" 200 11800
+[2026-11-13 18:48:56,350] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-13 18:48:56,356] INFO django.server "GET /static/admin/js/core.js HTTP/1.1" 200 6208
+[2026-11-13 18:48:56,363] INFO django.server "GET /static/admin/js/admin/RelatedObjectLookups.js HTTP/1.1" 200 9042
+[2026-11-13 18:48:56,366] INFO django.server "GET /static/admin/js/actions.js HTTP/1.1" 200 8067
+[2026-11-13 18:48:56,366] INFO django.server "GET /static/admin/js/urlify.js HTTP/1.1" 200 7887
+[2026-11-13 18:48:56,370] INFO django.server "GET /static/admin/js/prepopulate.js HTTP/1.1" 200 1531
+[2026-11-13 18:48:56,373] INFO django.server "GET /static/admin/js/vendor/jquery/jquery.js HTTP/1.1" 200 285314
+[2026-11-13 18:48:56,379] INFO django.server "GET /static/admin/js/prepopulate_init.js HTTP/1.1" 200 586
+[2026-11-13 18:48:56,416] INFO django.server "GET /static/admin/js/change_form.js HTTP/1.1" 200 606
+[2026-11-13 18:48:56,439] INFO django.server "GET /static/admin/js/vendor/xregexp/xregexp.js HTTP/1.1" 200 325171
+[2026-11-13 18:48:56,496] INFO django.server "GET /static/admin/img/icon-calendar.svg HTTP/1.1" 200 1086
+[2026-11-13 18:49:02,490] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 18:49:02,511] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-13 18:49:03,205] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 18:49:06,099] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 18:49:06,111] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10680
+[2026-11-13 18:49:08,590] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10680
+[2026-11-13 18:49:12,058] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 200 6856
+[2026-11-13 18:49:12,943] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 27232
+[2026-11-13 18:49:14,149] INFO django.server "GET /tournaments/ HTTP/1.1" 200 6991
+[2026-11-13 18:49:16,326] INFO django.server "GET /tournaments/create/ HTTP/1.1" 200 11661
+[2026-11-13 18:49:25,510] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 18:49:25,520] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-13 18:49:30,319] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 18:49:33,096] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 18:49:33,107] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11871
+[2026-11-13 18:49:34,290] INFO django.server "GET /users/federations/ HTTP/1.1" 200 8635
+[2026-11-13 18:49:36,482] INFO django.server "GET /users/federations/create/ HTTP/1.1" 200 12250
+[2026-11-13 18:51:32,311] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\models.py changed, reloading.
+[2026-11-13 18:51:32,966] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:52:05,645] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\forms.py changed, reloading.
+[2026-11-13 18:52:06,316] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:54:51,401] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\forms.py changed, reloading.
+[2026-11-13 18:54:52,005] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:56:19,490] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\tournaments.py changed, reloading.
+[2026-11-13 18:56:22,364] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:56:23,804] INFO django.server "GET / HTTP/1.1" 200 14373
+[2026-11-13 18:56:26,643] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11871
+[2026-11-13 18:56:28,279] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 18:56:28,299] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-13 18:56:28,969] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 18:56:32,013] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 18:56:32,023] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10680
+[2026-11-13 18:56:36,675] ERROR django.request Internal Server Error: /tournaments/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 236, in __get__
+    rel_obj = self.field.get_cached_value(instance)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\mixins.py", line 15, in get_cached_value
+    return instance._state.fields_cache[cache_name]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'federation'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 329, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: users_federation.sports
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\views\tournaments.py", line 24, in tournament_list
+    federation = getattr(user.profile, 'federation', None)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 254, in __get__
+    rel_obj = self.get_object(instance)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 217, in get_object
+    return qs.get(self.field.get_reverse_related_filter(instance))
+           ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 645, in get
+    num = len(clone)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 382, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1562, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 329, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: users_federation.sports
+[2026-11-13 18:56:36,681] ERROR django.server "GET /tournaments/ HTTP/1.1" 500 164920
+[2026-11-13 18:57:50,414] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 18:57:51,630] INFO django.server "GET / HTTP/1.1" 200 12890
+[2026-11-13 18:57:53,358] INFO django.server "GET /tournaments/ HTTP/1.1" 200 6991
+[2026-11-13 18:57:54,730] INFO django.server "GET /tournaments/create/ HTTP/1.1" 200 11661
+[2026-11-13 18:57:57,750] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 18:57:57,778] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-13 18:57:59,202] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 18:58:01,610] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 18:58:01,623] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11871
+[2026-11-13 18:58:02,877] INFO django.server "GET /users/federations/ HTTP/1.1" 200 8635
+[2026-11-13 18:58:05,484] INFO django.server "GET /admin/users/federation/1/change/ HTTP/1.1" 200 17845
+[2026-11-13 18:58:05,520] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-13 18:58:07,276] INFO django.server "GET /admin/users/federation/1/delete/ HTTP/1.1" 200 13855
+[2026-11-13 18:58:07,348] INFO django.server "GET /static/admin/js/cancel.js HTTP/1.1" 200 884
+[2026-11-13 18:58:08,704] INFO django.server "POST /admin/users/federation/1/delete/ HTTP/1.1" 302 0
+[2026-11-13 18:58:08,776] INFO django.server "GET /admin/users/federation/ HTTP/1.1" 200 14911
+[2026-11-13 18:58:08,807] INFO django.server "GET /admin/jsi18n/ HTTP/1.1" 200 17546
+[2026-11-13 18:58:08,812] INFO django.server "GET /static/admin/css/changelists.css HTTP/1.1" 200 6811
+[2026-11-13 18:58:08,813] INFO django.server "GET /static/admin/img/search.svg HTTP/1.1" 200 458
+[2026-11-13 18:58:08,831] INFO django.server "GET /static/admin/js/filters.js HTTP/1.1" 200 978
+[2026-11-13 18:58:08,842] INFO django.server "GET /static/admin/img/icon-yes.svg HTTP/1.1" 200 436
+[2026-11-13 18:58:08,842] INFO django.server "GET /static/admin/img/icon-viewlink.svg HTTP/1.1" 200 581
+[2026-11-13 18:58:08,842] INFO django.server "GET /static/admin/img/tooltag-add.svg HTTP/1.1" 200 331
+[2026-11-13 18:58:10,295] INFO django.server "GET /admin/users/federation/1/delete/ HTTP/1.1" 302 0
+[2026-11-13 18:58:10,317] INFO django.server "GET /admin/ HTTP/1.1" 200 16594
+[2026-11-13 18:58:10,352] INFO django.server "GET /static/admin/img/icon-alert.svg HTTP/1.1" 200 504
+[2026-11-13 18:58:10,364] INFO django.server "GET /static/admin/img/icon-deletelink.svg HTTP/1.1" 200 392
+[2026-11-13 18:58:15,708] INFO django.server "GET / HTTP/1.1" 200 14373
+[2026-11-13 18:58:17,603] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11871
+[2026-11-13 18:58:18,386] INFO django.server "GET /users/federations/ HTTP/1.1" 200 7855
+[2026-11-13 18:58:19,549] INFO django.server "GET /users/federations/create/ HTTP/1.1" 200 14817
+[2026-11-13 18:59:08,582] INFO django.server "POST /users/federations/create/ HTTP/1.1" 200 15159
+[2026-11-13 18:59:16,331] INFO django.server "POST /users/federations/create/ HTTP/1.1" 302 0
+[2026-11-13 18:59:16,342] INFO django.server "GET /users/federations/ HTTP/1.1" 200 9111
+[2026-11-13 18:59:18,467] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 18:59:18,484] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-13 18:59:19,137] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 18:59:21,666] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 18:59:21,679] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10682
+[2026-11-13 18:59:22,875] INFO django.server "GET /tournaments/ HTTP/1.1" 200 6992
+[2026-11-13 18:59:23,758] INFO django.server "GET /tournaments/create/ HTTP/1.1" 200 11424
+[2026-11-13 18:59:52,276] INFO django.server "POST /tournaments/create/ HTTP/1.1" 302 0
+[2026-11-13 18:59:52,287] INFO django.server "GET /tournaments/ HTTP/1.1" 200 9068
+[2026-11-13 18:59:54,778] INFO django.server "GET /dashboard/ HTTP/1.1" 200 10682
+[2026-11-13 19:02:22,877] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:02:24,256] INFO django.server "GET / HTTP/1.1" 200 15026
+[2026-11-13 19:02:32,440] ERROR django.request Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 502, in parse
+    compile_func = self.tags[command]
+                   ~~~~~~~~~^^^^^^^^^
+KeyError: 'endif'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\core\views.py", line 119, in dashboard
+    return render(request, 'core/dashboard.html', context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader.py", line 61, in render_to_string
+    template = get_template(template_name, using=using)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader.py", line 15, in get_template
+    return engine.get_template(template_name)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\backends\django.py", line 33, in get_template
+    return Template(self.engine.get_template(template_name), self)
+                    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\engine.py", line 177, in get_template
+    template, origin = self.find_template(template_name)
+                       ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\engine.py", line 159, in find_template
+    template = loader.get_template(name, skip=skip)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loaders\cached.py", line 57, in get_template
+    template = super().get_template(template_name, skip)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loaders\base.py", line 28, in get_template
+    return Template(
+        contents,
+    ...<2 lines>...
+        self.engine,
+    )
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 154, in __init__
+    self.nodelist = self.compile_nodelist()
+                    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 196, in compile_nodelist
+    return parser.parse()
+           ~~~~~~~~~~~~^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader_tags.py", line 295, in do_extends
+    nodelist = parser.parse()
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 510, in parse
+    raise self.error(token, e)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 508, in parse
+    compiled_result = compile_func(self, token)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader_tags.py", line 234, in do_block
+    nodelist = parser.parse(("endblock",))
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 504, in parse
+    self.invalid_block_tag(token, command, parse_until)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 555, in invalid_block_tag
+    raise self.error(
+    ...<8 lines>...
+    )
+django.template.exceptions.TemplateSyntaxError: Invalid block tag on line 154: 'endif', expected 'endblock'. Did you forget to register or load this tag?
+[2026-11-13 19:02:32,446] ERROR django.server "GET /dashboard/ HTTP/1.1" 500 263586
+[2026-11-13 19:02:44,465] ERROR django.request Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\core\views.py", line 119, in dashboard
+    return render(request, 'core/dashboard.html', context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\defaulttags.py", line 326, in render
+    return nodelist.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\urls\resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'coach_list' not found. 'coach_list' is not a valid view function or pattern name.
+[2026-11-13 19:02:44,469] ERROR django.server "GET /dashboard/ HTTP/1.1" 500 186913
+[2026-11-13 19:04:33,964] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\urls.py changed, reloading.
+[2026-11-13 19:04:34,613] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:05:19,417] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\templates\tournaments\coach_list.html.py changed, reloading.
+[2026-11-13 19:05:20,034] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:06:26,530] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\templates\tournaments\add_coach.html.py changed, reloading.
+[2026-11-13 19:06:27,120] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:06:49,237] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\templates\tournaments\add_coach.html.py changed, reloading.
+[2026-11-13 19:06:49,832] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:08:40,688] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\urls.py changed, reloading.
+[2026-11-13 19:08:41,321] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:10:17,356] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:10:20,009] INFO django.server "GET / HTTP/1.1" 200 14927
+[2026-11-13 19:10:22,953] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11685
+[2026-11-13 19:10:26,549] INFO django.server "GET /tournaments/coaches/ HTTP/1.1" 200 6164
+[2026-11-13 19:10:28,156] INFO django.server "GET /tournaments/coaches/add/ HTTP/1.1" 200 7694
+[2026-11-13 19:10:58,401] INFO django.server "POST /tournaments/coaches/add/ HTTP/1.1" 302 0
+[2026-11-13 19:10:58,413] INFO django.server "GET /tournaments/coaches/ HTTP/1.1" 200 6865
+[2026-11-13 19:11:00,219] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 19:11:00,243] INFO django.server "GET / HTTP/1.1" 200 10952
+[2026-11-13 19:11:00,914] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 19:11:06,318] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 19:11:06,326] INFO django.server "GET /dashboard/ HTTP/1.1" 200 9521
+[2026-11-13 19:11:09,126] INFO django.server "GET /tournaments/judges/ HTTP/1.1" 302 0
+[2026-11-13 19:11:09,151] INFO django.server "GET / HTTP/1.1" 200 12651
+[2026-11-13 19:11:13,285] INFO django.server "GET /tournaments/create/ HTTP/1.1" 200 11324
+[2026-11-13 19:11:15,591] INFO django.server "GET /tournaments/participants/ HTTP/1.1" 302 0
+[2026-11-13 19:11:15,614] INFO django.server "GET / HTTP/1.1" 200 12651
+[2026-11-13 19:11:19,961] INFO django.server "GET /tournaments/ HTTP/1.1" 200 8465
+[2026-11-13 19:11:21,579] INFO django.server "GET /tournaments/7/ HTTP/1.1" 200 8579
+[2026-11-13 19:12:15,774] INFO django.server "GET /tournaments/ HTTP/1.1" 200 8465
+[2026-11-13 19:12:16,723] INFO django.server "GET /tournaments/7/ HTTP/1.1" 200 8579
+[2026-11-13 19:12:21,098] INFO django.server "GET /tournaments/ HTTP/1.1" 200 8465
+[2026-11-13 19:12:23,148] INFO django.server "GET /tournaments/7/ HTTP/1.1" 200 8579
+[2026-11-13 19:12:25,742] INFO django.server "GET /tournaments/7/fights/ HTTP/1.1" 200 10581
+[2026-11-13 19:12:34,889] INFO django.server "GET /dashboard/ HTTP/1.1" 200 9521
+[2026-11-13 19:14:27,185] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 19:14:27,199] INFO django.server "GET / HTTP/1.1" 200 10952
+[2026-11-13 19:14:27,777] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 19:14:32,660] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 19:14:32,671] INFO django.server "GET /dashboard/ HTTP/1.1" 200 12874
+[2026-11-13 19:14:36,027] INFO django.server "GET /admin/ HTTP/1.1" 200 16361
+[2026-11-13 19:14:40,427] INFO django.server "GET /tournaments/coaches/ HTTP/1.1" 200 7892
+[2026-11-13 19:14:41,338] INFO django.server "GET /tournaments/coaches/add/ HTTP/1.1" 200 9126
+[2026-11-13 19:17:34,337] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\models.py changed, reloading.
+[2026-11-13 19:17:35,048] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:24:10,663] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:24:12,001] INFO django.server "GET / HTTP/1.1" 200 16362
+[2026-11-13 19:24:17,321] INFO django.server "GET /dashboard/ HTTP/1.1" 200 12143
+[2026-11-13 19:24:18,166] INFO django.server "GET /users/federations/ HTTP/1.1" 200 8521
+[2026-11-13 19:24:19,791] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 19:24:19,816] INFO django.server "GET / HTTP/1.1" 200 10952
+[2026-11-13 19:24:20,377] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-13 19:24:25,382] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-13 19:24:25,431] ERROR django.request Internal Server Error: /dashboard/
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\contrib\auth\decorators.py", line 23, in _wrapper_view
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\core\views.py", line 119, in dashboard
+    return render(request, 'core/dashboard.html', context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 171, in render
+    return self._render(context)
+           ~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader_tags.py", line 159, in render
+    return compiled_parent._render(context)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 163, in _render
+    return self.nodelist.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader_tags.py", line 65, in render
+    result = block.nodelist.render(context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\defaulttags.py", line 326, in render
+    return nodelist.render(context)
+           ~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 1000, in render
+    return SafeString("".join([node.render_annotated(context) for node in self]))
+                               ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 961, in render_annotated
+    return self.render(context)
+           ~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\defaulttags.py", line 479, in render
+    url = reverse(view_name, args=args, kwargs=kwargs, current_app=current_app)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\urls\base.py", line 88, in reverse
+    return resolver._reverse_with_prefix(view, prefix, *args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\urls\resolvers.py", line 851, in _reverse_with_prefix
+    raise NoReverseMatch(msg)
+django.urls.exceptions.NoReverseMatch: Reverse for 'coach_import_excel' not found. 'coach_import_excel' is not a valid view function or pattern name.
+[2026-11-13 19:24:25,437] ERROR django.server "GET /dashboard/ HTTP/1.1" 500 181585
+[2026-11-13 19:26:09,516] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\tournaments\urls.py changed, reloading.
+[2026-11-13 19:26:10,269] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:27:34,628] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-13 19:27:36,026] INFO django.server "GET / HTTP/1.1" 200 12247
+[2026-11-13 19:27:41,228] INFO django.server "GET /tournaments/ HTTP/1.1" 200 8465
+[2026-11-13 19:27:42,390] INFO django.server "GET /tournaments/7/ HTTP/1.1" 200 8579
+[2026-11-13 19:27:43,988] INFO django.server "GET / HTTP/1.1" 200 12247
+[2026-11-13 19:27:45,603] INFO django.server "GET /dashboard/ HTTP/1.1" 200 8346
+[2026-11-13 19:27:46,928] INFO django.server "GET /tournaments/coach/fighters/add/ HTTP/1.1" 200 7326
+[2026-11-13 19:27:58,359] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-13 19:27:58,384] INFO django.server "GET / HTTP/1.1" 200 10952
+[2026-11-14 17:18:09,330] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-14 17:18:17,978] INFO django.utils.autoreload Watching for file changes with StatReloader

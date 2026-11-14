@@ -11,36 +11,31 @@ from ..forms import TournamentForm
 logger = logging.getLogger('tournaments')
 
 
+@login_required
 def tournament_list(request):
-    """Список турниров"""
-    queryset = Tournament.objects.annotate(
-        reg_count=Count('registrations'),
-        fight_count=Count('fights')
-    ).order_by('-start_date')
+    user = request.user
 
-    # Фильтры
-    status = request.GET.get('status')
-    search = request.GET.get('search')
+    # Системный админ видит ВСЕ турниры
+    if user.is_superuser or getattr(user.profile, 'role', '') == 'system_admin':
+        tournaments = Tournament.objects.all()
 
-    if status == 'active':
-        queryset = queryset.filter(is_active=True)
-    elif status == 'completed':
-        queryset = queryset.filter(is_active=False)
+    # Админ турнира видит ТОЛЬКО турниры своей федерации
+    elif getattr(user.profile, 'role', '') == 'tournament_admin':
+        federation = getattr(user.profile, 'federation', None)
+        if federation:
+            tournaments = Tournament.objects.filter(federation=federation)
+        else:
+            tournaments = Tournament.objects.none()  # Если федерации нет, не видит ничего
 
-    if search:
-        queryset = queryset.filter(
-            Q(name__icontains=search) | Q(location__icontains=search)
-        )
+    # Судьи, тренеры и бойцы видят турниры своей федерации
+    else:
+        federation = getattr(user.profile, 'federation', None)
+        if federation:
+            tournaments = Tournament.objects.filter(federation=federation)
+        else:
+            tournaments = Tournament.objects.none()
 
-    paginator = Paginator(queryset, 10)
-    page = request.GET.get('page')
-    tournaments = paginator.get_page(page)
-
-    return render(request, 'tournaments/tournament_list.html', {
-        'tournaments': tournaments,
-        'status_filter': status or '',
-        'search_query': search or '',
-    })
+    return render(request, 'tournaments/tournament_list.html', {'tournaments': tournaments})
 
 
 def tournament_detail(request, pk):
@@ -81,21 +76,23 @@ def tournament_detail(request, pk):
 
 
 @login_required
-@tournament_admin_required
 def create_tournament(request):
-    """Создание турнира"""
     if request.method == 'POST':
-        form = TournamentForm(request.POST)
+        # ИЗМЕНЕНИЕ: Передаем user=request.user для фильтрации видов спорта
+        form = TournamentForm(request.POST, user=request.user)
         if form.is_valid():
-            tournament = form.save()
-            messages.success(request, f'Турнир "{tournament.name}" создан')
-            logger.info(f"Турнир #{tournament.id} создан пользователем {request.user}")
-            return redirect('tournaments:tournament_detail', pk=tournament.pk)
-        else:
-            messages.error(request, 'Исправьте ошибки в форме')
-    else:
-        form = TournamentForm()
+            tournament = form.save(commit=False)
 
+            # Привязываем к федерации текущего админа (если он не суперюзер)
+            if not request.user.is_superuser and hasattr(request.user, 'profile'):
+                tournament.federation = request.user.profile.federation
+
+            tournament.save()
+            messages.success(request, 'Турнир успешно создан')
+            return redirect('tournaments:tournament_list')
+    else:
+        # ИЗМЕНЕНИЕ: Передаем user=request.user
+        form = TournamentForm(user=request.user)
     return render(request, 'tournaments/create_tournament.html', {'form': form})
 
 
@@ -105,13 +102,15 @@ def edit_tournament(request, pk):
     """Редактирование турнира"""
     tournament = get_object_or_404(Tournament, pk=pk)
     if request.method == 'POST':
-        form = TournamentForm(request.POST, instance=tournament)
+        # ИЗМЕНЕНИЕ: Передаем user=request.user
+        form = TournamentForm(request.POST, instance=tournament, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Турнир обновлён')
             return redirect('tournaments:tournament_detail', pk=pk)
     else:
-        form = TournamentForm(instance=tournament)
+        # ИЗМЕНЕНИЕ: Передаем user=request.user
+        form = TournamentForm(instance=tournament, user=request.user)
     return render(request, 'tournaments/edit_tournament.html', {
         'form': form, 'tournament': tournament
     })

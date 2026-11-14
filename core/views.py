@@ -1,6 +1,7 @@
 import logging
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 from django.db.models import Count, Q
 from django.utils import timezone
 from tournaments.models import Tournament, Fighter, Judge, Fight
@@ -11,6 +12,7 @@ from users.roles import (
 )
 
 logger = logging.getLogger('users')
+User = get_user_model()
 
 
 def home(request):
@@ -64,6 +66,7 @@ def dashboard(request):
             'judges_count': Judge.objects.filter(is_active=True).count(),
             'tournaments_count': Tournament.objects.filter(is_active=True).count(),
             'pending_registrations': 0,  # Заглушка, если нет модели регистраций
+            'total_users': User.objects.count(), # ДОБАВЛЕНО для карточки системного админа
         })
 
     # === ПАНЕЛЬ СУДЬИ ===
@@ -101,10 +104,15 @@ def dashboard(request):
     if is_fighter(user):
         fighter = getattr(user, 'fighter', None)
         if fighter:
+            # ДОБАВЛЕНО: получаем бои бойца для отображения побед/поражений
+            my_fights = Fight.objects.filter(
+                Q(fighter1=fighter) | Q(fighter2=fighter)
+            ).select_related('tournament', 'fighter1', 'fighter2').order_by('-updated_at')
+
             context.update({
                 'fighter': fighter,
                 'my_registrations': fighter.registrations.select_related('tournament').order_by('-created_at')[:10],
-                # Если метода get_stats нет, замени на свою логику
+                'my_fights': my_fights, # <-- Передаем бои бойца
                 'my_stats': getattr(fighter, 'get_stats', lambda: {})() if hasattr(fighter, 'get_stats') else {},
             })
 

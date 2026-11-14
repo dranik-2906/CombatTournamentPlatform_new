@@ -33,7 +33,7 @@
 
                     {% if user.is_authenticated %}
                         <!-- Управление: админам и организаторам -->
-                        {% if user.is_superuser or user_role.label == 'Администратор' or user_role.label == 'Организатор' %}
+                        {% if role == 'system_admin' or role == 'tournament_admin' or user.is_superuser %}
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
                                     <i class="fas fa-cog me-1"></i>Управление
@@ -41,6 +41,8 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="{% url 'tournaments:participants_management' %}"><i class="fas fa-users me-2"></i>Участники</a></li>
                                     <li><a class="dropdown-item" href="{% url 'tournaments:judge_list' %}"><i class="fas fa-gavel me-2"></i>Судьи</a></li>
+                                    <!-- АКТИВИРОВАНА ССЫЛКА НА ТРЕНЕРОВ -->
+                                    <li><a class="dropdown-item" href="{% url 'tournaments:coach_list' %}"><i class="fas fa-chalkboard-teacher me-2"></i>Тренеры</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{% url 'tournaments:create_tournament' %}"><i class="fas fa-plus me-2"></i>Создать турнир</a></li>
                                 </ul>
@@ -48,10 +50,19 @@
                         {% endif %}
 
                         <!-- Панель судьи -->
-                        {% if user_role and user_role.label == 'Судья' %}
+                        {% if role == 'judge' %}
                             <li class="nav-item">
                                 <a class="nav-link" href="{% url 'tournaments:judge_dashboard' %}">
                                     <i class="fas fa-gavel me-1"></i>Панель судьи
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        <!-- Панель тренера (ссылка на дашборд) -->
+                        {% if role == 'coach' %}
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'core:dashboard' %}">
+                                    <i class="fas fa-chalkboard-teacher me-1"></i>Мои бойцы
                                 </a>
                             </li>
                         {% endif %}
@@ -64,15 +75,27 @@
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
                                 <i class="fas fa-user-circle me-1"></i>
                                 <span>{{ user.username }}</span>
+
+                                <!-- БЕЙДЖ РОЛИ -->
                                 {% if user_role %}
                                     <span class="badge {{ user_role.badge_class }} {{ user_role.text_class }} ms-2">
                                         <i class="fas {{ user_role.icon }} me-1"></i>{{ user_role.label }}
                                     </span>
+                                {% elif role == 'system_admin' %}
+                                    <span class="badge bg-danger ms-2"><i class="fas fa-shield-alt me-1"></i>Системный админ</span>
+                                {% elif role == 'tournament_admin' %}
+                                    <span class="badge bg-primary ms-2"><i class="fas fa-user-tie me-1"></i>Администратор</span>
+                                {% elif role == 'judge' %}
+                                    <span class="badge bg-warning text-dark ms-2"><i class="fas fa-gavel me-1"></i>Судья</span>
+                                {% elif role == 'coach' %}
+                                    <span class="badge bg-info text-dark ms-2"><i class="fas fa-users me-1"></i>Тренер</span>
+                                {% elif role == 'fighter' %}
+                                    <span class="badge bg-success ms-2"><i class="fas fa-fist-raised me-1"></i>Участник</span>
                                 {% endif %}
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <!-- "Мои регистрации" только участникам -->
-                                {% if user_role and user_role.label == 'Участник' %}
+                                {% if role == 'fighter' %}
                                     <li><a class="dropdown-item" href="{% url 'tournaments:my_registrations' %}"><i class="fas fa-user-check me-2"></i>Мои регистрации</a></li>
                                 {% endif %}
 
@@ -80,7 +103,8 @@
 
                                 <li><hr class="dropdown-divider"></li>
 
-                                {% if user.is_superuser %}
+                                <!-- Джанго Админка только для системного админа или суперюзера -->
+                                {% if role == 'system_admin' or user.is_superuser %}
                                     <li><a class="dropdown-item" href="/admin/"><i class="fas fa-user-shield me-2"></i>Django Admin</a></li>
                                 {% endif %}
 

@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Импорт Excel{% endblock %}
+{% block content %}
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    Импорт бойцов из Excel для тренеров находится в разработке. Пожалуйста, добавляйте бойцов вручную.
+</div>
+<a href="{% url 'tournaments:coach_my_fighters' %}" class="btn btn-secondary">Назад к моим бойцам</a>
+{% endblock %}

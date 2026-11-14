@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% block title %}Мои бойцы{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-users text-info me-2"></i>Мои бойцы</h2>
+    <a href="{% url 'tournaments:coach_add_fighter' %}" class="btn btn-info text-white">
+        <i class="fas fa-plus me-1"></i>Добавить бойца
+    </a>
+</div>
+<div class="card shadow-sm">
+    <table class="table table-hover mb-0">
+        <thead class="table-dark">
+            <tr>
+                <th>ФИО</th>
+                <th>Вес</th>
+                <th>Клуб</th>
+                <th>Статус заявок</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in fighters %}
+            <tr>
+                <td>{{ f.last_name }} {{ f.first_name }}</td>
+                <td>{{ f.weight }} кг</td>
+                <td>{{ f.club }}</td>
+                <td>
+                    {% for reg in f.registrations.all %}
+                        <span class="badge {% if reg.is_approved %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                            {{ reg.tournament.name }} - {% if reg.is_approved %}Допущен{% else %}Ожидает{% endif %}
+                        </span>
+                    {% empty %}
+                        <span class="text-muted">Нет заявок</span>
+                    {% endfor %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="text-center py-4 text-muted">У вас пока нет бойцов.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

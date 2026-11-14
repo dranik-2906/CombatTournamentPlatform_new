@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Tournament, AgeWeightCategory, TournamentRegistration, Judge, TimerSettings, Fight, RoundScore, Fighter, TournamentCheckpoint
+from .models import Tournament, AgeWeightCategory, TournamentRegistration, Judge, TimerSettings, Fight, RoundScore, \
+    Fighter, TournamentCheckpoint
 from .models.tournament import SPORT_TYPES
 
 
@@ -18,11 +19,29 @@ class TournamentForm(forms.ModelForm):
             'bracket_type': forms.Select(attrs={'class': 'form-select'}),
         }
 
+    # НОВЫЙ МЕТОД ДЛЯ ФИЛЬТРАЦИИ ВИДОВ СПОРТА ПО ФЕДЕРАЦИИ
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+
+        if user and not user.is_superuser and hasattr(user, 'profile') and user.profile.federation:
+            federation = user.profile.federation
+            if federation.sports:
+                # Превращаем строку "boxing,mma" в список ["boxing", "mma"]
+                allowed_sports = [s.strip() for s in federation.sports.split(',') if s.strip()]
+
+                # Фильтруем доступные варианты
+                self.fields['sport_type'].choices = [
+                    (value, label) for value, label in self.fields['sport_type'].choices
+                    if value in allowed_sports
+                ]
+
 
 class AgeWeightCategoryForm(forms.ModelForm):
     class Meta:
         model = AgeWeightCategory
-        fields = ['name', 'gender', 'min_birth_year', 'max_birth_year', 'min_weight', 'max_weight', 'bracket_system', 'side_judges_count']
+        fields = ['name', 'gender', 'min_birth_year', 'max_birth_year', 'min_weight', 'max_weight', 'bracket_system',
+                  'side_judges_count']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'gender': forms.Select(attrs={'class': 'form-select'}),
@@ -77,14 +96,13 @@ class AssignJudgeForm(forms.Form):
 class FightResultForm(forms.ModelForm):
     class Meta:
         model = Fight
-        # ДОБАВЛЕНО: score_fighter1 и score_fighter2
+        # Сохранены добавленные поля score_fighter1 и score_fighter2
         fields = ['winner', 'win_method', 'judge_notes', 'is_draw', 'score_fighter1', 'score_fighter2']
         widgets = {
             'winner': forms.Select(attrs={'class': 'form-select'}),
             'win_method': forms.Select(attrs={'class': 'form-select'}),
             'judge_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'is_draw': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            # ДОБАВЛЕНО: стили для полей ввода очков
             'score_fighter1': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
             'score_fighter2': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
         }
@@ -121,7 +139,8 @@ class FightResultForm(forms.ModelForm):
 class JudgeForm(forms.ModelForm):
     class Meta:
         model = Judge
-        fields = ['first_name', 'last_name', 'date_of_birth', 'category', 'judge_type', 'license_number', 'experience_years', 'is_active']
+        fields = ['first_name', 'last_name', 'date_of_birth', 'category', 'judge_type', 'license_number',
+                  'experience_years', 'is_active']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -136,6 +155,7 @@ class JudgeForm(forms.ModelForm):
             'date_of_birth': 'Дата рождения (для пароля)',
             'judge_type': 'Тип судьи',
         }
+
 
 class TimerSettingsForm(forms.ModelForm):
     class Meta:

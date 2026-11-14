@@ -39,6 +39,8 @@ class Tournament(models.Model):
     is_active = models.BooleanField(default=True, verbose_name='Активный')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+    federation = models.ForeignKey('users.Federation', on_delete=models.CASCADE, null=True, blank=True,
+                                   verbose_name="Федерация")
 
     class Meta:
         verbose_name = 'Турнир'

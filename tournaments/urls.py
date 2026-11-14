@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import coaches
 
 app_name = 'tournaments'
 
@@ -73,4 +74,11 @@ urlpatterns = [
     path('<int:tournament_id>/auto-assign/', views.auto_assign_categories_view, name='auto_assign'),
     path('fighters/', views.fighter_list, name='fighter_list'),
     path('fighters/<int:pk>/', views.fighter_detail, name='fighter_detail'),
+
+    # НОВЫЕ ПУТИ ДЛЯ ТРЕНЕРОВ
+    path('coaches/', coaches.coach_list, name='coach_list'),
+    path('coaches/add/', coaches.add_coach, name='add_coach'),\
+    path('coach/fighters/', coaches.coach_my_fighters, name='coach_my_fighters'),
+    path('coach/fighters/add/', coaches.coach_add_fighter, name='coach_add_fighter'),
+    path('coach/fighters/import/', coaches.coach_import_excel, name='coach_import_excel'),
 ]
