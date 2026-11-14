@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <div class="card shadow-sm border-danger">
+            <div class="card-body">
+                <h3 class="text-danger mb-4">Удалить бойца?</h3>
+                <p>Вы уверены, что хотите удалить <strong>{{ fighter.last_name }} {{ fighter.first_name }}</strong> из системы?<br>Это действие нельзя отменить.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger btn-lg w-100 mb-2">Да, удалить</button>
+                    <a href="{% url 'tournaments:coach_my_fighters' %}" class="btn btn-outline-secondary w-100">Отмена</a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

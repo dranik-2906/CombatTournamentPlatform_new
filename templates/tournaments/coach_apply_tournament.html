@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Подача заявок{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-info">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0"><i class="fas fa-file-signature me-2"></i>Подача заявок на турнир</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">1. Выберите турнир</label>
+                        <select name="tournament_id" class="form-select" required>
+                            <option value="">--- Выберите турнир ---</option>
+                            {% for t in tournaments %}
+                                <option value="{{ t.id }}">{{ t.name }} ({{ t.start_date|date:"d.m.Y" }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">2. Отметьте бойцов для участия</label>
+                        <div class="list-group">
+                            {% for f in fighters %}
+                            <label class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <input class="form-check-input me-2" type="checkbox" name="fighters" value="{{ f.id }}">
+                                    <strong>{{ f.last_name }} {{ f.first_name }}</strong>
+                                </div>
+                                <span class="badge bg-secondary">{{ f.weight }} кг</span>
+                            </label>
+                            {% empty %}
+                            <p class="text-muted">У вас нет бойцов в клубе.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-info text-white btn-lg">
+                            <i class="fas fa-paper-plane me-2"></i>Отправить заявки
+                        </button>
+                        <a href="{% url 'tournaments:coach_my_fighters' %}" class="btn btn-outline-secondary">Отмена</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

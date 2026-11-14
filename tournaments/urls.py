@@ -79,10 +79,14 @@ urlpatterns = [
     path('coaches/', coaches.coach_list, name='coach_list'),
     path('coaches/add/', coaches.add_coach, name='add_coach'),
     path('coaches/<int:coach_id>/edit/', coaches.edit_coach, name='edit_coach'),
+    path('coaches/<int:coach_id>/delete/', coaches.delete_coach, name='delete_coach'),
 
     # Панель тренера (сам тренер)
     path('coach/fighters/', coaches.coach_my_fighters, name='coach_my_fighters'),
     path('coach/fighters/add/', coaches.coach_add_fighter, name='coach_add_fighter'),
     path('coach/fighters/import/', coaches.coach_import_excel, name='coach_import_excel'),
+    path('coach/fighters/apply/', coaches.coach_apply_tournament, name='coach_apply_tournament'),
+    path('coach/fighters/<int:fighter_id>/edit/', coaches.coach_edit_fighter, name='coach_edit_fighter'),
+    path('coach/fighters/<int:fighter_id>/delete/', coaches.coach_delete_fighter, name='coach_delete_fighter'),
 
 ]

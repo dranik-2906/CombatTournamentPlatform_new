@@ -201,3 +201,118 @@ def coach_import_excel(request):
         return redirect('tournaments:coach_my_fighters')
 
     return render(request, 'tournaments/coach_import_excel.html')
+
+
+@login_required
+@coach_required
+def coach_apply_tournament(request):
+    """Массовая подача заявок на турнир"""
+    coach_profile = request.user.profile
+    club_name = coach_profile.club
+
+    if not club_name:
+        messages.error(request, 'У вас не указан клуб.')
+        return redirect('tournaments:coach_my_fighters')
+
+    fighters = Fighter.objects.filter(club=club_name)
+
+    if request.method == 'POST':
+        tournament_id = request.POST.get('tournament_id')
+        fighter_ids = request.POST.getlist('fighters')  # Получаем список ID бойцов из чекбоксов
+
+        if not tournament_id or not fighter_ids:
+            messages.error(request, 'Выберите турнир и хотя бы одного бойца.')
+            return redirect('tournaments:coach_apply_tournament')
+
+        tournament = get_object_or_404(Tournament, id=tournament_id)
+        added_count = 0
+
+        for f_id in fighter_ids:
+            fighter = get_object_or_404(Fighter, id=f_id)
+            # Проверяем, не подан ли уже
+            if not TournamentRegistration.objects.filter(tournament=tournament, fighter=fighter).exists():
+                TournamentRegistration.objects.create(
+                    tournament=tournament,
+                    fighter=fighter,
+                    is_approved=False
+                )
+                added_count += 1
+
+        messages.success(request, f'Успешно подано {added_count} заявок на турнир "{tournament.name}"!')
+        return redirect('tournaments:coach_my_fighters')
+
+    # Для GET запроса
+    tournaments = Tournament.objects.filter(is_active=True)
+    return render(request, 'tournaments/coach_apply_tournament.html', {
+        'fighters': fighters,
+        'tournaments': tournaments
+    })
+
+
+@login_required
+@coach_required
+def coach_edit_fighter(request, fighter_id):
+    """Редактирование бойца тренером"""
+    fighter = get_object_or_404(Fighter, id=fighter_id)
+
+    # Проверка, что боец из клуба этого тренера
+    if fighter.club != request.user.profile.club:
+        messages.error(request, 'Вы можете редактировать только своих бойцов')
+        return redirect('tournaments:coach_my_fighters')
+
+    if request.method == 'POST':
+        fighter.first_name = request.POST.get('first_name')
+        fighter.last_name = request.POST.get('last_name')
+        fighter.weight = request.POST.get('weight')
+        fighter.date_of_birth = request.POST.get('date_of_birth')
+        fighter.save()
+
+        messages.success(request, 'Данные бойца обновлены!')
+        return redirect('tournaments:coach_my_fighters')
+
+    return render(request, 'tournaments/coach_edit_fighter.html', {'fighter': fighter})
+
+
+@login_required
+@coach_required
+def coach_delete_fighter(request, fighter_id):
+    """Удаление бойца тренером"""
+    fighter = get_object_or_404(Fighter, id=fighter_id)
+
+    if fighter.club != request.user.profile.club:
+        messages.error(request, 'Вы можете удалять только своих бойцов')
+        return redirect('tournaments:coach_my_fighters')
+
+    if request.method == 'POST':
+        user = fighter.user  # Запоминаем пользователя
+        fighter.delete()  # Удаляем бойца
+        user.delete()  # Удаляем аккаунт пользователя
+        messages.success(request, 'Боец удален из системы.')
+        return redirect('tournaments:coach_my_fighters')
+
+    return render(request, 'tournaments/coach_delete_fighter.html', {'fighter': fighter})
+
+
+@login_required
+@tournament_admin_required
+def delete_coach(request, coach_id):
+    """Удаление тренера"""
+    coach_user = get_object_or_404(User, id=coach_id, profile__role='coach')
+
+    # Проверка прав: админ федерации может удалять только своих тренеров
+    if not request.user.is_superuser:
+        if coach_user.profile.federation != request.user.profile.federation:
+            messages.error(request, 'Вы можете удалять только тренеров своей федерации')
+            return redirect('tournaments:coach_list')
+
+    if request.method == 'POST':
+        name = f"{coach_user.first_name} {coach_user.last_name}".strip()
+
+        # Удаляем пользователя (профиль удалится автоматически благодаря CASCADE в модели)
+        coach_user.delete()
+
+        messages.success(request, f'Тренер {name} успешно удален из системы.')
+        return redirect('tournaments:coach_list')
+
+    # Если это GET-запрос (хотя мы будем удалять через POST), покажем страницу подтверждения
+    return render(request, 'tournaments/confirm_delete_coach.html', {'coach': coach_user})

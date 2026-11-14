@@ -97,29 +97,6 @@
 
   /* ===== ПАНЕЛЬ ПЕЧАТИ ===== */
   .print-panel { background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
-
-  /* ===== ПРИНТ ===== */
-  @media print {
-    @page { size: A4 landscape; margin: 5mm; }
-    body * { visibility: hidden !important; }
-    .bracket-print-container, .bracket-print-container * { visibility: visible !important; }
-    .bracket-print-container { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; padding: 0 !important; margin: 0 !important; background: white !important; }
-    .d-print-none, .print-panel, .navbar, .breadcrumb, footer, .btn-group, .alert, .standings-card { display: none !important; }
-    .bracket-arena { background: white !important; padding: 8px !important; overflow: visible !important; }
-    .match-card { box-shadow: none !important; border: 1.5px solid #333 !important; break-inside: avoid; }
-    .bracket-svg path { stroke: #333 !important; stroke-width: 1.5px !important; }
-    .print-standings-column { display: flex !important; }
-    .round-robin-table { font-size: 0.8rem; box-shadow: none !important; border: 2px solid #333; }
-    .round-robin-table th { background: #333 !important; color: white !important; border: 1px solid #555; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .round-robin-table td { border: 1px solid #999; height: 40px; padding: 4px; }
-    .round-robin-table td.fighter-cell { background: #f0f0f0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .round-robin-table td.diagonal { background: #bbb !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .round-robin-table td.win-cell { background: #c8e6c9 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .round-robin-table td.loss-cell { background: #ffcdd2 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .round-robin-table .col-total, .round-robin-table .col-place { background: #e0e0e0 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-    .round-title { color: #333 !important; border-bottom-color: #333 !important; }
-    .fighter-row.winner { background: #fff3cd !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  }
 </style>
 {% endblock %}
 
@@ -236,29 +213,14 @@
 
 <!-- Панель печати -->
 <div class="print-panel d-print-none">
-    <h5 class="mb-3"><i class="fas fa-print me-2 text-primary"></i>Печать сетки на A4</h5>
+    <h5 class="mb-3"><i class="fas fa-print me-2 text-primary"></i>Печать сетки на A4 (PDF)</h5>
     <div class="row g-3 align-items-end">
-        <div class="col-md-3">
-            <label class="form-label">Ориентация</label>
-            <select id="print-orientation" class="form-select">
-                <option value="portrait">Портретная (A4)</option>
-                <option value="landscape" selected>Альбомная (A4)</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">Масштаб (%)</label>
-            <input type="number" id="print-scale" class="form-control" value="100" min="30" max="200" step="5">
-            <small class="text-muted">Уменьшите, если сетка не помещается</small>
-        </div>
-        <div class="col-md-3">
-            <div class="form-check form-switch mt-4">
-                <input class="form-check-input" type="checkbox" id="auto-scale" checked>
-                <label class="form-check-label" for="auto-scale">Автоподгон под ширину</label>
-            </div>
+        <div class="col-md-9">
+            <p class="text-muted mb-0">Нажмите кнопку ниже, чтобы сгенерировать качественный PDF-файл. Если раундов много, они автоматически разобьются по 8 пар на лист А4 для лучшей читаемости.</p>
         </div>
         <div class="col-md-3">
             <button class="btn btn-primary w-100" onclick="printBracket()">
-                <i class="fas fa-print me-2"></i>Печать / PDF
+                <i class="fas fa-file-pdf me-2"></i>Скачать PDF
             </button>
         </div>
     </div>
@@ -605,23 +567,36 @@
 {% endblock %}
 
 {% block extra_js %}
+<!-- ПОДКЛЮЧАЕМ БИБЛИОТЕКИ ДЛЯ ГЕНЕРАЦИИ PDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <script>
 function drawBracketLines() {
     const svg = document.getElementById('bracket-svg');
     const arena = document.getElementById('bracket-arena');
     if (!svg || !arena) return;
+
     svg.innerHTML = '';
-    const arenaRect = arena.getBoundingClientRect();
     const rounds = arena.querySelectorAll('.round-column');
     if (rounds.length < 2) return;
 
+    const arenaRect = arena.getBoundingClientRect();
     svg.setAttribute('width', arena.scrollWidth);
     svg.setAttribute('height', arena.scrollHeight);
+
+    svg.style.position = 'absolute';
+    svg.style.top = '0';
+    svg.style.left = '0';
+    svg.style.zIndex = '1';
+    svg.style.pointerEvents = 'none';
+
     const svgNS = "http://www.w3.org/2000/svg";
 
     for (let r = 0; r < rounds.length - 1; r++) {
         const currentRound = rounds[r];
         const nextRound = rounds[r + 1];
+
         const currentMatches = currentRound.querySelectorAll('.match-card:not([data-is-bronze="true"])');
         const nextMatches = nextRound.querySelectorAll('.match-card:not([data-is-bronze="true"])');
 
@@ -634,61 +609,253 @@ function drawBracketLines() {
             const nRect = nextMatch.getBoundingClientRect();
 
             const x1 = mRect.right - arenaRect.left;
-            const y1 = mRect.top + mRect.height / 2 - arenaRect.top;
+            const y1 = mRect.top + (mRect.height / 2) - arenaRect.top;
             const x2 = nRect.left - arenaRect.left;
-            const y2 = nRect.top + nRect.height / 2 - arenaRect.top;
+            const y2 = nRect.top + (nRect.height / 2) - arenaRect.top;
             const midX = x1 + (x2 - x1) / 2;
 
             const path = document.createElementNS(svgNS, 'path');
             const d = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
             path.setAttribute('d', d);
+            path.setAttribute('fill', 'none');
+            path.setAttribute('stroke', '#adb5bd');
+            path.setAttribute('stroke-width', '2.5');
             svg.appendChild(path);
         });
     }
 }
 
 function printBracket() {
-    const orientation = document.getElementById('print-orientation').value;
-    const scaleInput = document.getElementById('print-scale');
-    const autoScale = document.getElementById('auto-scale').checked;
-    const container = document.getElementById('bracket-container');
-    const arena = document.getElementById('bracket-arena');
+    // 1. Собираем данные из Django для олимпийской системы
+    const colsData = [
+        {% for round_num, fights in fights_by_round.items %}
+            {% if bracket.bracket_type != 'mixed' or round_num > 1 %}
+            {
+                round: {{ round_num }},
+                matches: [
+                    {% for fight in fights %}
+                        {% if not fight.is_bronze_match %}
+                        {
+                            f1: "{{ fight.fighter1|escapejs|default:'TBD' }}",
+                            f2: "{{ fight.fighter2|escapejs|default:'Автопроход' }}",
+                            winner: "{{ fight.winner|escapejs|default:'' }}"
+                        },
+                        {% endif %}
+                    {% endfor %}
+                ]
+            },
+            {% endif %}
+        {% endfor %}
+    ];
 
-    let scale = parseInt(scaleInput.value) / 100;
+    {% if bracket.bracket_type == 'round_robin' %}
+        // === КРУГОВАЯ (отдельная логика, без нарезки) ===
+        const printDiv = document.createElement('div');
+        printDiv.style.position = 'absolute';
+        printDiv.style.left = '-9999px';
+        printDiv.style.background = 'white';
+        printDiv.style.padding = '40px';
+        printDiv.style.fontFamily = 'Arial, sans-serif';
 
-    if (autoScale) {
-        const a4Width = orientation === 'landscape' ? 1123 : 794;
-        const contentWidth = (arena ? arena.scrollWidth : container.scrollWidth) + 40;
-        const neededScale = (a4Width - 60) / contentWidth;
-        scale = Math.min(Math.max(neededScale, 0.4), 1.5);
-        scaleInput.value = Math.round(scale * 100);
-    }
+        let html = `<h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">{{ bracket.name }}</h1>`;
+        html += `<table style="border-collapse: collapse; text-align: center; font-size: 14px; width: 100%;">`;
+        html += `<thead><tr style="background: #f0f0f0;">`;
+        html += `<th style="border: 1px solid #000; padding: 8px;">№</th>`;
+        html += `<th style="border: 1px solid #000; padding: 8px; text-align: left;">Участник</th>`;
+        {% for p in participants %}
+            html += `<th style="border: 1px solid #000; padding: 8px; min-width: 40px;">{{ forloop.counter }}</th>`;
+        {% endfor %}
+        html += `<th style="border: 1px solid #000; padding: 8px;">Очки</th>`;
+        html += `<th style="border: 1px solid #000; padding: 8px;">Место</th>`;
+        html += `</tr></thead><tbody>`;
 
-    container.style.transform = `scale(${scale})`;
-    container.style.transformOrigin = 'top left';
+        {% for p_row in participants %}
+            html += `<tr>`;
+            html += `<td style="border: 1px solid #000; padding: 8px;">{{ forloop.counter }}</td>`;
+            html += `<td style="border: 1px solid #000; padding: 8px; text-align: left; white-space: nowrap;">{{ p_row.last_name }} {{ p_row.first_name }}</td>`;
 
-    const style = document.createElement('style');
-    style.id = 'print-style-temp';
-    style.innerHTML = `@page { size: A4 ${orientation}; margin: 5mm; }`;
-    document.head.appendChild(style);
+            {% for p_col in participants %}
+                {% if p_row == p_col %}
+                    html += `<td style="border: 1px solid #000; background: #ccc;"></td>`;
+                {% else %}
+                    let fight_found = false;
+                    {% for f in all_fights %}
+                        {% if f.fighter1 == p_row and f.fighter2 == p_col or f.fighter1 == p_col and f.fighter2 == p_row %}
+                            fight_found = true;
+                            {% if f.status == 'completed' %}
+                                html += `<td style="border: 1px solid #000; padding: 8px; {% if f.winner == p_row %}background: #d1e7dd;{% endif %}">{{ f.score_fighter1 }} - {{ f.score_fighter2 }}</td>`;
+                            {% else %}
+                                html += `<td style="border: 1px solid #000; padding: 8px;">-</td>`;
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    if (!fight_found) {
+                        html += `<td style="border: 1px solid #000; padding: 8px;">-</td>`;
+                    }
+                {% endif %}
+            {% endfor %}
 
-    requestAnimationFrame(() => {
-        drawBracketLines();
+            html += `<td style="border: 1px solid #000; padding: 8px; font-weight: bold;">{% for s in standings %}{% if s.fighter.id == p_row.id %}{{ s.points|default:0 }}{% endif %}{% endfor %}</td>`;
+            html += `<td style="border: 1px solid #000; padding: 8px; font-weight: bold;">{% for s in standings %}{% if s.fighter.id == p_row.id %}{{ s.place|default:"-" }}{% endif %}{% endfor %}</td>`;
+            html += `</tr>`;
+        {% endfor %}
+
+        html += `</tbody></table>`;
+        printDiv.innerHTML = html;
+        document.body.appendChild(printDiv);
+
         setTimeout(() => {
-            window.print();
-            setTimeout(() => {
-                container.style.transform = '';
-                container.style.transformOrigin = '';
-                const ps = document.getElementById('print-style-temp');
-                if (ps) ps.remove();
-                drawBracketLines();
-            }, 500);
-        }, 300);
-    });
+            html2canvas(printDiv, { scale: 2 }).then(canvas => {
+                document.body.removeChild(printDiv);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('l', 'mm', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save(`Сетка_${new Date().toLocaleDateString('ru-RU')}.pdf`);
+            });
+        }, 200);
+
+    {% else %}
+        // === ОЛИМПИЙСКАЯ / СМЕШАННАЯ (с нарезкой по чанкам) ===
+        if (colsData.length === 0) {
+            alert("Нет боев для печати.");
+            return;
+        }
+
+        const chunks = [];
+        const maxMatches = 8;
+
+        if (colsData[0].matches.length > maxMatches) {
+            for (let i = 0; i < colsData[0].matches.length; i += maxMatches) {
+                let start = i;
+                let end = Math.min(start + maxMatches, colsData[0].matches.length);
+                let chunkData = [];
+
+                for (let r = 0; r < colsData.length; r++) {
+                    let rStart = Math.floor(start / Math.pow(2, r));
+                    let rEnd = Math.min(colsData[r].matches.length, Math.ceil(end / Math.pow(2, r)));
+
+                    if (rStart < colsData[r].matches.length) {
+                        chunkData.push({
+                            round: colsData[r].round,
+                            matches: colsData[r].matches.slice(rStart, rEnd)
+                        });
+                    }
+                }
+                chunks.push(chunkData);
+            }
+        } else {
+            chunks.push(colsData);
+        }
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('l', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+
+        async function renderChunk(chunkIndex) {
+            const chunk = chunks[chunkIndex];
+
+            const printDiv = document.createElement('div');
+            printDiv.style.position = 'absolute';
+            printDiv.style.left = '-9999px';
+            printDiv.style.background = 'white';
+            printDiv.style.padding = '40px';
+            printDiv.style.fontFamily = 'Arial, sans-serif';
+
+            let html = `<h1 style="text-align: center; margin-bottom: 30px; font-size: 24px;">{{ bracket.name }} (Часть ${chunkIndex + 1})</h1>`;
+            html += `<div style="display: flex; gap: 40px; position: relative; align-items: stretch;" class="page-arena">`;
+            html += `<svg class="page-svg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1;"></svg>`;
+
+            chunk.forEach(col => {
+                html += `<div class="print-col" style="display: flex; flex-direction: column; justify-content: space-around; min-width: 250px; z-index: 2;">`;
+                html += `<div style="text-align: center; font-weight: bold; font-size: 18px; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 20px;">Раунд ${col.round}</div>`;
+
+                col.matches.forEach(match => {
+                    html += `
+                    <div class="print-match" style="border: 2px solid #333; background: white; margin: 15px 0; border-radius: 4px; overflow: hidden;">
+                        <div style="border-bottom: 1px solid #333; padding: 10px; font-size: 15px; ${match.winner && match.winner === match.f1 ? 'background: #eee; font-weight: bold;' : ''}">
+                            ${match.f1}
+                        </div>
+                        <div style="padding: 10px; font-size: 15px; ${match.winner && match.winner === match.f2 ? 'background: #eee; font-weight: bold;' : ''}">
+                            ${match.f2}
+                        </div>
+                    </div>
+                    `;
+                });
+
+                html += `</div>`;
+            });
+            html += `</div>`;
+
+            printDiv.innerHTML = html;
+            document.body.appendChild(printDiv);
+
+            // Рисуем линии
+            const arena = printDiv.querySelector('.page-arena');
+            const svg = printDiv.querySelector('.page-svg');
+            const cols = arena.querySelectorAll('.print-col');
+            const arenaRect = arena.getBoundingClientRect();
+
+            for (let r = 0; r < cols.length - 1; r++) {
+                const currentCol = cols[r];
+                const nextCol = cols[r + 1];
+                const currentMatches = currentCol.querySelectorAll('.print-match');
+                const nextMatches = nextCol.querySelectorAll('.print-match');
+
+                currentMatches.forEach((match, idx) => {
+                    const parentIdx = Math.floor(idx / 2);
+                    const nextMatch = nextMatches[parentIdx];
+                    if (!nextMatch) return;
+
+                    const mRect = match.getBoundingClientRect();
+                    const nRect = nextMatch.getBoundingClientRect();
+
+                    const x1 = mRect.right - arenaRect.left;
+                    const y1 = mRect.top + (mRect.height / 2) - arenaRect.top;
+                    const x2 = nRect.left - arenaRect.left;
+                    const y2 = nRect.top + (nRect.height / 2) - arenaRect.top;
+                    const midX = x1 + (x2 - x1) / 2;
+
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", 'path');
+                    path.setAttribute('d', `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`);
+                    path.setAttribute('fill', 'none');
+                    path.setAttribute('stroke', '#333');
+                    path.setAttribute('stroke-width', '2');
+                    svg.appendChild(path);
+                });
+            }
+
+            await new Promise(r => setTimeout(r, 150));
+
+            const canvas = await html2canvas(printDiv, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+            document.body.removeChild(printDiv);
+
+            if (chunkIndex > 0) pdf.addPage();
+
+            const imgWidth = pdfWidth;
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            const finalHeight = Math.min(imgHeight, pdfHeight);
+            const finalWidth = finalHeight === pdfHeight ? (canvas.width * pdfHeight) / canvas.height : imgWidth;
+            const xOffset = (pdfWidth - finalWidth) / 2;
+
+            pdf.addImage(canvas.toDataURL('image/jpeg', 1.0), 'JPEG', xOffset, 0, finalWidth, finalHeight);
+        }
+
+        (async () => {
+            for (let i = 0; i < chunks.length; i++) {
+                await renderChunk(i);
+            }
+            pdf.save(`Сетка_${new Date().toLocaleDateString('ru-RU')}.pdf`);
+        })();
+    {% endif %}
 }
 
 function copyWinners() {
     const ta = document.getElementById('winners-clipboard');
+    if (!ta) return;
     ta.select();
     ta.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(ta.value).then(() => {
@@ -703,11 +870,10 @@ function copyWinners() {
     });
 }
 
-window.addEventListener('load', () => { setTimeout(drawBracketLines, 200); });
+window.addEventListener('load', () => { setTimeout(drawBracketLines, 300); });
 window.addEventListener('resize', () => {
     clearTimeout(window._resizeTimer);
     window._resizeTimer = setTimeout(drawBracketLines, 150);
 });
-window.addEventListener('beforeprint', drawBracketLines);
 </script>
 {% endblock %}

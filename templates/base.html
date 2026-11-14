@@ -41,7 +41,6 @@
                                 <ul class="dropdown-menu">
                                     <li><a class="dropdown-item" href="{% url 'tournaments:participants_management' %}"><i class="fas fa-users me-2"></i>Участники</a></li>
                                     <li><a class="dropdown-item" href="{% url 'tournaments:judge_list' %}"><i class="fas fa-gavel me-2"></i>Судьи</a></li>
-                                    <!-- АКТИВИРОВАНА ССЫЛКА НА ТРЕНЕРОВ -->
                                     <li><a class="dropdown-item" href="{% url 'tournaments:coach_list' %}"><i class="fas fa-chalkboard-teacher me-2"></i>Тренеры</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" href="{% url 'tournaments:create_tournament' %}"><i class="fas fa-plus me-2"></i>Создать турнир</a></li>
@@ -58,10 +57,11 @@
                             </li>
                         {% endif %}
 
-                        <!-- Панель тренера (ссылка на дашборд) -->
+                        <!-- Панель тренера (ссылка на список бойцов) -->
                         {% if role == 'coach' %}
                             <li class="nav-item">
-                                <a class="nav-link" href="{% url 'core:dashboard' %}">
+                                <!-- ИСПРАВЛЕНО: Теперь ведет на список бойцов -->
+                                <a class="nav-link" href="{% url 'tournaments:coach_my_fighters' %}">
                                     <i class="fas fa-chalkboard-teacher me-1"></i>Мои бойцы
                                 </a>
                             </li>

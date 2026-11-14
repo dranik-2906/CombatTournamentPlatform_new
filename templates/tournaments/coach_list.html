@@ -12,34 +12,41 @@
 
 <div class="card shadow-sm">
     <div class="table-responsive">
-        <table class="table table-hover mb-0">
+        <table class="table table-hover mb-0 align-middle">
             <thead class="table-dark">
                 <tr>
                     <th>ФИО</th>
                     <th>Клуб</th>
                     <th>Логин</th>
                     <th>Email</th>
-                    <th>Действия</th>
+                    <th class="text-center">Действия</th>
                 </tr>
             </thead>
             <tbody>
                 {% for c in coaches %}
                 <tr>
                     <td><strong>{{ c.first_name }} {{ c.last_name }}</strong></td>
-                    <!-- ДОБАВЛЕНО ВЫВОД КЛУБА -->
                     <td>{{ c.profile.club|default:"—" }}</td>
                     <td>{{ c.username }}</td>
                     <td>{{ c.email|default:"—" }}</td>
-                    <td>
-                        <!-- ИЗМЕНЕНА ССЫЛКА НА НАШУ ФОРМУ -->
-                        <a href="{% url 'tournaments:edit_coach' c.id %}" class="btn btn-sm btn-outline-secondary">
-                            <i class="fas fa-edit"></i> Редактировать
+                    <td class="text-center">
+                        <!-- Кнопка редактирования -->
+                        <a href="{% url 'tournaments:edit_coach' c.id %}" class="btn btn-sm btn-outline-info me-1" title="Редактировать">
+                            <i class="fas fa-edit"></i>
                         </a>
+
+                        <!-- Кнопка удаления -->
+                        <form method="post" action="{% url 'tournaments:delete_coach' c.id %}" class="d-inline"
+                              onsubmit="return confirm('Вы уверены, что хотите удалить тренера {{ c.first_name }} {{ c.last_name }}? Это действие нельзя отменить.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Удалить">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <!-- ИЗМЕНЕНО colspan С 4 НА 5 -->
                     <td colspan="5" class="text-center py-4 text-muted">Тренеры пока не добавлены.</td>
                 </tr>
                 {% endfor %}
