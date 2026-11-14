@@ -77,8 +77,12 @@ urlpatterns = [
 
     # НОВЫЕ ПУТИ ДЛЯ ТРЕНЕРОВ
     path('coaches/', coaches.coach_list, name='coach_list'),
-    path('coaches/add/', coaches.add_coach, name='add_coach'),\
+    path('coaches/add/', coaches.add_coach, name='add_coach'),
+    path('coaches/<int:coach_id>/edit/', coaches.edit_coach, name='edit_coach'),
+
+    # Панель тренера (сам тренер)
     path('coach/fighters/', coaches.coach_my_fighters, name='coach_my_fighters'),
     path('coach/fighters/add/', coaches.coach_add_fighter, name='coach_add_fighter'),
     path('coach/fighters/import/', coaches.coach_import_excel, name='coach_import_excel'),
+
 ]

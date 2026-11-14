@@ -34,8 +34,7 @@ def add_coach(request):
         first_name = request.POST.get('first_name', '').strip()
         last_name = request.POST.get('last_name', '').strip()
         email = request.POST.get('email', '').strip()
-        phone = request.POST.get('phone', '').strip()
-        club = request.POST.get('club', '').strip()  # <-- НОВОЕ ПОЛЕ
+        club = request.POST.get('club', '').strip()
 
         if not username or not password:
             messages.error(request, 'Логин и пароль обязательны')
@@ -57,7 +56,7 @@ def add_coach(request):
         # Настраиваем профиль
         profile = user.profile
         profile.role = 'coach'
-        profile.club = club  # <-- Сохраняем клуб
+        profile.club = club
         if not request.user.is_superuser:
             profile.federation = request.user.profile.federation
         profile.save()
@@ -66,6 +65,41 @@ def add_coach(request):
         return redirect('tournaments:coach_list')
 
     return render(request, 'tournaments/add_coach.html')
+
+
+@login_required
+@tournament_admin_required
+def edit_coach(request, coach_id):
+    """Редактирование профиля тренера"""
+    coach_user = get_object_or_404(User, id=coach_id, profile__role='coach')
+
+    # Проверка прав: админ федерации может редактировать только своих тренеров
+    if not request.user.is_superuser:
+        if coach_user.profile.federation != request.user.profile.federation:
+            messages.error(request, 'Вы можете редактировать только тренеров своей федерации')
+            return redirect('tournaments:coach_list')
+
+    if request.method == 'POST':
+        coach_user.first_name = request.POST.get('first_name', '').strip()
+        coach_user.last_name = request.POST.get('last_name', '').strip()
+        coach_user.email = request.POST.get('email', '').strip()
+
+        # Если ввели новый пароль - обновляем
+        new_password = request.POST.get('password', '').strip()
+        if new_password:
+            coach_user.set_password(new_password)
+
+        coach_user.save()
+
+        # Обновляем профиль (клуб)
+        profile = coach_user.profile
+        profile.club = request.POST.get('club', '').strip()
+        profile.save()
+
+        messages.success(request, f'Данные тренера {coach_user.first_name} {coach_user.last_name} обновлены!')
+        return redirect('tournaments:coach_list')
+
+    return render(request, 'tournaments/edit_coach.html', {'coach': coach_user})
 
 
 # ==================== ПАНЕЛЬ ТРЕНЕРА (ДЛЯ САМОГО ТРЕНЕРА) ====================
@@ -77,22 +111,15 @@ def coach_my_fighters(request):
     coach_profile = request.user.profile
     club_name = coach_profile.club
 
-    # Ищем бойцов, у которых клуб совпадает с клубом тренера
+    # Если клуб не указан, показываем пустой список и предупреждение
     if club_name:
         fighters = Fighter.objects.filter(club=club_name).select_related('user')
     else:
-        # Если клуб не указан, показываем пустой список (или можно показать всех, но лучше пустой)
         fighters = Fighter.objects.none()
-        messages.warning(request, 'У вас не указан клуб. Обратитесь к администратору для настройки профиля.')
-
-    # Получаем заявки этих бойцов на турниры
-    registrations = TournamentRegistration.objects.filter(
-        fighter__in=fighters
-    ).select_related('tournament', 'age_weight_category')
+        messages.warning(request, 'В вашем профиле не указан клуб. Пожалуйста, обратитесь к администратору, чтобы он добавил ваш клуб. Без клуба вы не можете добавлять бойцов.')
 
     return render(request, 'tournaments/coach_my_fighters.html', {
         'fighters': fighters,
-        'registrations': registrations,
     })
 
 
@@ -146,15 +173,13 @@ def coach_add_fighter(request):
             TournamentRegistration.objects.create(
                 tournament=tournament,
                 fighter=fighter,
-                is_approved=False,  # Ожидает
-                weight_check=False,  # Серые чекпоинты
-                documents_check=False,
-                payment_check=False
+                is_approved=False    # Заявка сразу создается как "Ожидает"
             )
             messages.success(request, f'Боец {first_name} {last_name} добавлен и подан на турнир "{tournament.name}"!')
         else:
             messages.success(request, f'Боец {first_name} {last_name} успешно добавлен в ваш клуб!')
 
+        # ИСПРАВЛЕНИЕ: Возвращаем редирект после POST, чтобы избежать дублирования при обновлении страницы
         return redirect('tournaments:coach_my_fighters')
 
     # Для GET-запроса собираем доступные турниры

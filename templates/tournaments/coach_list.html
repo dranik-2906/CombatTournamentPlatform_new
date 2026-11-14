@@ -16,6 +16,7 @@
             <thead class="table-dark">
                 <tr>
                     <th>ФИО</th>
+                    <th>Клуб</th>
                     <th>Логин</th>
                     <th>Email</th>
                     <th>Действия</th>
@@ -25,17 +26,21 @@
                 {% for c in coaches %}
                 <tr>
                     <td><strong>{{ c.first_name }} {{ c.last_name }}</strong></td>
+                    <!-- ДОБАВЛЕНО ВЫВОД КЛУБА -->
+                    <td>{{ c.profile.club|default:"—" }}</td>
                     <td>{{ c.username }}</td>
                     <td>{{ c.email|default:"—" }}</td>
                     <td>
-                        <a href="/admin/auth/user/{{ c.id }}/change/" class="btn btn-sm btn-outline-secondary">
+                        <!-- ИЗМЕНЕНА ССЫЛКА НА НАШУ ФОРМУ -->
+                        <a href="{% url 'tournaments:edit_coach' c.id %}" class="btn btn-sm btn-outline-secondary">
                             <i class="fas fa-edit"></i> Редактировать
                         </a>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center py-4 text-muted">Тренеры пока не добавлены.</td>
+                    <!-- ИЗМЕНЕНО colspan С 4 НА 5 -->
+                    <td colspan="5" class="text-center py-4 text-muted">Тренеры пока не добавлены.</td>
                 </tr>
                 {% endfor %}
             </tbody>
