@@ -107,8 +107,13 @@ def coach_my_fighters(request):
     """Список бойцов, привязанных к клубу тренера"""
     coach_profile = request.user.profile
     club_name = coach_profile.club
+    federation = coach_profile.federation  # ИСПРАВЛЕНИЕ: получаем федерацию
 
-    if club_name:
+    if club_name and federation:
+        # ИСПРАВЛЕНИЕ: фильтруем по клубу И федерации, чтобы не видеть чужих
+        fighters = Fighter.objects.filter(club=club_name, user__profile__federation=federation).select_related('user')
+    elif club_name:
+        # Если федерация не указана (для суперюзера) – показываем только по клубу
         fighters = Fighter.objects.filter(club=club_name).select_related('user')
     else:
         fighters = Fighter.objects.none()
@@ -128,7 +133,7 @@ def coach_add_fighter(request):
         last_name = request.POST.get('last_name')
         weight_raw = request.POST.get('weight')
         date_of_birth_raw = request.POST.get('date_of_birth')
-        gender = request.POST.get('gender')  # ИСПРАВЛЕНИЕ: добавлен пол
+        gender = request.POST.get('gender')
         tournament_id = request.POST.get('tournament_id')
 
         coach_profile = request.user.profile
@@ -175,7 +180,7 @@ def coach_add_fighter(request):
             last_name=last_name,
             weight=weight,
             date_of_birth=date_of_birth,
-            gender=gender,  # ИСПРАВЛЕНИЕ
+            gender=gender,
             club=club_name
         )
 
@@ -217,12 +222,14 @@ def coach_apply_tournament(request):
     """Массовая подача заявок на турнир"""
     coach_profile = request.user.profile
     club_name = coach_profile.club
+    federation = coach_profile.federation
 
-    if not club_name:
-        messages.error(request, 'У вас не указан клуб.')
+    if not club_name or not federation:
+        messages.error(request, 'У вас не указан клуб или федерация.')
         return redirect('tournaments:coach_my_fighters')
 
-    fighters = Fighter.objects.filter(club=club_name)
+    # ИСПРАВЛЕНИЕ: фильтруем бойцов по клубу и федерации
+    fighters = Fighter.objects.filter(club=club_name, user__profile__federation=federation)
 
     if request.method == 'POST':
         tournament_id = request.POST.get('tournament_id')
@@ -236,7 +243,13 @@ def coach_apply_tournament(request):
         added_count = 0
 
         for f_id in fighter_ids:
-            fighter = get_object_or_404(Fighter, id=f_id)
+            # ИСПРАВЛЕНИЕ (IDOR): проверяем, что боец принадлежит этому клубу и федерации
+            fighter = get_object_or_404(
+                Fighter,
+                id=f_id,
+                club=club_name,
+                user__profile__federation=federation
+            )
             if not TournamentRegistration.objects.filter(tournament=tournament, fighter=fighter).exists():
                 TournamentRegistration.objects.create(
                     tournament=tournament,
@@ -248,7 +261,7 @@ def coach_apply_tournament(request):
         messages.success(request, f'Успешно подано {added_count} заявок на турнир "{tournament.name}"!')
         return redirect('tournaments:coach_my_fighters')
 
-    tournaments = Tournament.objects.filter(is_active=True)
+    tournaments = Tournament.objects.filter(is_active=True, federation=federation)
     return render(request, 'tournaments/coach_apply_tournament.html', {
         'fighters': fighters,
         'tournaments': tournaments
@@ -261,7 +274,8 @@ def coach_edit_fighter(request, fighter_id):
     """Редактирование бойца тренером"""
     fighter = get_object_or_404(Fighter, id=fighter_id)
 
-    if fighter.club != request.user.profile.club:
+    # ИСПРАВЛЕНИЕ: проверяем клуб и федерацию
+    if fighter.club != request.user.profile.club or fighter.user.profile.federation != request.user.profile.federation:
         messages.error(request, 'Вы можете редактировать только своих бойцов')
         return redirect('tournaments:coach_my_fighters')
 
@@ -302,7 +316,8 @@ def coach_delete_fighter(request, fighter_id):
     """Удаление бойца тренером"""
     fighter = get_object_or_404(Fighter, id=fighter_id)
 
-    if fighter.club != request.user.profile.club:
+    # ИСПРАВЛЕНИЕ: проверяем клуб и федерацию
+    if fighter.club != request.user.profile.club or fighter.user.profile.federation != request.user.profile.federation:
         messages.error(request, 'Вы можете удалять только своих бойцов')
         return redirect('tournaments:coach_my_fighters')
 

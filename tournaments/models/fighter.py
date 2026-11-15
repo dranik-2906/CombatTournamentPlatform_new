@@ -57,15 +57,15 @@ class Fighter(models.Model):
         return self.date_of_birth.year if self.date_of_birth else None
 
     def get_stats(self):
-        # ИСПРАВЛЕНИЕ: Используем один Q-запрос вместо | в Python
+        # ИСПРАВЛЕНИЕ: Локальный импорт Fight, чтобы избежать циклического импорта
+        from .fight import Fight
+
         fights = Fight.objects.filter(Q(fighter1=self) | Q(fighter2=self), status='completed')
         total = fights.count()
         wins = fights.filter(winner=self).count()
         draws = fights.filter(is_draw=True).count()
         losses = total - wins - draws
 
-        # Оставляем старые ключи, чтобы не сломать шаблоны,
-        # но добавляем и новые для точности
         return {
             'total_fights': total,
             'wins': wins,

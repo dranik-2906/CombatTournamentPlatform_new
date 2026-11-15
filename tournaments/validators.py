@@ -2,10 +2,9 @@ from datetime import date
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-MIN_BIRTH_YEAR = 1900
+MIN_BIRTH_YEAR = 1926
 MIN_AGE = 4
 MAX_WEIGHT_KG = 300
-
 
 def validate_birth_date(value):
     today = date.today()
@@ -14,11 +13,9 @@ def validate_birth_date(value):
         raise ValidationError(_('Дата рождения не может быть в будущем'))
     if value < min_date:
         raise ValidationError(_('Дата рождения не может быть раньше %(year)s г.'), params={'year': MIN_BIRTH_YEAR})
-
     age = today.year - value.year - ((today.month, today.day) < (value.month, value.day))
     if age < MIN_AGE:
         raise ValidationError(_('Участнику должно быть не менее %(min)s лет'), params={'min': MIN_AGE})
-
 
 def validate_weight(value):
     if value is None:
