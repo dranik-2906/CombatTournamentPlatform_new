@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 from .tournament import Tournament
 from .fighter import Fighter
 from .category import AgeGroup, WeightCategory, AgeWeightCategory
@@ -55,6 +58,7 @@ class TournamentRegistration(models.Model):
 
     @property
     def completion_percent(self):
+        """Процент прохождения чекпоинтов"""
         checkpoints = self.tournament.checkpoints.all()
         if not checkpoints.exists():
             return 100
@@ -63,6 +67,7 @@ class TournamentRegistration(models.Model):
         return int(passed / total * 100)
 
     def approve(self):
+        """Метод для ручного одобрения, если все чекпоинты пройдены"""
         if self.all_checks_passed:
             self.is_approved = True
             self.save(update_fields=['is_approved', 'updated_at'])
@@ -110,10 +115,7 @@ class RegistrationCheckpoint(models.Model):
         return f"{self.registration.fighter} — {self.checkpoint.name}: {'Да' if self.is_checked else 'Нет'}"
 
 
-# Сигналы
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-
+# ==================== СИГНАЛЫ ====================
 
 @receiver(post_save, sender=Tournament)
 def create_default_checkpoints(sender, instance, created, **kwargs):
@@ -140,5 +142,16 @@ def create_registration_checkpoints(sender, instance, created, **kwargs):
             )
 
 
-class Registration:
-    pass
+@receiver(post_save, sender=TournamentCheckpoint)
+def add_checkpoint_to_existing_registrations(sender, instance, created, **kwargs):
+    """
+    Если админ добавит НОВЫЙ чекпоинт в турнир, где уже есть участники,
+    этот сигнал автоматически создаст статусы для всех существующих регистраций.
+    """
+    if created:
+        # Берем все регистрации на этот турнир
+        registrations = instance.tournament.registrations.all()
+        for reg in registrations:
+            RegistrationCheckpoint.objects.get_or_create(
+                registration=reg, checkpoint=instance, defaults={'is_checked': False}
+            )

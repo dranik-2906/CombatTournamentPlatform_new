@@ -3,6 +3,7 @@ import os
 import tempfile
 import uuid
 import io
+from decimal import Decimal, InvalidOperation
 from datetime import datetime
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -10,8 +11,12 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
-from django.db.models import Q, Count
+from django.core.paginator import Paginator
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.db.models import Q
 from django.http import HttpResponse
+from django.utils.crypto import get_random_string
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from users.decorators import tournament_admin_required
@@ -22,6 +27,7 @@ from ..models import (
 )
 from ..services import CategoryService
 from ..forms import FighterForm, ExcelUploadForm, TournamentCheckpointForm
+from ..validators import validate_birth_date, validate_weight
 
 logger = logging.getLogger('tournaments')
 
@@ -29,23 +35,33 @@ logger = logging.getLogger('tournaments')
 @login_required
 @tournament_admin_required
 def participants_management(request):
-    """Управление участниками"""
+    """Управление участниками с пагинацией и белым списком сортировки"""
     tournaments = Tournament.objects.all().order_by('-start_date')
     selected_id = request.GET.get('tournament')
     selected = None
-    registrations = TournamentRegistration.objects.none()
 
     search = request.GET.get('search', '')
     status = request.GET.get('status', '')
-    sort = request.GET.get('sort', 'fighter__last_name')
+
+    # ИСПРАВЛЕНИЕ 7: Белый список сортировки
+    ALLOWED_SORTS = {
+        'name': 'fighter__last_name',
+        'club': 'fighter__club',
+        'weight': 'fighter__weight',
+        'date': 'fighter__date_of_birth',
+    }
+    sort = request.GET.get('sort', 'name')
+    order_by = ALLOWED_SORTS.get(sort, 'fighter__last_name')
 
     age_weight_categories = AgeWeightCategory.objects.none()
     weight_categories = WeightCategory.objects.none()
     clubs = []
+    page_obj = None
+    stats = {}
 
     if selected_id:
         selected = get_object_or_404(Tournament, pk=selected_id)
-        registrations = selected.registrations.select_related(
+        regs = selected.registrations.select_related(
             'fighter', 'age_weight_category'
         ).prefetch_related('fighter__user', 'checkpoint_statuses', 'checkpoint_statuses__checkpoint')
 
@@ -53,39 +69,43 @@ def participants_management(request):
         weight_categories = WeightCategory.objects.filter(tournament=selected)
 
         if search:
-            registrations = registrations.filter(
+            regs = regs.filter(
                 Q(fighter__first_name__icontains=search) |
                 Q(fighter__last_name__icontains=search) |
                 Q(fighter__club__icontains=search)
             )
 
         if status == 'approved':
-            registrations = registrations.filter(is_approved=True)
+            regs = regs.filter(is_approved=True)
         elif status == 'pending':
-            registrations = registrations.filter(is_approved=False)
+            regs = regs.filter(is_approved=False)
 
-        registrations = registrations.order_by(sort)
+        regs = regs.order_by(order_by)
 
-        clubs = registrations.exclude(
+        # ИСПРАВЛЕНИЕ 8: Пагинация (20 участников на страницу)
+        paginator = Paginator(regs, 20)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+
+        clubs = regs.exclude(
             fighter__club__isnull=True
         ).exclude(fighter__club='').values_list(
             'fighter__club', flat=True
         ).distinct().order_by('fighter__club')
 
-    stats = {}
-    if selected:
-        total = registrations.count()
+        # Статистика считается по всему queryset до пагинации
+        total = regs.count()
         stats = {
             'total': total,
-            'approved': registrations.filter(is_approved=True).count(),
-            'pending': registrations.filter(is_approved=False).count(),
-            'with_categories': registrations.filter(age_weight_category__isnull=False).count(),
+            'approved': regs.filter(is_approved=True).count(),
+            'pending': regs.filter(is_approved=False).count(),
+            'with_categories': regs.filter(age_weight_category__isnull=False).count(),
         }
 
     return render(request, 'tournaments/participants_management.html', {
         'tournaments': tournaments,
         'selected': selected,
-        'registrations': registrations,
+        'page_obj': page_obj,
         'stats': stats,
         'search': search,
         'status_filter': status,
@@ -103,34 +123,50 @@ def add_participant(request, tournament_id):
     if request.method == 'POST':
         form = FighterForm(request.POST, request.FILES)
         if form.is_valid():
-            # Автоматически создаём пользователя для бойца
-            from django.contrib.auth.models import User
-            import random
-            first = form.cleaned_data['first_name']
-            last = form.cleaned_data['last_name']
-            username = f"fighter_{first.lower()}_{last.lower()}_{random.randint(1000, 9999)}"
-            user = User.objects.create_user(
-                username=username,
-                first_name=first,
-                last_name=last,
-                email=f"{username}@local.local",
-                password='fighter123'
-            )
-            fighter = form.save(commit=False)
-            fighter.user = user
-            fighter.save()
+            try:
+                with transaction.atomic():
+                    first = form.cleaned_data['first_name']
+                    last = form.cleaned_data['last_name']
+                    # ИСПРАВЛЕНИЕ 10: Уникальный логин через UUID
+                    username = f"fighter_{uuid.uuid4().hex[:10]}"
 
-            TournamentRegistration.objects.create(
-                tournament=tournament,
-                fighter=fighter,
-            )
-            messages.success(request, f'Боец {fighter.full_name} добавлен и зарегистрирован на турнир')
-            return redirect('tournaments:participants_management')
+                    # ИСПРАВЛЕНИЕ 2: Случайный пароль
+                    password = get_random_string(length=10)
+
+                    user = User.objects.create_user(
+                        username=username,
+                        first_name=first,
+                        last_name=last,
+                        email=f"{username}@local.local",
+                        password=password
+                    )
+                    fighter = form.save(commit=False)
+                    fighter.user = user
+                    fighter.full_clean()  # Принудительный запуск валидаторов
+                    fighter.save()
+
+                    TournamentRegistration.objects.create(
+                        tournament=tournament,
+                        fighter=fighter,
+                    )
+
+                    messages.success(
+                        request,
+                        f'Боец {fighter.full_name} добавлен! Логин: {username}, Пароль: {password}'
+                    )
+            except ValidationError as e:
+                messages.error(request, f'Ошибка валидации: {e.messages}')
+            except Exception as e:
+                messages.error(request, f'Ошибка сохранения: {e}')
+            else:
+                return redirect('tournaments:participants_management')
     else:
         form = FighterForm()
+
     return render(request, 'tournaments/add_participant.html', {
         'form': form, 'tournament': tournament
     })
+
 
 @login_required
 @tournament_admin_required
@@ -149,25 +185,33 @@ def update_registration(request, registration_id):
             if value:
                 setattr(fighter, field, value)
 
-        # === ИСПРАВЛЕНИЕ: явный парсинг даты из строки ===
+        # ИСПРАВЛЕНИЕ 1: Явная обработка ошибок даты
         dob_str = request.POST.get('date_of_birth', '').strip()
         if dob_str:
             try:
                 fighter.date_of_birth = datetime.strptime(dob_str, '%Y-%m-%d').date()
             except ValueError:
-                try:
-                    fighter.date_of_birth = datetime.strptime(dob_str, '%d.%m.%Y').date()
-                except ValueError:
-                    pass
+                messages.error(request, f'Неверный формат даты: {dob_str}')
+                return redirect(f"{reverse('tournaments:participants_management')}?tournament={tournament_id}")
 
-        if request.POST.get('weight'):
+        # ИСПРАВЛЕНИЕ 1: Явная обработка ошибок веса
+        weight_str = request.POST.get('weight', '').strip()
+        if weight_str:
             try:
-                fighter.weight = float(request.POST.get('weight'))
-            except ValueError:
-                pass
+                fighter.weight = Decimal(weight_str.replace(',', '.'))
+            except InvalidOperation:
+                messages.error(request, f'Неверный формат веса: {weight_str}')
+                return redirect(f"{reverse('tournaments:participants_management')}?tournament={tournament_id}")
+
         if request.POST.get('gender'):
             fighter.gender = request.POST.get('gender')
-        fighter.save()
+
+        try:
+            fighter.full_clean()  # Валидация модели (дата, вес)
+            fighter.save()
+        except ValidationError as e:
+            messages.error(request, f'Ошибка валидации: {e.messages}')
+            return redirect(f"{reverse('tournaments:participants_management')}?tournament={tournament_id}")
 
         # Обновляем динамические чекпоинты
         for cp in reg.tournament.checkpoints.all():
@@ -228,9 +272,19 @@ def delete_registration(request, registration_id):
     )
     tournament_id = reg.tournament.id
     fighter_name = reg.fighter.full_name
+    fighter = reg.fighter
+    user = fighter.user
 
-    reg.delete()
-    messages.success(request, f'Участник {fighter_name} удалён из турнира')
+    if request.method == 'POST':
+        reg.delete()
+
+        # ИСПРАВЛЕНИЕ 9: Удаление аккаунта, если у бойца больше нет регистраций
+        if not TournamentRegistration.objects.filter(fighter=fighter).exists():
+            user.delete()
+            messages.success(request, f'Участник {fighter_name} и его аккаунт удалены')
+        else:
+            messages.success(request, f'Участник {fighter_name} удалён из турнира')
+
     return redirect(f"{reverse('tournaments:participants_management')}?tournament={tournament_id}")
 
 
@@ -423,6 +477,7 @@ def _parse_date_from_excel(value):
     return None
 
 
+@transaction.atomic  # ИСПРАВЛЕНИЕ 3: Атомарность
 def import_fighters_from_excel(file_path, tournament_id):
     """Импорт бойцов из Excel-файла"""
     tournament = Tournament.objects.get(pk=tournament_id)
@@ -480,19 +535,38 @@ def import_fighters_from_excel(file_path, tournament_id):
 
         dob = _parse_date_from_excel(dob_val)
         if dob is None:
-            result['errors'].append(f"Строка {row}: неверная дата '{dob_val}' (ожидается ДД.ММ.ГГГГ или ГГГГ-ММ-ДД)")
+            result['errors'].append(f"Строка {row}: неверная дата '{dob_val}'")
             continue
 
-        gender = 'M' if gender_raw.lower() in ('м', 'm', 'муж', 'мужской', 'male') else 'F'
+        # ИСПРАВЛЕНИЕ 1 и 4: Явная валидация пола
+        gender_lower = gender_raw.lower()
+        if gender_lower in ('м', 'm', 'муж', 'мужской', 'male'):
+            gender = 'M'
+        elif gender_lower in ('ж', 'f', 'жен', 'женский', 'female'):
+            gender = 'F'
+        else:
+            result['errors'].append(f"Строка {row}: не распознан пол '{gender_raw}'")
+            continue
 
         try:
-            weight = float(weight_raw.replace(',', '.'))
-        except (ValueError, TypeError):
+            weight = Decimal(weight_raw.replace(',', '.'))
+        except InvalidOperation:
             result['errors'].append(f"Строка {row}: неверный вес '{weight_raw}'")
             continue
 
         if not first_name or not last_name or not club:
             result['errors'].append(f"Строка {row}: не заполнены обязательные поля")
+            continue
+
+        # ИСПРАВЛЕНИЕ 1: Валидация через модель
+        candidate = Fighter(
+            first_name=first_name, last_name=last_name,
+            date_of_birth=dob, weight=weight, gender=gender
+        )
+        try:
+            candidate.full_clean()
+        except ValidationError as e:
+            result['errors'].append(f"Строка {row}: {'; '.join(e.messages)}")
             continue
 
         existing = Fighter.objects.filter(
@@ -509,11 +583,11 @@ def import_fighters_from_excel(file_path, tournament_id):
             fighter.save()
             result['skipped'] += 1
         else:
-            password = f"fighter{dob.strftime('%d%m%y')}"
-            temp_username = f"temp_{uuid.uuid4().hex[:12]}"
+            # ИСПРАВЛЕНИЕ 2: Случайный пароль
+            password = get_random_string(length=10)
+            temp_username = f"fighter_{uuid.uuid4().hex[:10]}"
             user = User.objects.create_user(
                 username=temp_username,
-                email='',
                 first_name=first_name,
                 last_name=last_name,
                 password=password
@@ -528,8 +602,6 @@ def import_fighters_from_excel(file_path, tournament_id):
                 club=club,
                 coach=coach or ''
             )
-            user.username = f"fighter{fighter.id}"
-            user.save(update_fields=['username'])
             result['success'] += 1
 
         reg, _ = TournamentRegistration.objects.get_or_create(
@@ -558,8 +630,9 @@ def add_participant_excel(request, tournament_id):
         if form.is_valid():
             excel_file = request.FILES['excel_file']
 
-            if not excel_file.name.endswith(('.xlsx', '.xls')):
-                messages.error(request, 'Неверный формат. Используйте .xlsx или .xls')
+            # ИСПРАВЛЕНИЕ 4: openpyxl не читает .xls
+            if not excel_file.name.endswith('.xlsx'):
+                messages.error(request, 'Неверный формат. Используйте только .xlsx')
                 return render(request, 'tournaments/add_participant_excel.html', {
                     'form': form, 'tournament': tournament
                 })

@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from .models import Tournament, AgeWeightCategory, TournamentRegistration, Judge, TimerSettings, Fight, RoundScore, \
     Fighter, TournamentCheckpoint
 from .models.tournament import SPORT_TYPES
+from .validators import validate_birth_date, validate_weight
 
 
 class TournamentForm(forms.ModelForm):
@@ -19,7 +20,6 @@ class TournamentForm(forms.ModelForm):
             'bracket_type': forms.Select(attrs={'class': 'form-select'}),
         }
 
-    # НОВЫЙ МЕТОД ДЛЯ ФИЛЬТРАЦИИ ВИДОВ СПОРТА ПО ФЕДЕРАЦИИ
     def __init__(self, *args, **kwargs):
         user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
@@ -27,10 +27,7 @@ class TournamentForm(forms.ModelForm):
         if user and not user.is_superuser and hasattr(user, 'profile') and user.profile.federation:
             federation = user.profile.federation
             if federation.sports:
-                # Превращаем строку "boxing,mma" в список ["boxing", "mma"]
                 allowed_sports = [s.strip() for s in federation.sports.split(',') if s.strip()]
-
-                # Фильтруем доступные варианты
                 self.fields['sport_type'].choices = [
                     (value, label) for value, label in self.fields['sport_type'].choices
                     if value in allowed_sports
@@ -96,7 +93,6 @@ class AssignJudgeForm(forms.Form):
 class FightResultForm(forms.ModelForm):
     class Meta:
         model = Fight
-        # Сохранены добавленные поля score_fighter1 и score_fighter2
         fields = ['winner', 'win_method', 'judge_notes', 'is_draw', 'score_fighter1', 'score_fighter2']
         widgets = {
             'winner': forms.Select(attrs={'class': 'form-select'}),
@@ -116,7 +112,6 @@ class FightResultForm(forms.ModelForm):
                 (fight.fighter2.id, f"{fight.fighter2.full_name} (Боец 2)"),
             ]
 
-        # По умолчанию делаем поля обязательными
         self.fields['winner'].required = True
         self.fields['win_method'].required = True
 
@@ -126,7 +121,6 @@ class FightResultForm(forms.ModelForm):
         winner = cleaned_data.get('winner')
         win_method = cleaned_data.get('win_method')
 
-        # Если это НЕ ничья, то победитель и метод победы строго обязательны
         if not is_draw:
             if not winner:
                 self.add_error('winner', 'Вы должны выбрать победителя!')
@@ -155,6 +149,12 @@ class JudgeForm(forms.ModelForm):
             'date_of_birth': 'Дата рождения (для пароля)',
             'judge_type': 'Тип судьи',
         }
+
+    def clean_date_of_birth(self):
+        dob = self.cleaned_data.get('date_of_birth')
+        if dob:
+            validate_birth_date(dob)
+        return dob
 
 
 class TimerSettingsForm(forms.ModelForm):
@@ -201,11 +201,23 @@ class FighterForm(forms.ModelForm):
             'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
 
+    def clean_date_of_birth(self):
+        dob = self.cleaned_data.get('date_of_birth')
+        if dob:
+            validate_birth_date(dob)
+        return dob
+
+    def clean_weight(self):
+        weight = self.cleaned_data.get('weight')
+        if weight:
+            validate_weight(weight)
+        return weight
+
 
 class ExcelUploadForm(forms.Form):
     excel_file = forms.FileField(
         label='Excel-файл',
-        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.xlsx,.xls'})
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.xlsx'})
     )
 
 

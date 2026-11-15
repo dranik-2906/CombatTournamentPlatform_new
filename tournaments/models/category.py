@@ -1,5 +1,12 @@
 from django.db import models
-from .tournament import Tournament, GENDER_CHOICES
+from .tournament import Tournament
+
+# Унифицированные данные для пола
+UNIFIED_GENDER_CHOICES = (
+    ('M', 'Мужской'),
+    ('F', 'Женский'),
+    ('B', 'Оба пола')
+)
 
 
 class AgeGroup(models.Model):
@@ -23,9 +30,11 @@ class WeightCategory(models.Model):
     name = models.CharField(max_length=100, verbose_name='Название')
     min_weight = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Минимальный вес')
     max_weight = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Максимальный вес')
+
+    # ИСПРАВЛЕНИЕ: Унифицирован пол
     gender = models.CharField(
-        max_length=10,
-        choices=[('male', 'Мужской'), ('female', 'Женский'), ('both', 'Оба пола')],
+        max_length=1,
+        choices=UNIFIED_GENDER_CHOICES,
         verbose_name='Пол'
     )
 
@@ -35,7 +44,7 @@ class WeightCategory(models.Model):
         unique_together = ['tournament', 'name', 'gender']
 
     def __str__(self):
-        return f"{self.name} ({self.gender})"
+        return f"{self.name} ({self.get_gender_display()})"
 
 
 class AgeWeightCategory(models.Model):
@@ -50,16 +59,21 @@ class AgeWeightCategory(models.Model):
         related_name='age_weight_categories', verbose_name='Турнир'
     )
     name = models.CharField(max_length=100, verbose_name='Название категории')
-    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, verbose_name='Пол')
+
+    # ИСПРАВЛЕНИЕ: Используем единый список
+    gender = models.CharField(max_length=1, choices=UNIFIED_GENDER_CHOICES, verbose_name='Пол')
+
     min_birth_year = models.PositiveIntegerField(verbose_name='Минимальный год рождения')
     max_birth_year = models.PositiveIntegerField(verbose_name='Максимальный год рождения')
     min_weight = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Минимальный вес (кг)')
     max_weight = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='Максимальный вес (кг)')
+
     bracket_system = models.CharField(
         max_length=20, choices=BRACKET_SYSTEM_CHOICES,
         default='single_elimination', verbose_name='Система проведения'
     )
-    # === НОВОЕ: для бокса ===
+
+    # === для бокса ===
     side_judges_count = models.PositiveIntegerField(
         default=0, verbose_name='Количество боковых судей',
         help_text='Заполняется только для бокса (обычно 3 или 5)'
