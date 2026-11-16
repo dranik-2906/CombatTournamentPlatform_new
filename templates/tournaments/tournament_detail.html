@@ -34,6 +34,7 @@
                 <li><a class="dropdown-item" href="{% url 'tournaments:timer_settings' tournament.id %}"><i class="fas fa-clock me-2"></i>Таймер</a></li>
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item" href="{% url 'tournaments:edit_tournament' tournament.id %}"><i class="fas fa-edit me-2"></i>Редактировать</a></li>
+                <!-- Удаление турнира ведет на страницу подтверждения (GET безопасен) -->
                 <li><a class="dropdown-item text-danger" href="{% url 'tournaments:delete_tournament' tournament.id %}"><i class="fas fa-trash me-2"></i>Удалить</a></li>
             </ul>
         </div>
@@ -113,9 +114,16 @@
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="mb-0"><i class="fas fa-sitemap me-2"></i>Сетки</h5>
                 {% if is_admin %}
-                    <div class="btn-group btn-group-sm">
-                        <a href="{% url 'tournaments:generate_brackets' tournament.id %}" class="btn btn-success">Сгенерировать</a>
-                        <a href="{% url 'tournaments:advance_winners' tournament.id %}" class="btn btn-warning">Продвинуть</a>
+                    <!-- ЗАМЕНЕНО НА POST ФОРМЫ -->
+                    <div class="d-flex gap-2">
+                        <form method="post" action="{% url 'tournaments:generate_brackets' tournament.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-success">Сгенерировать</button>
+                        </form>
+                        <form method="post" action="{% url 'tournaments:advance_winners' tournament.id %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-warning">Продвинуть</button>
+                        </form>
                     </div>
                 {% endif %}
             </div>
@@ -141,9 +149,13 @@
 <!-- Действия -->
 <div class="d-flex gap-2 flex-wrap">
     {% if user.is_authenticated and not is_registered and user_role and user_role.label == 'Участник' %}
-        <a href="{% url 'tournaments:register_for_tournament' tournament.id %}" class="btn btn-success">
-            <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
-        </a>
+        <!-- ЗАМЕНЕНО НА POST ФОРМУ -->
+        <form method="post" action="{% url 'tournaments:register_for_tournament' tournament.id %}" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">
+                <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+            </button>
+        </form>
     {% endif %}
     {% if user.is_authenticated %}
         <a href="{% url 'tournaments:fights_management' tournament.id %}" class="btn btn-outline-primary">

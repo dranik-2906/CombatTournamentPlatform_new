@@ -2,46 +2,28 @@ import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST  # <-- ДОБАВЛЕНО
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from users.decorators import tournament_admin_required
 from ..models import Tournament, Fighter, Judge, AgeWeightCategory, Bracket, Fight
 from ..forms import TournamentForm
+from ..permissions import get_user_tournaments
 
 logger = logging.getLogger('tournaments')
 
 
 @login_required
 def tournament_list(request):
-    user = request.user
-
-    # Системный админ видит ВСЕ турниры
-    if user.is_superuser or getattr(user.profile, 'role', '') == 'system_admin':
-        tournaments = Tournament.objects.all()
-
-    # Админ турнира видит ТОЛЬКО турниры своей федерации
-    elif getattr(user.profile, 'role', '') == 'tournament_admin':
-        federation = getattr(user.profile, 'federation', None)
-        if federation:
-            tournaments = Tournament.objects.filter(federation=federation)
-        else:
-            tournaments = Tournament.objects.none()  # Если федерации нет, не видит ничего
-
-    # Судьи, тренеры и бойцы видят турниры своей федерации
-    else:
-        federation = getattr(user.profile, 'federation', None)
-        if federation:
-            tournaments = Tournament.objects.filter(federation=federation)
-        else:
-            tournaments = Tournament.objects.none()
-
+    """Список турниров (с изоляцией по федерациям)"""
+    tournaments = get_user_tournaments(request.user)
     return render(request, 'tournaments/tournament_list.html', {'tournaments': tournaments})
 
 
 def tournament_detail(request, pk):
     """Детальная информация о турнире"""
     tournament = get_object_or_404(
-        Tournament.objects.annotate(
+        get_user_tournaments(request.user).annotate(
             reg_count=Count('registrations'),
             approved_count=Count('registrations', filter=Q(registrations__is_approved=True)),
             fight_count=Count('fights'),
@@ -53,7 +35,6 @@ def tournament_detail(request, pk):
     brackets = tournament.brackets.select_related('age_weight_category')
     categories = tournament.age_weight_categories.all()
 
-    # Определяем, зарегистрирован ли текущий пользователь
     is_registered = False
     if request.user.is_authenticated and hasattr(request.user, 'fighter') and request.user.fighter:
         is_registered = request.user.fighter.registrations.filter(tournament=tournament).exists()
@@ -64,7 +45,7 @@ def tournament_detail(request, pk):
         'categories': categories,
         'is_admin': _is_admin(request),
         'is_judge': _is_judge(request),
-        'is_registered': is_registered,   # <-- добавлено
+        'is_registered': is_registered,
     }
 
     if request.user.is_authenticated and hasattr(request.user, 'judge') and request.user.judge.is_active:
@@ -76,22 +57,18 @@ def tournament_detail(request, pk):
 
 
 @login_required
+@tournament_admin_required
 def create_tournament(request):
     if request.method == 'POST':
-        # ИЗМЕНЕНИЕ: Передаем user=request.user для фильтрации видов спорта
         form = TournamentForm(request.POST, user=request.user)
         if form.is_valid():
             tournament = form.save(commit=False)
-
-            # Привязываем к федерации текущего админа (если он не суперюзер)
             if not request.user.is_superuser and hasattr(request.user, 'profile'):
                 tournament.federation = request.user.profile.federation
-
             tournament.save()
             messages.success(request, 'Турнир успешно создан')
             return redirect('tournaments:tournament_list')
     else:
-        # ИЗМЕНЕНИЕ: Передаем user=request.user
         form = TournamentForm(user=request.user)
     return render(request, 'tournaments/create_tournament.html', {'form': form})
 
@@ -100,17 +77,17 @@ def create_tournament(request):
 @tournament_admin_required
 def edit_tournament(request, pk):
     """Редактирование турнира"""
-    tournament = get_object_or_404(Tournament, pk=pk)
+    tournament = get_object_or_404(get_user_tournaments(request.user), pk=pk)
+
     if request.method == 'POST':
-        # ИЗМЕНЕНИЕ: Передаем user=request.user
         form = TournamentForm(request.POST, instance=tournament, user=request.user)
         if form.is_valid():
             form.save()
             messages.success(request, 'Турнир обновлён')
             return redirect('tournaments:tournament_detail', pk=pk)
     else:
-        # ИЗМЕНЕНИЕ: Передаем user=request.user
         form = TournamentForm(instance=tournament, user=request.user)
+
     return render(request, 'tournaments/edit_tournament.html', {
         'form': form, 'tournament': tournament
     })
@@ -120,20 +97,23 @@ def edit_tournament(request, pk):
 @tournament_admin_required
 def delete_tournament(request, pk):
     """Удаление турнира"""
-    tournament = get_object_or_404(Tournament, pk=pk)
+    tournament = get_object_or_404(get_user_tournaments(request.user), pk=pk)
+
     if request.method == 'POST':
         name = tournament.name
         tournament.delete()
         messages.success(request, f'Турнир "{name}" удалён')
         logger.info(f"Турнир #{pk} удалён пользователем {request.user}")
         return redirect('tournaments:tournament_list')
+
     return render(request, 'tournaments/delete_tournament.html', {'tournament': tournament})
 
 
 @login_required
+@require_POST  # <-- ИСПРАВЛЕНИЕ: Только POST-запрос
 def register_for_tournament(request, pk):
-    """Регистрация на турнир"""
-    tournament = get_object_or_404(Tournament, pk=pk)
+    """Регистрация на турнир (только POST)"""
+    tournament = get_object_or_404(get_user_tournaments(request.user), pk=pk)
 
     if not hasattr(request.user, 'fighter'):
         messages.error(request, 'У вас нет профиля бойца. Обратитесь к администратору.')
@@ -194,8 +174,8 @@ def _is_admin(request):
     if not request.user.is_authenticated:
         return False
     return request.user.is_superuser or (
-        hasattr(request.user, 'profile') and
-        request.user.profile.role in ('system_admin', 'tournament_admin')
+            hasattr(request.user, 'profile') and
+            request.user.profile.role in ('system_admin', 'tournament_admin')
     )
 
 

@@ -2,6 +2,7 @@ import logging
 import math
 import random
 from django.db import transaction
+from django.db.models import F, Max
 from django.contrib.auth.models import User
 from ..models import Bracket, BracketNode, Fight, Match, TournamentRegistration, TimerSettings
 
@@ -31,13 +32,15 @@ class BracketService:
             pass
         return defaults
 
-    import random
-    from ..models import Fight
-
+    @staticmethod
+    @transaction.atomic
     def generate_single_elimination(bracket, participants):
         """
         Генерирует полную олимпийскую сетку.
         Создаёт матчи для всех раундов, включая финал.
+
+        Исключения НЕ ловятся — при любой ошибке @transaction.atomic
+        откатывает все изменения. Обработку ошибок делает вызывающий код.
         """
         # 1. Перемешиваем участников (если нужен случайный посев)
         participants = list(participants)
@@ -54,6 +57,10 @@ class BracketService:
         bracket.current_round = 1
         bracket.save()
 
+        # Настройки таймера, чтобы создаваемые бои имели те же поля,
+        # что и в других генераторах (round_robin, mixed).
+        fight_defaults = BracketService._get_fight_defaults(bracket)
+
         # 3. Создаём пустые матчи для ВСЕХ раундов
         for round_num in range(1, total_rounds + 1):
             matches_in_round = 2 ** (total_rounds - round_num)
@@ -62,20 +69,24 @@ class BracketService:
                 Fight.objects.create(
                     tournament=bracket.tournament,
                     bracket=bracket,
+                    age_weight_category=bracket.age_weight_category,
                     round_number=round_num,
                     match_number=match_num,
                     status='scheduled',
+                    **fight_defaults
                 )
 
-        # НОВОЕ: Создаем бой за 3-е место (если включено)
-        if bracket.has_bronze_match:
+        # Бой за 3-е место (если включено)
+        if getattr(bracket, 'has_bronze_match', False):
             Fight.objects.create(
                 tournament=bracket.tournament,
                 bracket=bracket,
-                round_number=total_rounds,  # Визуально можно привязать к финальному раунду
-                match_number=99,  # Уникальный номер, чтобы не пересекался с финалом
+                age_weight_category=bracket.age_weight_category,
+                round_number=total_rounds,
+                match_number=99,
                 status='scheduled',
-                is_bronze_match=True
+                is_bronze_match=True,
+                **fight_defaults
             )
 
         # 4. Заполняем первый раунд реальными участниками
@@ -103,6 +114,14 @@ class BracketService:
             elif fight.fighter2 and not fight.fighter1:
                 fight.winner = fight.fighter2
                 fight.status = 'completed'
+            elif not fight.fighter1 and not fight.fighter2:
+                # ─── ИСПРАВЛЕНИЕ 3.1 ───
+                # Полностью пустой бой (оба участника None) возникает,
+                # когда число участников не является степенью двойки.
+                # Помечаем его завершённым, иначе advance_winners навсегда
+                # заблокирует раунд: бой висит в статусе 'scheduled',
+                # но не может быть завершён (некому драться).
+                fight.status = 'completed'
 
             fight.save()
 
@@ -111,7 +130,10 @@ class BracketService:
     @staticmethod
     @transaction.atomic
     def generate_round_robin(bracket, participants):
-        """Генерация круговой системы с разделением на туры"""
+        """Генерация круговой системы с разделением на туры.
+
+        Исключения НЕ ловятся — при ошибке @transaction.atomic откатит всё.
+        """
         participants = list(participants)
         random.shuffle(participants)
 
@@ -172,11 +194,20 @@ class BracketService:
     @staticmethod
     @transaction.atomic
     def generate_mixed(bracket, participants):
-        """Смешанная система: разделение на подгруппы А и Б (круговая) + плей-офф"""
-        try:
-            if not participants or len(participants) < 4:
-                return False, "Недостаточно участников для смешанной системы (минимум 4)"
+        """Смешанная система: разделение на подгруппы А и Б (круговая) + плей-офф.
 
+        ─── ИСПРАВЛЕНИЕ 3.4a ───
+        Раньше except проглатывал исключение, и @transaction.atomic
+        КОММИТИЛ частичные изменения (например, старые бои удалены,
+        а новые не созданы). Теперь в except вызываем
+        transaction.set_rollback(True) — это явно помечает транзакцию
+        как «должна быть откачена», и __exit__ делает полный ROLLBACK.
+        """
+        # Проверка — до любых операций с БД, откатывать нечего.
+        if not participants or len(participants) < 4:
+            return False, "Недостаточно участников для смешанной системы (минимум 4)"
+
+        try:
             # Очищаем старые бои перед генерацией
             Fight.objects.filter(bracket=bracket).delete()
 
@@ -185,7 +216,6 @@ class BracketService:
                 # Если передали регистрации, достаем самих бойцов
                 participants_list.append(p.fighter if hasattr(p, 'fighter') else p)
 
-            import random
             random.shuffle(participants_list)
 
             # Делим участников на две группы (поровну или с перевесом в 1 человека)
@@ -219,7 +249,9 @@ class BracketService:
                     match_number += 1
 
             # Генерируем бои для Группы Б
-            match_number = 1
+            # ВАЖНО: match_number для группы Б должен отличаться от группы А,
+            # иначе update_or_create перезапишет бои группы А. Используем offset 1000.
+            match_number = 1000
             for i in range(len(group_b)):
                 for j in range(i + 1, len(group_b)):
                     Fight.objects.update_or_create(
@@ -227,13 +259,6 @@ class BracketService:
                         bracket=bracket,
                         round_number=1,
                         match_number=match_number,
-                        # Внимание: в базе match_number для группы Б должен отличаться,
-                        # чтобы не было конфликта UNIQUE (если в модели уникальность по турниру, сетке, раунду и номеру матча).
-                        # Если группа Б создается в том же раунде (1) и номера начинаются с 1,
-                        # нужно либо добавить префикс к match_number (например, 100+), либо
-                        # настроить уникальность в модели иначе.
-                        # Но судя по прошлым кодам, match_number был уникален в рамках раунда.
-                        # Для безопасности используем offset.
                         defaults={
                             'age_weight_category': bracket.age_weight_category,
                             'fighter1': group_b[i],
@@ -255,15 +280,22 @@ class BracketService:
             return True, f"Смешанная система: {len(group_a)} чел. в Группе А, {len(group_b)} чел. в Группе Б"
 
         except Exception as e:
-            import logging
-            logger = logging.getLogger('tournaments')
             logger.error(f"Ошибка смешанной системы: {e}", exc_info=True)
+            # ─── КРИТИЧНО: без этого @transaction.atomic закоммитит
+            # частичные изменения (удаление старых боёв без создания новых).
+            transaction.set_rollback(True)
             return False, f"Ошибка: {str(e)}"
 
     @staticmethod
     @transaction.atomic
     def advance_winners(bracket):
-        """Продвижение победителей в следующий раунд"""
+        """Продвижение победителей в следующий раунд.
+
+        ─── ИСПРАВЛЕНИЕ 3.4b ───
+        Аналогично generate_mixed: в except вызываем set_rollback(True),
+        иначе частичное создание боёв следующего раунда / заполнение
+        бронзы могло закоммититься при возникновении ошибки.
+        """
         logger.info(f"=== advance_winners: сетка #{bracket.id}, раунд {bracket.current_round} ===")
         try:
             current_round = bracket.current_round
@@ -276,14 +308,33 @@ class BracketService:
             )
             total = fights_in_round.count()
             completed_regular = fights_in_round.filter(status='completed')
-            bye_fights = fights_in_round.filter(fighter2__isnull=True)
-            effectively_completed = completed_regular.count() + bye_fights.count()
 
-            logger.info(
-                f"Раунд {current_round}: всего {total}, завершено {completed_regular.count()}, BYE {bye_fights.count()}")
+            # Явная проверка каждого боя, без двойного учёта BYE.
+            # Бой «готов», если:
+            #   1) status='completed' (обычный бой с результатом ИЛИ пустой бой,
+            #      помеченный completed в generate_single_elimination);
+            #   2) это корректный BYE: есть fighter1, нет fighter2, winner == fighter1.
+            unfinished_fights = fights_in_round.exclude(
+                status='completed'
+            ).exclude(
+                fighter1__isnull=False,
+                fighter2__isnull=True,
+                winner=F('fighter1'),
+            )
 
-            if effectively_completed < total:
-                return False, f"Не все бои раунда {current_round} завершены (готово {effectively_completed} из {total})"
+            unfinished_count = unfinished_fights.count()
+            if unfinished_count > 0:
+                ready_count = total - unfinished_count
+                logger.info(
+                    f"Раунд {current_round}: всего {total}, готово {ready_count}, "
+                    f"не завершено {unfinished_count}")
+                # Возврат без изменений в БД — откат не нужен.
+                return False, (
+                    f"Не все бои раунда {current_round} завершены "
+                    f"(готово {ready_count} из {total})"
+                )
+
+            logger.info(f"Раунд {current_round}: все {total} боёв завершены (включая BYE)")
 
             # === КРУГОВАЯ СИСТЕМА ===
             if bracket.bracket_type == 'round_robin':
@@ -302,9 +353,9 @@ class BracketService:
                 if success:
                     # Обновляем раунды после создания плей-офф
                     max_round = Fight.objects.filter(bracket=bracket).aggregate(
-                        max_r=models.Max('round_number')
+                        max_r=Max('round_number')
                     )['max_r'] or 1
-                    bracket.current_round = max_round   # Переходим к последнему созданному раунду
+                    bracket.current_round = max_round
                     bracket.total_rounds = max_round
                     bracket.save()
                     return True, f"Плей-офф создан: {msg}"
@@ -341,40 +392,47 @@ class BracketService:
             match_counter = 1
 
             # ========================================================
-            # НОВАЯ ЛОГИКА: Создание боя за 3-е место (Бронзовый финал)
+            # Бронзовый финал (заполняем заранее созданный бой)
             # ========================================================
-            # Если осталось 2 победителя (это финал), и в сетке включена опция бронзы
             if len(winners) == 2 and getattr(bracket, 'has_bronze_match', False):
-                # Проверяем, не создан ли уже бой за 3-е место
-                bronze_exists = Fight.objects.filter(bracket=bracket, is_bronze_match=True).exists()
-                if not bronze_exists:
-                    # Собираем проигравших в полуфиналах (текущий раунд)
-                    losers = []
-                    for f in completed_regular:
-                        if f.fighter1 and f.fighter2:  # Исключаем BYE
-                            loser = f.fighter2 if f.winner == f.fighter1 else f.fighter1
-                            losers.append(loser)
+                losers = []
+                for f in completed_regular:
+                    if f.fighter1 and f.fighter2:  # Исключаем BYE и пустые бои
+                        loser = f.fighter2 if f.winner == f.fighter1 else f.fighter1
+                        losers.append(loser)
 
-                    # Если набралось ровно 2 проигравших, создаем бой
-                    if len(losers) == 2:
+                if len(losers) == 2:
+                    # ─── ИСПРАВЛЕНИЕ 3.2 ───
+                    # Бронзовый бой уже создан заранее в generate_single_elimination
+                    # (round_number=total_rounds, match_number=99, is_bronze_match=True).
+                    # Раньше код проверял bronze_exists и ПРОПУСКАЛ заполнение,
+                    # из-за чего бой навсегда оставался пустым. Теперь мы его
+                    # находим (или создаём, если по какой-то причине нет) и
+                    # ЗАПОЛНЯЕМ участниками.
+                    bronze_fight = Fight.objects.filter(
+                        bracket=bracket, is_bronze_match=True
+                    ).first()
+
+                    if bronze_fight is None:
                         bronze_fight = Fight.objects.create(
                             tournament=bracket.tournament,
                             bracket=bracket,
                             age_weight_category=bracket.age_weight_category,
                             round_number=next_round,
-                            match_number=99,  # Специальный номер для бронзы
+                            match_number=99,
                             status='scheduled',
                             is_bronze_match=True,
                             **fight_defaults
                         )
-                        bronze_fight.fighter1 = losers[0]
-                        bronze_fight.fighter2 = losers[1]
-                        bronze_fight.save(update_fields=['fighter1', 'fighter2'])
-                        logger.info(f"Создан бой за 3-е место: {losers[0]} vs {losers[1]}")
+
+                    bronze_fight.fighter1 = losers[0]
+                    bronze_fight.fighter2 = losers[1]
+                    bronze_fight.save(update_fields=['fighter1', 'fighter2'])
+                    logger.info(f"Создан бой за 3-е место: {losers[0]} vs {losers[1]}")
 
             # ========================================================
-
-            # Создаем обычные бои следующего раунда (включая финал)
+            # Обычные бои следующего раунда (включая финал)
+            # ========================================================
             for i in range(next_fights_count):
                 f1 = winners[i * 2]
                 f2 = winners[i * 2 + 1]
@@ -393,20 +451,23 @@ class BracketService:
                 fight.save(update_fields=['fighter1', 'fighter2'])
                 match_counter += 1
 
+            # BYE в следующем раунде — сразу завершённый,
+            # иначе при следующем вызове advance_winners() он не пройдёт
+            # валидацию (status='scheduled', winner=None) и раунд «застрянет».
             if bye_exists:
                 f_bye = winners[-1]
-                fight = Fight.objects.create(
+                Fight.objects.create(
                     tournament=bracket.tournament,
                     bracket=bracket,
                     age_weight_category=bracket.age_weight_category,
                     round_number=next_round,
                     match_number=match_counter,
-                    status='scheduled',
+                    status='completed',
+                    winner=f_bye,
+                    fighter1=f_bye,
+                    fighter2=None,
                     **fight_defaults
                 )
-                fight.fighter1 = f_bye
-                fight.fighter2 = None
-                fight.save(update_fields=['fighter1', 'fighter2'])
 
             bracket.current_round = next_round
             if next_round >= bracket.total_rounds:
@@ -417,17 +478,32 @@ class BracketService:
 
         except Exception as e:
             logger.error(f"Ошибка продвижения: {e}", exc_info=True)
+            # ─── КРИТИЧНО: иначе частичное создание боёв / заполнение
+            # бронзы закоммитится.
+            transaction.set_rollback(True)
             return False, f"Ошибка: {str(e)}"
+
     @staticmethod
     def check_completion(bracket):
-        """Проверить завершённость сетки"""
+        """Проверить завершённость сетки (бронза не влияет на победителя турнира)"""
         if bracket.status == 'completed':
             return True
-        fights = Fight.objects.filter(bracket=bracket)
+
+        # ─── ИСПРАВЛЕНИЕ 3.3 ───
+        # Бронзовый бой исключён из подсчёта завершённости: он может
+        # доигрываться отдельно (а при 3 участниках — вообще не создаётся,
+        # потому что проигравших в полуфиналах только один). Раньше
+        # пустая бронза со status='scheduled' навсегда блокировала
+        # завершение сетки.
+        fights = Fight.objects.filter(bracket=bracket, is_bronze_match=False)
         total = fights.count()
         completed = fights.filter(status='completed').count()
         if total > 0 and total == completed:
-            final = fights.filter(round_number=bracket.total_rounds, status='completed').first()
+            final = fights.filter(
+                round_number=bracket.total_rounds,
+                status='completed',
+                is_bronze_match=False,
+            ).first()
             if final and final.winner:
                 bracket.complete(final.winner)
                 return True
@@ -459,16 +535,16 @@ class BracketService:
             s2['score_diff'] += (f.score_fighter2 - f.score_fighter1)
 
             if f.is_draw:
-                s1['draws'] += 1;
+                s1['draws'] += 1
                 s1['points'] += 1
-                s2['draws'] += 1;
+                s2['draws'] += 1
                 s2['points'] += 1
             elif f.winner == f.fighter1:
-                s1['wins'] += 1;
+                s1['wins'] += 1
                 s1['points'] += 3
                 s2['losses'] += 1
             elif f.winner == f.fighter2:
-                s2['wins'] += 1;
+                s2['wins'] += 1
                 s2['points'] += 3
                 s1['losses'] += 1
 

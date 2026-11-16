@@ -2,12 +2,13 @@ import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_POST  # <-- УЖЕ БЫЛ
 from django.db.models import Count
 from users.decorators import tournament_admin_required
 from ..models import Tournament, Bracket, AgeWeightCategory, Fight, TournamentRegistration
 from ..services import BracketService, FightService
 from ..forms import AgeWeightCategoryForm
+from ..permissions import get_user_tournaments  # <-- ДОБАВЛЕНО ДЛЯ ИЗОЛЯЦИИ
 
 logger = logging.getLogger('tournaments')
 
@@ -15,7 +16,8 @@ logger = logging.getLogger('tournaments')
 @login_required
 def bracket_view(request, tournament_id, bracket_id):
     """Просмотр турнирной сетки"""
-    tournament = get_object_or_404(Tournament, pk=tournament_id)
+    # ИСПРАВЛЕНИЕ: Ограничиваем выборку доступными турнирами
+    tournament = get_object_or_404(get_user_tournaments(request.user), pk=tournament_id)
     bracket = get_object_or_404(Bracket, pk=bracket_id, tournament=tournament)
 
     # === ОБРАБОТКА ГАЛОЧКИ "БОЙ ЗА 3-Е МЕСТО" ===
@@ -74,7 +76,6 @@ def bracket_view(request, tournament_id, bracket_id):
     standings_a, standings_b = [], []
 
     if bracket.bracket_type == 'mixed':
-        # ИЗМЕНЕНИЕ: Используем единую функцию из FightService, чтобы таблица и плей-офф совпадали
         group_a_fights = bracket.fights.filter(round_number=1, group_name='A')
         group_b_fights = bracket.fights.filter(round_number=1, group_name='B')
 
@@ -127,9 +128,7 @@ def bracket_view(request, tournament_id, bracket_id):
                         loser = sf.fighter2 if sf.winner == sf.fighter1 else sf.fighter1
                         prizes.append({'place': 3, 'fighter': loser, 'note': 'Полуфиналист', 'is_bronze_winner': False})
 
-        # Если финала еще нет (идет групповой этап), показываем текущих лидеров
         elif bracket.bracket_type == 'mixed' and standings:
-            # ИЗМЕНЕНИЕ: Берем уже отсортированный список (топ-3)
             for s in standings[:3]:
                 if s.get('place'):
                     prizes.append({
@@ -196,11 +195,13 @@ def bracket_view(request, tournament_id, bracket_id):
 
     return render(request, 'tournaments/bracket_view.html', context)
 
+
 @login_required
 @tournament_admin_required
+@require_POST  # <-- ИСПРАВЛЕНИЕ: Только POST
 def generate_brackets(request, tournament_id):
     """Генерация сеток для всех категорий"""
-    tournament = get_object_or_404(Tournament, pk=tournament_id)
+    tournament = get_object_or_404(get_user_tournaments(request.user), pk=tournament_id)
     categories = AgeWeightCategory.objects.filter(tournament=tournament)
 
     if not categories.exists():
@@ -238,7 +239,6 @@ def generate_brackets(request, tournament_id):
         )
 
         if category.bracket_system == 'round_robin':
-            # Извлекаем самих бойцов из регистраций
             participants = [reg.fighter for reg in cat_regs]
             success, msg = BracketService.generate_round_robin(bracket, participants)
         elif category.bracket_system == 'mixed':
@@ -260,12 +260,14 @@ def generate_brackets(request, tournament_id):
 
 @login_required
 @tournament_admin_required
+@require_POST  # <-- ИСПРАВЛЕНИЕ: Только POST
 def advance_winners_view(request, tournament_id):
     """Продвижение победителей для конкретной сетки (или всех)"""
-    tournament = get_object_or_404(Tournament, pk=tournament_id)
+    tournament = get_object_or_404(get_user_tournaments(request.user), pk=tournament_id)
 
     # Если передан bracket_id — продвигаем только его
-    bracket_id = request.GET.get('bracket_id') or request.POST.get('bracket_id')
+    # Так как теперь только POST, request.POST.get() достаточно
+    bracket_id = request.POST.get('bracket_id')
     if bracket_id:
         bracket = get_object_or_404(Bracket, pk=bracket_id, tournament=tournament)
         success, msg = BracketService.advance_winners(bracket)
@@ -293,9 +295,11 @@ def advance_winners_view(request, tournament_id):
 
 @login_required
 @tournament_admin_required
+@require_POST  # <-- ИСПРАВЛЕНИЕ: Только POST
 def delete_bracket(request, tournament_id, bracket_id):
     """Удаление сетки"""
-    bracket = get_object_or_404(Bracket, pk=bracket_id, tournament_id=tournament_id)
+    tournament = get_object_or_404(get_user_tournaments(request.user), pk=tournament_id)
+    bracket = get_object_or_404(Bracket, pk=bracket_id, tournament=tournament)
     bracket.delete()
     messages.success(request, 'Сетка удалена')
     return redirect('tournaments:tournament_detail', pk=tournament_id)
@@ -305,7 +309,7 @@ def delete_bracket(request, tournament_id, bracket_id):
 @tournament_admin_required
 def manage_categories(request, tournament_id):
     """Управление категориями турнира"""
-    tournament = get_object_or_404(Tournament, pk=tournament_id)
+    tournament = get_object_or_404(get_user_tournaments(request.user), pk=tournament_id)
 
     categories = tournament.age_weight_categories.prefetch_related('registrations')
 
