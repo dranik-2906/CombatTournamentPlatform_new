@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.core.validators import FileExtensionValidator
+from django.utils import timezone  # ← добавлено для проверки дат
 from .models import Tournament, AgeWeightCategory, TournamentRegistration, Judge, TimerSettings, Fight, RoundScore, \
     Fighter, TournamentCheckpoint
 from .models.tournament import SPORT_TYPES
@@ -21,17 +23,39 @@ class TournamentForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        user = kwargs.pop('user', None)
+        # ВАЖНО: сохраняем user в self, чтобы иметь к нему доступ в clean()
+        self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
-        if user and not user.is_superuser and hasattr(user, 'profile') and user.profile.federation:
-            federation = user.profile.federation
+        if self.user and not self.user.is_superuser and hasattr(self.user, 'profile') and self.user.profile.federation:
+            federation = self.user.profile.federation
             if federation.sports:
                 allowed_sports = [s.strip() for s in federation.sports.split(',') if s.strip()]
                 self.fields['sport_type'].choices = [
                     (value, label) for value, label in self.fields['sport_type'].choices
                     if value in allowed_sports
                 ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        today = timezone.now().date()
+
+        # 1. Дата окончания не может быть раньше даты начала
+        if start_date and end_date and start_date > end_date:
+            self.add_error('end_date', 'Дата окончания не может быть раньше даты начала')
+
+        # 2. Нельзя создавать турниры, которые уже закончились
+        # (суперпользователь — исключение, чтобы можно было вносить исторические турниры)
+        if end_date and end_date < today and not (self.user and self.user.is_superuser):
+            self.add_error(
+                'end_date',
+                'Дата окончания не может быть в прошлом. '
+                'Вы пытаетесь создать уже завершённый турнир.'
+            )
+
+        return cleaned_data
 
 
 class AgeWeightCategoryForm(forms.ModelForm):
@@ -112,8 +136,10 @@ class FightResultForm(forms.ModelForm):
                 (fight.fighter2.id, f"{fight.fighter2.full_name} (Боец 2)"),
             ]
 
-        self.fields['winner'].required = True
-        self.fields['win_method'].required = True
+        # ИСПРАВЛЕНИЕ: Не делаем поля обязательными на уровне HTML,
+        # проверка происходит в clean() с учетом галочки "Ничья"
+        self.fields['winner'].required = False
+        self.fields['win_method'].required = False
 
     def clean(self):
         cleaned_data = super().clean()
@@ -121,7 +147,11 @@ class FightResultForm(forms.ModelForm):
         winner = cleaned_data.get('winner')
         win_method = cleaned_data.get('win_method')
 
-        if not is_draw:
+        if is_draw:
+            # ИСПРАВЛЕНИЕ: При ничьей обнуляем победителя
+            cleaned_data['winner'] = None
+        else:
+            # Если не ничья - победитель и метод строго обязательны
             if not winner:
                 self.add_error('winner', 'Вы должны выбрать победителя!')
             if not win_method:
@@ -209,7 +239,8 @@ class FighterForm(forms.ModelForm):
 
     def clean_weight(self):
         weight = self.cleaned_data.get('weight')
-        if weight:
+        # ИСПРАВЛЕНИЕ: Проверяем на None, чтобы 0 не проскочил как "пустое" значение
+        if weight is not None:
             validate_weight(weight)
         return weight
 
@@ -217,6 +248,8 @@ class FighterForm(forms.ModelForm):
 class ExcelUploadForm(forms.Form):
     excel_file = forms.FileField(
         label='Excel-файл',
+        # ИСПРАВЛЕНИЕ: Валидация расширения на сервере, а не только в браузере
+        validators=[FileExtensionValidator(allowed_extensions=['xlsx'])],
         widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.xlsx'})
     )
 

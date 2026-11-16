@@ -1,6 +1,7 @@
 import logging
 from django.db import models
 from django.db.models import Q
+from django.core.exceptions import ValidationError  # ДОБАВЛЕНО для clean()
 from .tournament import Tournament
 from .category import AgeWeightCategory
 from .fighter import Fighter
@@ -172,6 +173,7 @@ class Fight(models.Model):
         default=False,
         verbose_name="Бой за 3-е место"
     )
+
     class Meta:
         verbose_name = 'Бой'
         verbose_name_plural = 'Бои'
@@ -184,6 +186,32 @@ class Fight(models.Model):
         elif self.fighter1:
             return f"Бой #{self.id}: {self.fighter1} (автопроход)"
         return f"Бой #{self.id}"
+
+    # ==================== ВАЛИДАЦИЯ ====================
+    def clean(self):
+        super().clean()
+
+        # 1. Если есть победитель, он должен быть одним из двух участников
+        if self.winner_id:
+            allowed_fighters = {self.fighter1_id, self.fighter2_id}
+            if self.winner_id not in allowed_fighters:
+                raise ValidationError({
+                    'winner': 'Победитель должен быть одним из участников боя'
+                })
+
+        # 2. Если стоит галочка "Ничья", победителя быть не должно
+        if self.is_draw and self.winner_id:
+            raise ValidationError({
+                'winner': 'При ничьей победитель не указывается'
+            })
+
+    def save(self, *args, **kwargs):
+        # Принудительная валидация при сохранении.
+        # Это гарантирует, что даже через админку или API нельзя записать некорректные данные.
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    # ===================================================
 
     def start(self):
         """Начать бой"""

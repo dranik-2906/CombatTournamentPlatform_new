@@ -11617,3 +11617,41 @@ django.urls.exceptions.NoReverseMatch: Reverse for 'coach_edit_fighter' not foun
 [2026-11-14 19:39:08,173] INFO django.server "GET /tournaments/5/bracket/32/ HTTP/1.1" 200 44926
 [2026-11-14 19:39:18,919] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
 [2026-11-14 19:39:18,931] INFO django.server "GET / HTTP/1.1" 200 10936
+[2026-11-16 14:03:00,751] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-16 14:03:02,531] INFO django.server "GET / HTTP/1.1" 200 8460
+[2026-11-16 14:03:03,048] WARNING django.request Not Found: /favicon.ico
+[2026-11-16 14:03:03,049] WARNING django.server "GET /favicon.ico HTTP/1.1" 404 3038
+[2026-11-16 14:03:04,110] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-16 14:03:11,444] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-16 14:03:11,470] INFO django.server "GET /dashboard/ HTTP/1.1" 200 12049
+[2026-11-16 14:03:38,221] INFO django.server "GET /users/federations/ HTTP/1.1" 200 9756
+[2026-11-16 14:03:40,011] INFO django.server "GET /users/federations/create/ HTTP/1.1" 200 14577
+[2026-11-16 14:04:04,443] INFO django.server "GET /users/federations/create/ HTTP/1.1" 200 14577
+[2026-11-16 14:12:19,269] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-16 14:12:20,564] INFO django.server "GET / HTTP/1.1" 200 14133
+[2026-11-16 14:12:23,841] INFO django.server "GET /tournaments/ HTTP/1.1" 200 21647
+[2026-11-16 14:12:25,329] INFO django.server "GET /tournaments/5/ HTTP/1.1" 200 12388
+[2026-11-16 14:12:27,094] INFO django.server "GET / HTTP/1.1" 200 14133
+[2026-11-16 14:12:27,622] INFO django.server "GET /tournaments/ HTTP/1.1" 200 21647
+[2026-11-16 14:12:30,406] INFO django.server "GET /tournaments/create/ HTTP/1.1" 200 12901
+[2026-11-16 14:12:41,039] INFO django.server "POST /tournaments/create/ HTTP/1.1" 302 0
+[2026-11-16 14:12:41,054] INFO django.server "GET /tournaments/ HTTP/1.1" 200 23936
+[2026-11-16 14:12:45,650] INFO django.server "GET /tournaments/8/ HTTP/1.1" 200 11401
+[2026-11-16 14:20:38,624] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-16 14:20:40,594] INFO django.server "GET / HTTP/1.1" 200 14133
+[2026-11-16 14:20:43,804] INFO django.server "GET /tournaments/create/ HTTP/1.1" 200 12901
+[2026-11-16 14:21:08,536] INFO django.server "POST /tournaments/create/ HTTP/1.1" 302 0
+[2026-11-16 14:21:08,556] INFO django.server "GET /tournaments/ HTTP/1.1" 200 25873
+[2026-11-16 14:21:30,567] INFO django.server "GET /tournaments/8/ HTTP/1.1" 200 11401
+[2026-11-16 14:21:33,913] INFO django.server "GET /tournaments/participants/?tournament=8 HTTP/1.1" 200 11883
+[2026-11-16 14:21:34,776] INFO django.server "GET /tournaments/8/participants/add/ HTTP/1.1" 200 10271
+[2026-11-16 14:25:18,925] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-16 14:25:20,177] INFO django.server "GET / HTTP/1.1" 200 14133
+[2026-11-16 14:25:22,548] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-16 14:25:22,570] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-16 14:25:23,114] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-16 14:25:25,577] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-16 14:25:25,591] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11013
+[2026-11-16 14:25:27,188] INFO django.server "GET /tournaments/ HTTP/1.1" 200 8054
+[2026-11-16 14:25:28,208] INFO django.server "GET /tournaments/create/ HTTP/1.1" 200 12724
+[2026-11-16 14:25:37,269] INFO django.server "POST /tournaments/create/ HTTP/1.1" 200 13066
