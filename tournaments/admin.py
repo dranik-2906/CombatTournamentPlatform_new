@@ -5,8 +5,8 @@ from .models import (
     TimerSettings, TournamentRegistration,
     TournamentCheckpoint, RegistrationCheckpoint,
 )
-# ИМПОРТ ФУНКЦИЙ ИЗОЛЯЦИИ
-from .permissions import get_user_tournaments, is_admin
+# ИСПОЛЬЗУЕМ get_managed_tournaments ДЛЯ АДМИНКИ
+from .permissions import get_managed_tournaments, is_admin
 
 
 @admin.register(Tournament)
@@ -17,23 +17,23 @@ class TournamentAdmin(admin.ModelAdmin):
     date_hierarchy = 'start_date'
 
     def get_queryset(self, request):
-        """Показываем только доступные турниры"""
-        return get_user_tournaments(request.user)
+        """Показываем только те турниры, которыми пользователь может управлять"""
+        return get_managed_tournaments(request.user)
 
     def has_add_permission(self, request):
         """Создавать турниры могут только админы и суперюзеры"""
         return is_admin(request.user)
 
     def has_change_permission(self, request, obj=None):
-        """Редактировать можно только свои турниры"""
+        """Редактировать можно только управляемые турниры"""
         if not is_admin(request.user):
             return False
         if obj is not None:
-            return get_user_tournaments(request.user).filter(pk=obj.pk).exists()
+            return get_managed_tournaments(request.user).filter(pk=obj.pk).exists()
         return True
 
     def has_delete_permission(self, request, obj=None):
-        """Удалять можно только свои турниры"""
+        """Удалять можно только управляемые турниры"""
         return self.has_change_permission(request, obj)
 
     def save_model(self, request, obj, form, change):
@@ -51,9 +51,9 @@ class BracketAdmin(admin.ModelAdmin):
     list_filter = ['status', 'bracket_type', 'tournament']
 
     def get_queryset(self, request):
-        """Скрываем сетки чужих турниров"""
+        """Скрываем сетки чужих/неуправляемых турниров"""
         qs = super().get_queryset(request)
-        return qs.filter(tournament__in=get_user_tournaments(request.user))
+        return qs.filter(tournament__in=get_managed_tournaments(request.user))
 
 
 @admin.register(Fight)
@@ -63,9 +63,9 @@ class FightAdmin(admin.ModelAdmin):
     search_fields = ['fighter1__first_name', 'fighter2__first_name']
 
     def get_queryset(self, request):
-        """Скрываем бои чужих турниров"""
+        """Скрываем бои чужих/неуправляемых турниров"""
         qs = super().get_queryset(request)
-        return qs.filter(tournament__in=get_user_tournaments(request.user))
+        return qs.filter(tournament__in=get_managed_tournaments(request.user))
 
 
 @admin.register(TournamentRegistration)
@@ -75,9 +75,9 @@ class RegistrationAdmin(admin.ModelAdmin):
     search_fields = ['fighter__first_name', 'fighter__last_name']
 
     def get_queryset(self, request):
-        """Скрываем регистрации на чужие турниры"""
+        """Скрываем регистрации на чужие/неуправляемые турниры"""
         qs = super().get_queryset(request)
-        return qs.filter(tournament__in=get_user_tournaments(request.user))
+        return qs.filter(tournament__in=get_managed_tournaments(request.user))
 
 
 @admin.register(TournamentCheckpoint)
@@ -87,9 +87,9 @@ class TournamentCheckpointAdmin(admin.ModelAdmin):
     search_fields = ['name']
 
     def get_queryset(self, request):
-        """Скрываем чекпоинты чужих турниров"""
+        """Скрываем чекпоинты чужих/неуправляемых турниров"""
         qs = super().get_queryset(request)
-        return qs.filter(tournament__in=get_user_tournaments(request.user))
+        return qs.filter(tournament__in=get_managed_tournaments(request.user))
 
 
 @admin.register(RegistrationCheckpoint)
@@ -99,9 +99,9 @@ class RegistrationCheckpointAdmin(admin.ModelAdmin):
     search_fields = ['registration__fighter__first_name', 'checkpoint__name']
 
     def get_queryset(self, request):
-        """Скрываем чекпоинты регистраций на чужие турниры"""
+        """Скрываем чекпоинты регистраций на чужие/неуправляемые турниры"""
         qs = super().get_queryset(request)
-        return qs.filter(checkpoint__tournament__in=get_user_tournaments(request.user))
+        return qs.filter(checkpoint__tournament__in=get_managed_tournaments(request.user))
 
 
 @admin.register(Fighter)
@@ -109,15 +109,6 @@ class FighterAdmin(admin.ModelAdmin):
     list_display = ['full_name', 'club', 'weight', 'gender', 'age', 'user']
     list_filter = ['gender', 'club']
     search_fields = ['first_name', 'last_name', 'club']
-    # Если у бойцов тоже есть привязка к федерации, раскомментируйте код ниже:
-    # def get_queryset(self, request):
-    #     qs = super().get_queryset(request)
-    #     if request.user.is_superuser:
-    #         return qs
-    #     profile = getattr(request.user, 'profile', None)
-    #     if profile and profile.federation:
-    #         return qs.filter(federation=profile.federation)
-    #     return qs
 
 
 @admin.register(Judge)
@@ -125,7 +116,6 @@ class JudgeAdmin(admin.ModelAdmin):
     list_display = ['full_name', 'category', 'judge_type', 'is_active', 'license_number']
     list_filter = ['is_active', 'category', 'judge_type']
     search_fields = ['first_name', 'last_name']
-    # Аналогично для судей — если есть привязка к федерации.
 
 
 # Стандартная регистрация без кастомизации (оставлена как было)

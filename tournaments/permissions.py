@@ -1,28 +1,60 @@
 """
 Изоляция данных по федерациям.
-
-Каждый пользователь видит только «свои» турниры:
-  - superuser            → все
-  - role='system_admin'  → все
-  - role='tournament_admin' → только турниры своей федерации
-  - остальные            → ничего
 """
 from functools import wraps
-
+from django.db.models import Q
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from django.shortcuts import redirect
-
 from .models import Tournament
 
 # Роли, которым разрешено создавать/редактировать турниры
 ADMIN_ROLES = {'system_admin', 'tournament_admin'}
 
 
-def get_user_tournaments(user):
+def get_visible_tournaments(user):
     """
-    Возвращает QuerySet турниров, доступных пользователю.
-    Используется ВЕЗДЕ, где турнир достаётся по pk/id/slug.
+    Какие турниры пользователь может ВИДЕТЬ.
+    """
+    if not user.is_authenticated:
+        return Tournament.objects.none()
+
+    # Суперюзер видит всё
+    if user.is_superuser:
+        return Tournament.objects.all()
+
+    profile = getattr(user, 'profile', None)
+    if profile is None:
+        return Tournament.objects.none()
+
+    # Системный админ видит всё
+    if profile.role == 'system_admin':
+        return Tournament.objects.all()
+
+    # Создаем пустой Q-объект для объединения условий
+    q = Q()
+
+    # Если пользователь - админ турнира
+    if profile.role == 'tournament_admin':
+        if profile.federation_id:
+            q |= Q(federation=profile.federation)
+        else:
+            q |= Q(federation__isnull=True)
+
+    # Если у пользователя есть федерация (для бойцов, судей, тренеров)
+    if profile.federation_id:
+        q |= Q(federation=profile.federation)
+
+    # Если ни одно условие не добавилось — ничего не показываем
+    if not q:
+        return Tournament.objects.none()
+
+    # Возвращаем турниры, подходящие хотя бы под одно условие
+    return Tournament.objects.filter(q).distinct()
+
+
+def get_managed_tournaments(user):
+    """
+    Какими турнирами пользователь может УПРАВЛЯТЬ.
     """
     if not user.is_authenticated:
         return Tournament.objects.none()
@@ -30,7 +62,6 @@ def get_user_tournaments(user):
     if user.is_superuser:
         return Tournament.objects.all()
 
-    # hasattr — на случай, если у пользователя не создан Profile
     profile = getattr(user, 'profile', None)
     if profile is None:
         return Tournament.objects.none()
@@ -39,10 +70,10 @@ def get_user_tournaments(user):
         return Tournament.objects.all()
 
     if profile.role == 'tournament_admin':
-        if not profile.federation_id:
-            # Админ без федерации — не видит ничего
-            return Tournament.objects.none()
-        return Tournament.objects.filter(federation=profile.federation)
+        if profile.federation_id:
+            return Tournament.objects.filter(federation=profile.federation)
+        else:
+            return Tournament.objects.filter(federation__isnull=True)
 
     return Tournament.objects.none()
 
@@ -60,7 +91,6 @@ def is_admin(user):
 def admin_required(view_func):
     """
     Декоратор: login + проверка роли.
-    Заменяет @login_required там, где нужны админские права.
     """
     @wraps(view_func)
     @login_required

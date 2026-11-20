@@ -105,11 +105,15 @@ class FightService:
         return True, "Бой начат"
 
     @staticmethod
-    def complete_fight(fight, winner=None, method='', notes='', scores=None):
-        """Завершить бой и продвинуть победителя"""
+    def complete_fight(fight, winner=None, method='', notes='', scores=None, is_draw=False):
+        """Завершить бой и продвинуть победителя (с поддержкой ничьей)"""
         fight.status = 'completed'
         fight.end_time = timezone.now()
-        fight.winner = winner
+
+        # ─── ИСПРАВЛЕНИЕ 2.4 ───
+        fight.is_draw = is_draw
+        fight.winner = None if is_draw else winner
+
         fight.win_method = method
         fight.judge_notes = notes
         if scores:
@@ -119,10 +123,10 @@ class FightService:
 
         if fight.is_final and fight.bracket:
             fight.bracket.status = 'completed'
-            fight.bracket.winner = winner if winner else None
+            fight.bracket.winner = winner if (winner and not is_draw) else None
             fight.bracket.save()
 
-        if fight.next_fight and winner:
+        if fight.next_fight and winner and not is_draw:
             if not fight.next_fight.fighter1:
                 fight.next_fight.fighter1 = winner
             elif not fight.next_fight.fighter2:
@@ -176,7 +180,7 @@ class FightService:
             # 3. Формируем полуфиналы (А1 vs Б2, Б1 vs А2)
             semi_finals_pairs = [
                 (top_a[0], top_b[1]),  # А1 vs Б2
-                (top_b[0], top_a[1])   # Б1 vs А2
+                (top_b[0], top_a[1])  # Б1 vs А2
             ]
 
             # 4. Удаляем старые бои плей-офф
@@ -290,7 +294,7 @@ class FightService:
                         'wins': 0,
                         'draws': 0,
                         'losses': 0,
-                        'points': 0,          # <-- ДОБАВЛЕНО: турнирные очки (3-1-0)
+                        'points': 0,  # <-- ДОБАВЛЕНО: турнирные очки (3-1-0)
                         'points_for': 0,
                         'points_against': 0,
                         'head_to_head': {},
@@ -306,7 +310,7 @@ class FightService:
                 loser_id = f2_id if winner_id == f1_id else f1_id
                 if winner_id in stats:
                     stats[winner_id]['wins'] += 1
-                    stats[winner_id]['points'] += 3    # <-- ДОБАВЛЕНО: 3 очка за победу
+                    stats[winner_id]['points'] += 3  # <-- ДОБАВЛЕНО: 3 очка за победу
                 if loser_id and loser_id in stats:
                     stats[loser_id]['losses'] += 1
                     stats[loser_id]['head_to_head'][winner_id] = 'loss'
@@ -315,11 +319,11 @@ class FightService:
             elif f.is_draw:
                 if f1_id in stats:
                     stats[f1_id]['draws'] += 1
-                    stats[f1_id]['points'] += 1        # <-- ДОБАВЛЕНО: 1 очко за ничью
+                    stats[f1_id]['points'] += 1  # <-- ДОБАВЛЕНО: 1 очко за ничью
                     stats[f1_id]['head_to_head'][f2_id] = 'draw'
                 if f2_id in stats:
                     stats[f2_id]['draws'] += 1
-                    stats[f2_id]['points'] += 1        # <-- ДОБАВЛЕНО: 1 очко за ничью
+                    stats[f2_id]['points'] += 1  # <-- ДОБАВЛЕНО: 1 очко за ничью
                     stats[f2_id]['head_to_head'][f1_id] = 'draw'
 
             if f1_id in stats:
@@ -371,7 +375,7 @@ class FightService:
                 result.append({
                     'place': None,
                     'fighter': data['fighter'],
-                    'points': data['points'],              # <-- ДОБАВЛЕНО: передаем очки в шаблон
+                    'points': data['points'],  # <-- ДОБАВЛЕНО: передаем очки в шаблон
                     'method': f"Побед: {data['wins']}, Поражений: {data['losses']}, Очков: {data['points_for']}-{data['points_against']}"
                 })
             i = j

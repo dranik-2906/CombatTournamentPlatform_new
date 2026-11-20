@@ -2,28 +2,31 @@ import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST  # <-- ДОБАВЛЕНО
+from django.views.decorators.http import require_POST
 from django.core.paginator import Paginator
 from django.db.models import Q, Count
 from users.decorators import tournament_admin_required
 from ..models import Tournament, Fighter, Judge, AgeWeightCategory, Bracket, Fight
 from ..forms import TournamentForm
-from ..permissions import get_user_tournaments
+
+# ИМПОРТИРУЕМ ОБЕ ФУНКЦИИ (ПРОСМОТР И УПРАВЛЕНИЕ)
+from ..permissions import get_visible_tournaments, get_managed_tournaments
 
 logger = logging.getLogger('tournaments')
 
 
 @login_required
 def tournament_list(request):
-    """Список турниров (с изоляцией по федерациям)"""
-    tournaments = get_user_tournaments(request.user)
+    """Список турниров (для просмотра)"""
+    tournaments = get_visible_tournaments(request.user)
     return render(request, 'tournaments/tournament_list.html', {'tournaments': tournaments})
 
 
 def tournament_detail(request, pk):
     """Детальная информация о турнире"""
+    # Бойцы, судьи и админы видят доступные им турниры
     tournament = get_object_or_404(
-        get_user_tournaments(request.user).annotate(
+        get_visible_tournaments(request.user).annotate(
             reg_count=Count('registrations'),
             approved_count=Count('registrations', filter=Q(registrations__is_approved=True)),
             fight_count=Count('fights'),
@@ -76,8 +79,8 @@ def create_tournament(request):
 @login_required
 @tournament_admin_required
 def edit_tournament(request, pk):
-    """Редактирование турнира"""
-    tournament = get_object_or_404(get_user_tournaments(request.user), pk=pk)
+    """Редактирование турнира (только управляемые турниры)"""
+    tournament = get_object_or_404(get_managed_tournaments(request.user), pk=pk)
 
     if request.method == 'POST':
         form = TournamentForm(request.POST, instance=tournament, user=request.user)
@@ -96,8 +99,8 @@ def edit_tournament(request, pk):
 @login_required
 @tournament_admin_required
 def delete_tournament(request, pk):
-    """Удаление турнира"""
-    tournament = get_object_or_404(get_user_tournaments(request.user), pk=pk)
+    """Удаление турнира (только управляемые турниры)"""
+    tournament = get_object_or_404(get_managed_tournaments(request.user), pk=pk)
 
     if request.method == 'POST':
         name = tournament.name
@@ -110,10 +113,11 @@ def delete_tournament(request, pk):
 
 
 @login_required
-@require_POST  # <-- ИСПРАВЛЕНИЕ: Только POST-запрос
+@require_POST
 def register_for_tournament(request, pk):
     """Регистрация на турнир (только POST)"""
-    tournament = get_object_or_404(get_user_tournaments(request.user), pk=pk)
+    # Боец должен видеть турнир, чтобы зарегистрироваться
+    tournament = get_object_or_404(get_visible_tournaments(request.user), pk=pk)
 
     if not hasattr(request.user, 'fighter'):
         messages.error(request, 'У вас нет профиля бойца. Обратитесь к администратору.')

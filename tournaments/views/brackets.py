@@ -2,13 +2,15 @@ import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST  # <-- УЖЕ БЫЛ
+from django.views.decorators.http import require_POST
 from django.db.models import Count
 from users.decorators import tournament_admin_required
 from ..models import Tournament, Bracket, AgeWeightCategory, Fight, TournamentRegistration
 from ..services import BracketService, FightService
 from ..forms import AgeWeightCategoryForm
-from ..permissions import get_user_tournaments  # <-- ДОБАВЛЕНО ДЛЯ ИЗОЛЯЦИИ
+
+# ИМПОРТИРУЕМ ОБЕ ФУНКЦИИ
+from ..permissions import get_visible_tournaments, get_managed_tournaments
 
 logger = logging.getLogger('tournaments')
 
@@ -16,8 +18,8 @@ logger = logging.getLogger('tournaments')
 @login_required
 def bracket_view(request, tournament_id, bracket_id):
     """Просмотр турнирной сетки"""
-    # ИСПРАВЛЕНИЕ: Ограничиваем выборку доступными турнирами
-    tournament = get_object_or_404(get_user_tournaments(request.user), pk=tournament_id)
+    # Просматривать сетку могут все, кому виден турнир
+    tournament = get_object_or_404(get_visible_tournaments(request.user), pk=tournament_id)
     bracket = get_object_or_404(Bracket, pk=bracket_id, tournament=tournament)
 
     # === ОБРАБОТКА ГАЛОЧКИ "БОЙ ЗА 3-Е МЕСТО" ===
@@ -198,10 +200,10 @@ def bracket_view(request, tournament_id, bracket_id):
 
 @login_required
 @tournament_admin_required
-@require_POST  # <-- ИСПРАВЛЕНИЕ: Только POST
+@require_POST
 def generate_brackets(request, tournament_id):
-    """Генерация сеток для всех категорий"""
-    tournament = get_object_or_404(get_user_tournaments(request.user), pk=tournament_id)
+    """Генерация сеток для всех категорий (только управляемые)"""
+    tournament = get_object_or_404(get_managed_tournaments(request.user), pk=tournament_id)
     categories = AgeWeightCategory.objects.filter(tournament=tournament)
 
     if not categories.exists():
@@ -260,13 +262,11 @@ def generate_brackets(request, tournament_id):
 
 @login_required
 @tournament_admin_required
-@require_POST  # <-- ИСПРАВЛЕНИЕ: Только POST
+@require_POST
 def advance_winners_view(request, tournament_id):
-    """Продвижение победителей для конкретной сетки (или всех)"""
-    tournament = get_object_or_404(get_user_tournaments(request.user), pk=tournament_id)
+    """Продвижение победителей (только управляемые)"""
+    tournament = get_object_or_404(get_managed_tournaments(request.user), pk=tournament_id)
 
-    # Если передан bracket_id — продвигаем только его
-    # Так как теперь только POST, request.POST.get() достаточно
     bracket_id = request.POST.get('bracket_id')
     if bracket_id:
         bracket = get_object_or_404(Bracket, pk=bracket_id, tournament=tournament)
@@ -295,10 +295,10 @@ def advance_winners_view(request, tournament_id):
 
 @login_required
 @tournament_admin_required
-@require_POST  # <-- ИСПРАВЛЕНИЕ: Только POST
+@require_POST
 def delete_bracket(request, tournament_id, bracket_id):
-    """Удаление сетки"""
-    tournament = get_object_or_404(get_user_tournaments(request.user), pk=tournament_id)
+    """Удаление сетки (только управляемые)"""
+    tournament = get_object_or_404(get_managed_tournaments(request.user), pk=tournament_id)
     bracket = get_object_or_404(Bracket, pk=bracket_id, tournament=tournament)
     bracket.delete()
     messages.success(request, 'Сетка удалена')
@@ -308,8 +308,8 @@ def delete_bracket(request, tournament_id, bracket_id):
 @login_required
 @tournament_admin_required
 def manage_categories(request, tournament_id):
-    """Управление категориями турнира"""
-    tournament = get_object_or_404(get_user_tournaments(request.user), pk=tournament_id)
+    """Управление категориями турнира (только управляемые)"""
+    tournament = get_object_or_404(get_managed_tournaments(request.user), pk=tournament_id)
 
     categories = tournament.age_weight_categories.prefetch_related('registrations')
 

@@ -38,9 +38,6 @@ class BracketService:
         """
         Генерирует полную олимпийскую сетку.
         Создаёт матчи для всех раундов, включая финал.
-
-        Исключения НЕ ловятся — при любой ошибке @transaction.atomic
-        откатывает все изменения. Обработку ошибок делает вызывающий код.
         """
         # 1. Перемешиваем участников (если нужен случайный посев)
         participants = list(participants)
@@ -125,15 +122,18 @@ class BracketService:
 
             fight.save()
 
+        # ─── ИСПРАВЛЕНИЕ 2.5 ───
+        bracket.is_generated = True
+        bracket.size = len(participants)
+        bracket.status = 'generated'
+        bracket.save(update_fields=['is_generated', 'size', 'status'])
+
         return True, f'Сетка успешно сгенерирована. Раундов: {total_rounds}'
 
     @staticmethod
     @transaction.atomic
     def generate_round_robin(bracket, participants):
-        """Генерация круговой системы с разделением на туры.
-
-        Исключения НЕ ловятся — при ошибке @transaction.atomic откатит всё.
-        """
+        """Генерация круговой системы с разделением на туры"""
         participants = list(participants)
         random.shuffle(participants)
 
@@ -189,25 +189,22 @@ class BracketService:
             # Ротация участников (первый остается на месте, остальные сдвигаются)
             participants = [participants[0]] + [participants[-1]] + participants[1:-1]
 
+        # ─── ИСПРАВЛЕНИЕ 2.5 ───
+        bracket.is_generated = True
+        bracket.size = len([p for p in participants if p is not None])
+        bracket.status = 'generated'
+        bracket.save(update_fields=['is_generated', 'size', 'status'])
+
         return True, f'Круговая система сгенерирована. Туров: {rounds}'
 
     @staticmethod
     @transaction.atomic
     def generate_mixed(bracket, participants):
-        """Смешанная система: разделение на подгруппы А и Б (круговая) + плей-офф.
-
-        ─── ИСПРАВЛЕНИЕ 3.4a ───
-        Раньше except проглатывал исключение, и @transaction.atomic
-        КОММИТИЛ частичные изменения (например, старые бои удалены,
-        а новые не созданы). Теперь в except вызываем
-        transaction.set_rollback(True) — это явно помечает транзакцию
-        как «должна быть откачена», и __exit__ делает полный ROLLBACK.
-        """
-        # Проверка — до любых операций с БД, откатывать нечего.
-        if not participants or len(participants) < 4:
-            return False, "Недостаточно участников для смешанной системы (минимум 4)"
-
+        """Смешанная система: разделение на подгруппы А и Б (круговая) + плей-офф"""
         try:
+            if not participants or len(participants) < 4:
+                return False, "Недостаточно участников для смешанной системы (минимум 4)"
+
             # Очищаем старые бои перед генерацией
             Fight.objects.filter(bracket=bracket).delete()
 
@@ -216,6 +213,7 @@ class BracketService:
                 # Если передали регистрации, достаем самих бойцов
                 participants_list.append(p.fighter if hasattr(p, 'fighter') else p)
 
+            import random
             random.shuffle(participants_list)
 
             # Делим участников на две группы (поровну или с перевесом в 1 человека)
@@ -289,13 +287,7 @@ class BracketService:
     @staticmethod
     @transaction.atomic
     def advance_winners(bracket):
-        """Продвижение победителей в следующий раунд.
-
-        ─── ИСПРАВЛЕНИЕ 3.4b ───
-        Аналогично generate_mixed: в except вызываем set_rollback(True),
-        иначе частичное создание боёв следующего раунда / заполнение
-        бронзы могло закоммититься при возникновении ошибки.
-        """
+        """Продвижение победителей в следующий раунд"""
         logger.info(f"=== advance_winners: сетка #{bracket.id}, раунд {bracket.current_round} ===")
         try:
             current_round = bracket.current_round
