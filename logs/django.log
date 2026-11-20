@@ -11710,3 +11710,9 @@ django.urls.exceptions.NoReverseMatch: Reverse for 'coach_edit_fighter' not foun
 [2026-11-16 18:17:40,962] INFO django.server "POST /tournaments/7/categories/ HTTP/1.1" 302 0
 [2026-11-16 18:17:40,976] INFO django.server "GET /tournaments/7/categories/ HTTP/1.1" 200 15367
 [2026-11-16 18:17:43,724] INFO django.server "GET /tournaments/7/categories/ HTTP/1.1" 200 15015
+[2026-11-20 13:01:05,077] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-20 13:01:07,771] INFO django.server "GET / HTTP/1.1" 200 13954
+[2026-11-20 13:01:08,733] WARNING django.request Not Found: /favicon.ico
+[2026-11-20 13:01:08,734] WARNING django.server "GET /favicon.ico HTTP/1.1" 404 3038
+[2026-11-20 13:14:51,921] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-20 13:15:10,235] INFO django.utils.autoreload Watching for file changes with StatReloader
