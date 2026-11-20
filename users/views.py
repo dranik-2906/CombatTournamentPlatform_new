@@ -1,18 +1,17 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.views.decorators.http import require_http_methods
 from django.db import transaction
 from .models import Profile, Federation
 
-# Импортируем нашу новую форму для создания федерации вместе с админом
-from .forms import FederationCreateForm
+from .forms import FederationCreateForm, UserUpdateForm, ProfileForm
+from tournaments.forms import FighterForm, JudgeForm
 
 
-# Доступ только для системного админа (суперпользователя)
 @user_passes_test(lambda u: u.is_superuser)
 def federation_list(request):
     """Список всех федераций"""
@@ -27,22 +26,17 @@ def create_federation(request):
         form = FederationCreateForm(request.POST)
         if form.is_valid():
             try:
-                # Используем транзакцию, чтобы если что-то упадет, база не засорилась
                 with transaction.atomic():
-                    # 1. Сохраняем Федерацию
                     federation = form.save(commit=False)
                     federation.is_active = True
                     federation.save()
 
-                    # 2. Создаем Пользователя для админа федерации
                     username = form.cleaned_data['admin_username']
                     email = form.cleaned_data['admin_email']
                     password = form.cleaned_data['admin_password']
 
                     user = User.objects.create_user(username=username, email=email, password=password)
 
-                    # 3. Назначаем роль и привязываем к федерации
-                    # Профиль создается автоматически через сигнал в models.py
                     profile = user.profile
                     profile.role = 'tournament_admin'
                     profile.federation = federation
@@ -133,3 +127,60 @@ def register(request):
             messages.error(request, f'Ошибка регистрации: {e}')
 
     return render(request, 'users/register.html')
+
+
+# ==================== ЛИЧНЫЙ КАБИНЕТ ====================
+
+@login_required
+def profile_view(request):
+    """Личный кабинет пользователя"""
+    user = request.user
+    user_form = UserUpdateForm(instance=user)
+    profile_form = ProfileForm(instance=user.profile)
+    password_form = PasswordChangeForm(user)
+
+    fighter_form = FighterForm(instance=user.fighter) if hasattr(user, 'fighter') else None
+    judge_form = JudgeForm(instance=user.judge) if hasattr(user, 'judge') else None
+
+    if request.method == 'POST':
+        # ОБНОВЛЕНИЕ ДАННЫХ
+        if 'update_profile' in request.POST:
+            user_form = UserUpdateForm(request.POST, instance=user)
+
+            # ВАЖНО: Добавлен request.FILES для загрузки аватарки!
+            profile_form = ProfileForm(request.POST, request.FILES, instance=user.profile)
+
+            if fighter_form:
+                fighter_form = FighterForm(request.POST, request.FILES, instance=user.fighter)
+            if judge_form:
+                judge_form = JudgeForm(request.POST, instance=user.judge)
+
+            if user_form.is_valid() and profile_form.is_valid() and \
+                    (not fighter_form or fighter_form.is_valid()) and \
+                    (not judge_form or judge_form.is_valid()):
+
+                user_form.save()
+                profile_form.save()
+                if fighter_form: fighter_form.save()
+                if judge_form: judge_form.save()
+
+                messages.success(request, 'Профиль успешно обновлён!')
+                return redirect('users:profile')
+
+        # СМЕНА ПАРОЛЯ
+        elif 'change_password' in request.POST:
+            password_form = PasswordChangeForm(user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Пароль успешно изменён!')
+                return redirect('users:profile')
+
+    context = {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'password_form': password_form,
+        'fighter_form': fighter_form,
+        'judge_form': judge_form,
+    }
+    return render(request, 'users/profile.html', context)

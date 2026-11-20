@@ -11716,3 +11716,160 @@ django.urls.exceptions.NoReverseMatch: Reverse for 'coach_edit_fighter' not foun
 [2026-11-20 13:01:08,734] WARNING django.server "GET /favicon.ico HTTP/1.1" 404 3038
 [2026-11-20 13:14:51,921] INFO django.utils.autoreload Watching for file changes with StatReloader
 [2026-11-20 13:15:10,235] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-20 14:09:12,641] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-20 14:09:13,942] INFO django.server "GET / HTTP/1.1" 200 14083
+[2026-11-20 14:09:16,104] INFO django.server "GET /users/profile/ HTTP/1.1" 200 11429
+[2026-11-20 14:10:06,234] INFO django.server "POST /users/profile/ HTTP/1.1" 200 11580
+[2026-11-20 14:10:11,494] INFO django.server "GET /users/profile/ HTTP/1.1" 200 11429
+[2026-11-20 14:10:14,629] INFO django.server "GET / HTTP/1.1" 200 14083
+[2026-11-20 14:10:15,303] INFO django.server "GET /tournaments/ HTTP/1.1" 200 9897
+[2026-11-20 14:10:16,203] INFO django.server "GET /tournaments/ HTTP/1.1" 200 9897
+[2026-11-20 14:10:17,452] INFO django.server "GET /users/profile/ HTTP/1.1" 200 11429
+[2026-11-20 14:10:38,625] INFO django.server "GET / HTTP/1.1" 200 14083
+[2026-11-20 14:10:40,311] INFO django.server "GET /tournaments/ HTTP/1.1" 200 9897
+[2026-11-20 14:10:41,027] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 36919
+[2026-11-20 14:10:42,217] INFO django.server "GET / HTTP/1.1" 200 14083
+[2026-11-20 14:10:47,466] INFO django.server "GET /tournaments/fighters/ HTTP/1.1" 200 36919
+[2026-11-20 14:10:52,575] INFO django.server "GET / HTTP/1.1" 200 14083
+[2026-11-20 14:11:07,340] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-20 14:11:07,357] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-20 14:11:08,742] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-20 14:11:13,884] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-20 14:11:13,904] INFO django.server "GET /dashboard/ HTTP/1.1" 200 8499
+[2026-11-20 14:11:15,324] INFO django.server "GET /users/profile/ HTTP/1.1" 200 10637
+[2026-11-20 14:11:33,183] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-20 14:11:33,194] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-20 14:11:33,771] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-20 14:11:38,497] INFO django.server "POST /users/login/ HTTP/1.1" 200 6115
+[2026-11-20 14:11:41,757] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-20 14:11:41,770] INFO django.server "GET /dashboard/ HTTP/1.1" 200 8043
+[2026-11-20 14:11:43,700] INFO django.server "GET /users/profile/ HTTP/1.1" 200 13844
+[2026-11-20 14:16:52,250] INFO django.utils.autoreload C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\models.py changed, reloading.
+[2026-11-20 14:16:52,934] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-20 14:20:48,974] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-20 14:20:50,505] ERROR django.request Internal Server Error: /
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 506, in __get__
+    rel_obj = self.related.get_cached_value(instance)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\mixins.py", line 15, in get_cached_value
+    return instance._state.fields_cache[cache_name]
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+KeyError: 'profile'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 329, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+sqlite3.OperationalError: no such column: users_profile.photo
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\core\views.py", line 47, in home
+    return render(request, 'home.html', context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\shortcuts.py", line 25, in render
+    content = loader.render_to_string(template_name, context, request, using=using)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\loader.py", line 62, in render_to_string
+    return template.render(context, request)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\backends\django.py", line 61, in render
+    return self.template.render(context)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\base.py", line 169, in render
+    with context.bind_template(self):
+         ~~~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "D:\pythonchik\Lib\contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\template\context.py", line 254, in bind_template
+    context = processor(self.request)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\users\context_processors.py", line 11, in user_role
+    if hasattr(request.user, 'profile') and request.user.profile:
+       ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\utils\functional.py", line 253, in inner
+    return func(_wrapped, *args)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\fields\related_descriptors.py", line 514, in __get__
+    rel_obj = self.get_queryset(instance=instance).get(**filter_args)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 645, in get
+    num = len(clone)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 382, in __len__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 1928, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1562, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\User\Downloads\Kimi_Agent_CombatTournamentPlatform_ исправления\combat_platform\venv\Lib\site-packages\django\db\backends\sqlite3\base.py", line 329, in execute
+    return super().execute(query, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+django.db.utils.OperationalError: no such column: users_profile.photo
+[2026-11-20 14:20:50,515] ERROR django.server "GET / HTTP/1.1" 500 192495
+[2026-11-20 14:21:31,406] INFO django.utils.autoreload Watching for file changes with StatReloader
+[2026-11-20 14:21:32,660] INFO django.server "GET / HTTP/1.1" 200 11825
+[2026-11-20 14:21:35,539] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-20 14:21:35,572] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-20 14:21:36,450] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-20 14:21:37,072] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-20 14:21:38,523] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-20 14:21:38,539] INFO django.server "GET /dashboard/ HTTP/1.1" 200 8404
+[2026-11-20 14:21:40,287] INFO django.server "GET /users/profile/ HTTP/1.1" 200 20291
+[2026-11-20 14:21:53,170] INFO django.server "POST /users/profile/ HTTP/1.1" 200 20592
+[2026-11-20 14:21:53,207] WARNING django.request Not Found: /media/P1513140.jpg
+[2026-11-20 14:21:53,208] WARNING django.server "GET /media/P1513140.jpg HTTP/1.1" 404 3315
+[2026-11-20 14:21:56,632] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-20 14:21:56,643] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-20 14:21:57,690] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-20 14:21:59,095] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-20 14:21:59,108] INFO django.server "GET /dashboard/ HTTP/1.1" 200 8404
+[2026-11-20 14:22:00,673] INFO django.server "GET /users/profile/ HTTP/1.1" 200 20291
+[2026-11-20 14:22:06,309] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-20 14:22:06,320] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-20 14:22:07,033] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-20 14:22:12,277] INFO django.server "POST /users/login/ HTTP/1.1" 200 6122
+[2026-11-20 14:22:16,115] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-20 14:22:16,127] INFO django.server "GET /dashboard/ HTTP/1.1" 200 12512
+[2026-11-20 14:22:17,709] INFO django.server "GET /users/profile/ HTTP/1.1" 200 15838
+[2026-11-20 14:22:23,804] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-20 14:22:23,814] INFO django.server "GET / HTTP/1.1" 200 8817
+[2026-11-20 14:22:24,374] INFO django.server "GET /users/login/ HTTP/1.1" 200 5432
+[2026-11-20 14:22:27,236] INFO django.server "POST /users/login/ HTTP/1.1" 302 0
+[2026-11-20 14:22:27,248] INFO django.server "GET /dashboard/ HTTP/1.1" 200 11476
+[2026-11-20 14:22:29,347] INFO django.server "GET /users/profile/ HTTP/1.1" 200 15678
+[2026-11-20 14:22:44,745] INFO django.server "POST /users/profile/ HTTP/1.1" 302 0
+[2026-11-20 14:22:44,756] INFO django.server "GET /users/profile/ HTTP/1.1" 200 16127
+[2026-11-20 14:22:48,840] INFO django.server "GET /users/logout/ HTTP/1.1" 302 0
+[2026-11-20 14:22:48,851] INFO django.server "GET / HTTP/1.1" 200 8817

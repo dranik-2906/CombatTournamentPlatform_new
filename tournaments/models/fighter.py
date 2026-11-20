@@ -1,8 +1,10 @@
 from datetime import date
 from django.db import models
+from geo.models import Country, City
 from django.db.models import Q
 from django.contrib.auth.models import User
 from ..validators import validate_birth_date, validate_weight
+
 
 
 class Fighter(models.Model):
@@ -30,6 +32,8 @@ class Fighter(models.Model):
     coach = models.CharField(max_length=200, verbose_name='Тренер')
     photo = models.ImageField(upload_to='fighters', blank=True, null=True, verbose_name='Фото')
     created_at = models.DateTimeField(auto_now_add=True)
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Страна')
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Город')
 
     class Meta:
         verbose_name = 'Боец'

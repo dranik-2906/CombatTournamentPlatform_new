@@ -1,11 +1,12 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.core.validators import FileExtensionValidator
-from django.utils import timezone  # ← добавлено для проверки дат
+from django.utils import timezone
 from .models import Tournament, AgeWeightCategory, TournamentRegistration, Judge, TimerSettings, Fight, RoundScore, \
     Fighter, TournamentCheckpoint
 from .models.tournament import SPORT_TYPES
 from .validators import validate_birth_date, validate_weight
+from geo.models import Country, City # Импортируем наши новые модели
 
 
 class TournamentForm(forms.ModelForm):
@@ -23,7 +24,6 @@ class TournamentForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        # ВАЖНО: сохраняем user в self, чтобы иметь к нему доступ в clean()
         self.user = kwargs.pop('user', None)
         super().__init__(*args, **kwargs)
 
@@ -42,12 +42,9 @@ class TournamentForm(forms.ModelForm):
         end_date = cleaned_data.get('end_date')
         today = timezone.now().date()
 
-        # 1. Дата окончания не может быть раньше даты начала
         if start_date and end_date and start_date > end_date:
             self.add_error('end_date', 'Дата окончания не может быть раньше даты начала')
 
-        # 2. Нельзя создавать турниры, которые уже закончились
-        # (суперпользователь — исключение, чтобы можно было вносить исторические турниры)
         if end_date and end_date < today and not (self.user and self.user.is_superuser):
             self.add_error(
                 'end_date',
@@ -136,8 +133,6 @@ class FightResultForm(forms.ModelForm):
                 (fight.fighter2.id, f"{fight.fighter2.full_name} (Боец 2)"),
             ]
 
-        # ИСПРАВЛЕНИЕ: Не делаем поля обязательными на уровне HTML,
-        # проверка происходит в clean() с учетом галочки "Ничья"
         self.fields['winner'].required = False
         self.fields['win_method'].required = False
 
@@ -148,10 +143,8 @@ class FightResultForm(forms.ModelForm):
         win_method = cleaned_data.get('win_method')
 
         if is_draw:
-            # ИСПРАВЛЕНИЕ: При ничьей обнуляем победителя
             cleaned_data['winner'] = None
         else:
-            # Если не ничья - победитель и метод строго обязательны
             if not winner:
                 self.add_error('winner', 'Вы должны выбрать победителя!')
             if not win_method:
@@ -163,8 +156,9 @@ class FightResultForm(forms.ModelForm):
 class JudgeForm(forms.ModelForm):
     class Meta:
         model = Judge
+        # ДОБАВЛЕНЫ country и city
         fields = ['first_name', 'last_name', 'date_of_birth', 'category', 'judge_type', 'license_number',
-                  'experience_years', 'is_active']
+                  'experience_years', 'is_active', 'country', 'city']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -174,11 +168,25 @@ class JudgeForm(forms.ModelForm):
             'license_number': forms.TextInput(attrs={'class': 'form-control'}),
             'experience_years': forms.NumberInput(attrs={'class': 'form-control'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'country': forms.Select(attrs={'class': 'form-select'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
         }
         labels = {
             'date_of_birth': 'Дата рождения (для пароля)',
             'judge_type': 'Тип судьи',
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Динамическая фильтрация городов
+        if 'country' in self.data:
+            try:
+                country_id = int(self.data.get('country'))
+                self.fields['city'].queryset = City.objects.filter(country_id=country_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk and self.instance.country:
+            self.fields['city'].queryset = self.instance.country.cities.order_by('name')
 
     def clean_date_of_birth(self):
         dob = self.cleaned_data.get('date_of_birth')
@@ -219,7 +227,8 @@ class RoundScoreForm(forms.ModelForm):
 class FighterForm(forms.ModelForm):
     class Meta:
         model = Fighter
-        fields = ['first_name', 'last_name', 'date_of_birth', 'gender', 'weight', 'club', 'coach', 'photo']
+        # ДОБАВЛЕНЫ country и city
+        fields = ['first_name', 'last_name', 'date_of_birth', 'gender', 'weight', 'club', 'coach', 'photo', 'country', 'city']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control'}),
@@ -229,7 +238,21 @@ class FighterForm(forms.ModelForm):
             'club': forms.TextInput(attrs={'class': 'form-control'}),
             'coach': forms.TextInput(attrs={'class': 'form-control'}),
             'photo': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'country': forms.Select(attrs={'class': 'form-select'}),
+            'city': forms.Select(attrs={'class': 'form-select'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Динамическая фильтрация городов
+        if 'country' in self.data:
+            try:
+                country_id = int(self.data.get('country'))
+                self.fields['city'].queryset = City.objects.filter(country_id=country_id).order_by('name')
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk and self.instance.country:
+            self.fields['city'].queryset = self.instance.country.cities.order_by('name')
 
     def clean_date_of_birth(self):
         dob = self.cleaned_data.get('date_of_birth')
@@ -239,7 +262,6 @@ class FighterForm(forms.ModelForm):
 
     def clean_weight(self):
         weight = self.cleaned_data.get('weight')
-        # ИСПРАВЛЕНИЕ: Проверяем на None, чтобы 0 не проскочил как "пустое" значение
         if weight is not None:
             validate_weight(weight)
         return weight
@@ -248,7 +270,6 @@ class FighterForm(forms.ModelForm):
 class ExcelUploadForm(forms.Form):
     excel_file = forms.FileField(
         label='Excel-файл',
-        # ИСПРАВЛЕНИЕ: Валидация расширения на сервере, а не только в браузере
         validators=[FileExtensionValidator(allowed_extensions=['xlsx'])],
         widget=forms.FileInput(attrs={'class': 'form-control', 'accept': '.xlsx'})
     )

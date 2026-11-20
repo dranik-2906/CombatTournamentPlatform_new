@@ -57,10 +57,9 @@
                             </li>
                         {% endif %}
 
-                        <!-- Панель тренера (ссылка на список бойцов) -->
+                        <!-- Панель тренера -->
                         {% if role == 'coach' %}
                             <li class="nav-item">
-                                <!-- ИСПРАВЛЕНО: Теперь ведет на список бойцов -->
                                 <a class="nav-link" href="{% url 'tournaments:coach_my_fighters' %}">
                                     <i class="fas fa-chalkboard-teacher me-1"></i>Мои бойцы
                                 </a>
@@ -73,8 +72,21 @@
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
-                                <i class="fas fa-user-circle me-1"></i>
-                                <span>{{ user.username }}</span>
+                                <!-- ВЫВОДИМ АВАТАРКУ ИЛИ ИКОНКУ -->
+                                {% if user.profile.photo %}
+                                    <img src="{{ user.profile.photo.url }}" alt="Avatar" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #6c757d;">
+                                {% else %}
+                                    <i class="fas fa-user-circle me-2 fs-4"></i>
+                                {% endif %}
+
+                                <!-- ВЫВОДИМ ФАМИЛИЮ И ИМЯ (вместо логина) -->
+                                <span class="fw-bold">
+                                    {% if user.last_name or user.first_name %}
+                                        {{ user.last_name }} {{ user.first_name }}
+                                    {% else %}
+                                        {{ user.username }}
+                                    {% endif %}
+                                </span>
 
                                 <!-- БЕЙДЖ РОЛИ -->
                                 {% if user_role %}
@@ -99,7 +111,8 @@
                                     <li><a class="dropdown-item" href="{% url 'tournaments:my_registrations' %}"><i class="fas fa-user-check me-2"></i>Мои регистрации</a></li>
                                 {% endif %}
 
-                                <li><a class="dropdown-item" href="{% url 'core:dashboard' %}"><i class="fas fa-tachometer-alt me-2"></i>Личный кабинет</a></li>
+                                <!-- Личный кабинет -->
+                                <li><a class="dropdown-item" href="{% url 'users:profile' %}"><i class="fas fa-user-cog me-2"></i>Личный кабинет</a></li>
 
                                 <li><hr class="dropdown-divider"></li>
 

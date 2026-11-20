@@ -1,5 +1,7 @@
 from django.db import models
+from geo.models import Country, City
 from django.contrib.auth.models import User
+
 
 
 class Judge(models.Model):
@@ -38,6 +40,8 @@ class Judge(models.Model):
         default=0, blank=True, null=True, verbose_name='Стаж (лет)'
     )
     is_active = models.BooleanField(default=True, verbose_name='Активный')
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Страна')
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Город')
 
     class Meta:
         verbose_name = 'Судья'

@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'core',
     'users',
     'tournaments',
+    'geo',
 ]
 
 MIDDLEWARE = [

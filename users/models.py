@@ -1,4 +1,5 @@
 from django.db import models
+from geo.models import Country, City
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -15,6 +16,8 @@ class Federation(models.Model):
     is_active = models.BooleanField(default=True, verbose_name='Лицензия активна')
     valid_until = models.DateField(null=True, blank=True, verbose_name='Лицензия действует до')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Страна')
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Город')
 
     class Meta:
         verbose_name = 'Федерация (Лицензия)'
@@ -41,6 +44,16 @@ class Profile(models.Model):
         related_name='profiles', verbose_name='Федерация'
     )
     club = models.CharField(max_length=150, blank=True, null=True, verbose_name='Клуб (для тренера/бойца)')
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Страна')
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Город')
+
+    # ДОБАВЛЯЕМ ПОЛЕ ДЛЯ АВАТАРКИ
+    photo = models.ImageField(
+        upload_to='avatars/',
+        null=True,
+        blank=True,
+        verbose_name='Аватар профиля'
+    )
 
     class Meta:
         verbose_name = 'Профиль'
@@ -53,7 +66,6 @@ class Profile(models.Model):
     def actual_role(self):
         user = self.user
         if user.is_superuser: return 'system_admin'
-        # ИСПРАВЛЕНИЕ: Теперь роль coach не затирается
         if self.role in ('system_admin', 'tournament_admin', 'coach'): return self.role
         if hasattr(user, 'judge') and user.judge.is_active: return 'judge'
         if hasattr(user, 'fighter'): return 'fighter'
@@ -67,6 +79,7 @@ class Profile(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.get_or_create(user=instance)
+
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):

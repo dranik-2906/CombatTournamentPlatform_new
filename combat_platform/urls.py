@@ -9,7 +9,8 @@ urlpatterns = [
     path('', home, name='home'),  # глобальное имя 'home' для шаблонов
     path('', include('core.urls', namespace='core')),
     path('users/', include('users.urls', namespace='users')),
-    path('tournaments/', include('tournaments.urls', namespace='tournaments')),
+    path('tournaments/', include('tournaments.urls', namespace='tournaments')),\
+    path('geo/', include('geo.urls')),
 ]
 
 if settings.DEBUG:

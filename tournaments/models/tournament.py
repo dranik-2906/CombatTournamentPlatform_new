@@ -1,5 +1,6 @@
 import logging
 from django.db import models
+from geo.models import City
 
 logger = logging.getLogger('tournaments')
 
@@ -41,6 +42,7 @@ class Tournament(models.Model):
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
     federation = models.ForeignKey('users.Federation', on_delete=models.CASCADE, null=True, blank=True,
                                    verbose_name="Федерация")
+    city = models.ForeignKey(City, on_delete=models.SET_NULL, null=True, blank=True, verbose_name='Город проведения')
 
     class Meta:
         verbose_name = 'Турнир'

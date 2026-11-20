@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4 fw-bold">Личный кабинет</h2>
+
+    <div class="row">
+        <!-- ЛЕВАЯ КОЛОНКА: Аватар и пароль -->
+        <div class="col-md-4">
+            <!-- Блок с Аватаром -->
+            <div class="card shadow-sm mb-4 text-center">
+                <div class="card-body">
+                    {% if user.profile.photo %}
+                        <img src="{{ user.profile.photo.url }}" class="rounded-circle mb-3 shadow" style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                        <i class="fas fa-user-circle text-secondary mb-3" style="font-size: 150px;"></i>
+                    {% endif %}
+                    <h4 class="mb-1">
+                        {% if user.last_name or user.first_name %}
+                            {{ user.last_name }} {{ user.first_name }}
+                        {% else %}
+                            {{ user.username }}
+                        {% endif %}
+                    </h4>
+                    <p class="text-muted small mb-0">@{{ user.username }}</p>
+
+                    <!-- Форма для загрузки фото встроена в основную форму профиля -->
+                    <p class="text-muted small mt-3">Чтобы изменить фото, обновите данные в форме справа.</p>
+                </div>
+            </div>
+
+            <!-- Смена пароля -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-dark text-white">
+                    <i class="fas fa-key me-2"></i>Смена пароля
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="change_password" value="1">
+                        {% for field in password_form %}
+                            <div class="mb-3">
+                                <label class="form-label small">{{ field.label }}</label>
+                                {{ field }}
+                                {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-dark w-100">Изменить пароль</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- ПРАВАЯ КОЛОНКА: Основные данные -->
+        <div class="col-md-8">
+            <!-- Данные аккаунта и Профиля (Фото, Город и т.д.) -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <i class="fas fa-user-edit me-2"></i>Основные данные
+                </div>
+                <div class="card-body">
+                    <!-- ВАЖНО: enctype="multipart/form-data" для загрузки фото -->
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_profile" value="1">
+
+                        <h6 class="text-muted mb-3">Аккаунт</h6>
+                        <div class="row">
+                            {% for field in user_form %}
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <hr>
+
+                        <h6 class="text-muted mb-3">Профиль</h6>
+                        <div class="row">
+                            {% for field in profile_form %}
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mt-3">Сохранить основные данные</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Спортивные данные (Боец или Судья) -->
+            {% if fighter_form %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <i class="fas fa-fist-raised me-2"></i>Данные бойца
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_profile" value="1">
+                        <div class="row">
+                            {% for field in fighter_form %}
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 mt-3">Сохранить данные бойца</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if judge_form %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <i class="fas fa-gavel me-2"></i>Данные судьи
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_profile" value="1">
+                        <div class="row">
+                            {% for field in judge_form %}
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">{{ field.label }}</label>
+                                    {{ field }}
+                                    {% if field.errors %}<div class="text-danger small">{{ field.errors.0 }}</div>{% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button type="submit" class="btn btn-warning w-100 mt-3">Сохранить данные судьи</button>
+                    </form>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Скрипт динамического обновления городов (оставляем) -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const countrySelect = document.querySelector('#id_country');
+    const citySelect = document.querySelector('#id_city');
+
+    if (countrySelect && citySelect) {
+        countrySelect.addEventListener('change', function() {
+            const countryId = this.value;
+            if (countryId) {
+                fetch(`/geo/api/cities/${countryId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        citySelect.innerHTML = '<option value="">---------</option>';
+                        data.cities.forEach(city => {
+                            citySelect.innerHTML += `<option value="${city.id}">${city.name}</option>`;
+                        });
+                    });
+            } else {
+                citySelect.innerHTML = '<option value="">---------</option>';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
